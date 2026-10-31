@@ -1,0 +1,196 @@
+﻿@model AtlasRandevu.Web.Controllers.KapaliZamanSayfaModel
+
+@{
+    ViewData["Title"] = "Personel Saat Kapatma";
+}
+
+<div class="container py-4">
+    <h2 class="mb-3">Personel Saat Kapatma</h2>
+    <p class="text-muted">
+        Personelin müsait olmadığı saatleri kapatabilirsiniz.
+        Kapatılan saatler online randevu ekranında müsait görünmez.
+    </p>
+
+    @if (TempData["RandevuMesaj"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["RandevuMesaj"]
+        </div>
+    }
+
+    @if (TempData["RandevuHata"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["RandevuHata"]
+        </div>
+    }
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title mb-3">Yeni Kapalı Saat</h5>
+
+            <form asp-controller="IsletmeKapaliZamanlar"
+                  asp-action="Ekle"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Şube</label>
+                        <select name="subeId"
+                                id="subeId"
+                                class="form-select"
+                                required>
+                            <option value="">Şube seçin</option>
+                            @foreach (var sube in Model.Subeler)
+                            {
+                                <option value="@sube.Id">
+                                    @sube.Ad
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Personel</label>
+                        <select name="personelId"
+                                id="personelId"
+                                class="form-select"
+                                required>
+                            <option value="">Personel seçin</option>
+                            @foreach (var personel in Model.Personeller)
+                            {
+                                <option value="@personel.Id"
+                                        data-sube="@personel.SubeId">
+                                    @personel.Ad
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Tarih</label>
+                        <input type="date"
+                               name="tarih"
+                               class="form-control"
+                               value="@Model.Tarih.ToString("yyyy-MM-dd")"
+                               min="@DateTime.Today.ToString("yyyy-MM-dd")"
+                               max="@DateTime.Today.AddMonths(3).ToString("yyyy-MM-dd")"
+                               required />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Başlangıç</label>
+                        <input type="time"
+                               name="baslangicSaati"
+                               class="form-control"
+                               value="13:00"
+                               required />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Bitiş</label>
+                        <input type="time"
+                               name="bitisSaati"
+                               class="form-control"
+                               value="14:00"
+                               required />
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Açıklama (isteğe bağlı)</label>
+                        <input type="text"
+                               name="aciklama"
+                               maxlength="300"
+                               class="form-control"
+                               placeholder="Örn: Öğle molası" />
+                    </div>
+
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">
+                            Saati Kapat
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <h5 class="mb-3">Kapatılmış Saatler</h5>
+
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Personel</th>
+                    <th>Tarih</th>
+                    <th>Saat</th>
+                    <th>Açıklama</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var kayit in Model.Kayitlar)
+                {
+                    <tr>
+                        <td>@kayit.PersonelAdi</td>
+                        <td>@kayit.Baslangic.ToString("dd.MM.yyyy")</td>
+                        <td>
+                            @kayit.Baslangic.ToString("HH:mm")
+                            -
+                            @kayit.Bitis.ToString("HH:mm")
+                        </td>
+                        <td>@(kayit.Aciklama ?? "—")</td>
+                        <td>
+                            <form asp-action="Sil"
+                                  method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden"
+                                       name="id"
+                                       value="@kayit.Id" />
+                                <button type="submit"
+                                        class="btn btn-sm btn-outline-danger"
+                                        onclick="return confirm('Kapalı saat kaldırılsın mı?');">
+                                    Kaldır
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+
+                @if (!Model.Kayitlar.Any())
+                {
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">
+                            Henüz kapatılmış saat bulunmuyor.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const sube = document.getElementById("subeId");
+        const personel = document.getElementById("personelId");
+
+        function personelleriFiltrele() {
+            const secilenSube = sube.value;
+
+            personel.value = "";
+
+            Array.from(personel.options).forEach(option => {
+                if (!option.value) return;
+
+                option.hidden =
+                    option.dataset.sube !== secilenSube;
+            });
+        }
+
+        sube.addEventListener("change", personelleriFiltrele);
+        personelleriFiltrele();
+    </script>
+}

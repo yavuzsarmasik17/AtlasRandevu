@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35707.178
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtlasRandevu.Web", "AtlasRandevu.Web\AtlasRandevu.Web.csproj", "{2455313E-1766-416D-BABD-261497A67A0F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtlasRandevu.Domain", "AtlasRandevu.Domain\AtlasRandevu.Domain.csproj", "{58521C70-DC79-4F46-B938-AA451ABECB73}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtlasRandevu.Application", "AtlasRandevu.Application\AtlasRandevu.Application.csproj", "{2AB4344B-C666-49E8-8A47-426908CA7392}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtlasRandevu.Infrastructure", "AtlasRandevu.Infrastructure\AtlasRandevu.Infrastructure.csproj", "{986F6A87-382E-4CDE-9FE2-5D3DDBA82E49}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtlasRandevu.Contracts", "AtlasRandevu.Contracts\AtlasRandevu.Contracts.csproj", "{DDBA04D9-B942-421F-AFD0-2542C160B5B3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtlasRandevu.Mobile", "AtlasRandevu.Mobile\AtlasRandevu.Mobile.csproj", "{21ADD84B-FBBF-4015-BEB1-23DCAEA44257}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2455313E-1766-416D-BABD-261497A67A0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2455313E-1766-416D-BABD-261497A67A0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2455313E-1766-416D-BABD-261497A67A0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2455313E-1766-416D-BABD-261497A67A0F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58521C70-DC79-4F46-B938-AA451ABECB73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58521C70-DC79-4F46-B938-AA451ABECB73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58521C70-DC79-4F46-B938-AA451ABECB73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58521C70-DC79-4F46-B938-AA451ABECB73}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2AB4344B-C666-49E8-8A47-426908CA7392}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2AB4344B-C666-49E8-8A47-426908CA7392}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2AB4344B-C666-49E8-8A47-426908CA7392}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2AB4344B-C666-49E8-8A47-426908CA7392}.Release|Any CPU.Build.0 = Release|Any CPU
+		{986F6A87-382E-4CDE-9FE2-5D3DDBA82E49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{986F6A87-382E-4CDE-9FE2-5D3DDBA82E49}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{986F6A87-382E-4CDE-9FE2-5D3DDBA82E49}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{986F6A87-382E-4CDE-9FE2-5D3DDBA82E49}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DDBA04D9-B942-421F-AFD0-2542C160B5B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDBA04D9-B942-421F-AFD0-2542C160B5B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDBA04D9-B942-421F-AFD0-2542C160B5B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDBA04D9-B942-421F-AFD0-2542C160B5B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21ADD84B-FBBF-4015-BEB1-23DCAEA44257}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21ADD84B-FBBF-4015-BEB1-23DCAEA44257}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21ADD84B-FBBF-4015-BEB1-23DCAEA44257}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21ADD84B-FBBF-4015-BEB1-23DCAEA44257}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,20 @@
+﻿@model List<AtlasRandevu.Web.Controllers.QrRandevuSecimViewModel>
+@{
+    ViewData["Title"] = "Randevu Seç";
+}
+<div class="container py-4" style="max-width:650px">
+    <h2 style="color:#142e5b">Hangi randevuya geldiniz?</h2>
+    <p class="text-muted">Birden fazla uygun randevunuz bulundu. Doğru işletmeyi seçin.</p>
+    @foreach (var r in Model)
+    {
+        <form asp-controller="Randevularim" asp-action="QrRandevuSec" method="post" class="border rounded p-3 mb-3">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="qrMetni" value="@ViewBag.QrMetni" />
+            <input type="hidden" name="randevuId" value="@r.Id" />
+            <input type="hidden" name="qrMetni" value="ATLAS-RANDEVU-ORTAK-GIRIS-V1" />
+            <div class="fw-bold">@r.IsletmeAdi</div>
+            <div class="text-muted">@r.SubeAdi · @r.BaslangicTarihi.ToString("dd.MM.yyyy HH:mm")</div>
+            <button class="btn btn-primary mt-2" type="submit">Bu Randevuya Giriş Yap</button>
+        </form>
+    }
+</div>

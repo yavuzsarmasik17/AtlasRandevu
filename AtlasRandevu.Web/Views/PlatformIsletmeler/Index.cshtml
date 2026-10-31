@@ -1,0 +1,435 @@
+﻿@model List<AtlasRandevu.Domain.Entities.Isletme>
+@{
+    Layout = "_PlatformLayout";
+    ViewData["Title"] = "İşletmeler";
+    string ara = ViewBag.Ara as string ?? "";
+    string durum = ViewBag.Durum as string ?? "";
+    int toplam = Model.Count;
+    int onayli = Model.Count(x => x.Durum == "Onaylandi");
+    int bekleyen = Model.Count(x => x.Durum == "OnayBekliyor");
+    int reddedilen = Model.Count(x => x.Durum == "Reddedildi");
+}
+<style>
+    .biz-page {
+        color: #172744;
+    }
+
+    .biz-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+    }
+
+    .biz-eyebrow {
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: #3c6ff0;
+        margin-bottom: 8px;
+    }
+
+    .biz-heading h1 {
+        font-size: clamp(26px,2.5vw,35px);
+        font-weight: 850;
+        letter-spacing: -1px;
+        color: #14213d;
+        margin: 0 0 6px;
+    }
+
+    .biz-sub {
+        color: #8492a9;
+        font-size: 14px;
+        margin: 0;
+    }
+
+    .biz-count {
+        background: #eaf0ff;
+        color: #2757d9;
+        padding: 10px 16px;
+        border-radius: 30px;
+        font-size: 13px;
+        font-weight: 750;
+    }
+
+    .biz-stats {
+        display: grid;
+        grid-template-columns: repeat(4,minmax(0,1fr));
+        gap: 14px;
+        margin-bottom: 22px;
+    }
+
+    .biz-stat {
+        background: #fff;
+        border: 1px solid #e7edf7;
+        border-radius: 18px;
+        padding: 19px 21px;
+        box-shadow: 0 6px 20px rgba(22,41,82,.035);
+    }
+
+    .biz-stat-label {
+        font-size: 12px;
+        color: #8290a8;
+        font-weight: 650;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .biz-dot {
+        height: 9px;
+        width: 9px;
+        display: inline-block;
+        border-radius: 50%;
+        background: #4879ef;
+    }
+
+        .biz-dot.green {
+            background: #17a773
+        }
+
+        .biz-dot.amber {
+            background: #efae35
+        }
+
+        .biz-dot.red {
+            background: #eb6472
+        }
+
+    .biz-stat strong {
+        font-size: 30px;
+        font-weight: 850;
+        color: #172744;
+        display: block;
+        margin-top: 9px;
+        line-height: 1.2;
+    }
+
+    .biz-panel {
+        background: #fff;
+        border: 1px solid #e7edf7;
+        border-radius: 21px;
+        box-shadow: 0 10px 30px rgba(22,41,82,.035);
+        overflow: hidden;
+    }
+
+    .biz-panel-head {
+        padding: 25px 26px 20px;
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+        .biz-panel-head h2 {
+            font-size: 19px;
+            font-weight: 800;
+            color: #14213d;
+            margin: 0 0 5px;
+        }
+
+        .biz-panel-head p {
+            font-size: 13px;
+            color: #8492a9;
+            margin: 0;
+        }
+
+    .biz-filters {
+        display: grid;
+        grid-template-columns: minmax(0,1fr) 220px 115px;
+        gap: 12px;
+        padding: 0 26px 24px;
+        align-items: end;
+    }
+
+    .biz-field label {
+        display: block;
+        font-size: 12px;
+        font-weight: 750;
+        color: #526584;
+        margin-bottom: 8px;
+    }
+
+    .biz-input {
+        width: 100%;
+        height: 47px;
+        border: 1px solid #dfe7f4;
+        border-radius: 11px;
+        background: #f9fbff;
+        padding: 0 14px;
+        color: #22365a;
+        outline: none;
+    }
+
+        .biz-input:focus {
+            border-color: #4b79ee;
+            box-shadow: 0 0 0 3px rgba(75,121,238,.10);
+            background: white;
+        }
+
+    .biz-filter-btn {
+        height: 47px;
+        width: 100%;
+        background: #285fe7;
+        border: 0;
+        color: white;
+        font-weight: 750;
+        border-radius: 11px;
+    }
+
+        .biz-filter-btn:hover {
+            background: #1e4bc2;
+        }
+
+    .biz-table-wrap {
+        overflow-x: auto;
+    }
+
+    .biz-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 720px;
+    }
+
+        .biz-table thead {
+            background: #f7f9fd;
+        }
+
+        .biz-table th {
+            padding: 16px 25px;
+            text-align: left;
+            color: #8b98ae;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .65px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .biz-table td {
+            padding: 18px 25px;
+            border-top: 1px solid #edf1f7;
+            vertical-align: middle;
+            font-size: 13px;
+            color: #435371;
+        }
+
+        .biz-table tbody tr:hover {
+            background: #fbfcff;
+        }
+
+    .biz-business {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        min-width: 180px;
+    }
+
+    .biz-avatar {
+        width: 46px;
+        height: 46px;
+        flex-shrink: 0;
+        border-radius: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg,#e7eeff,#dce7ff);
+        color: #2857cf;
+        font-weight: 850;
+        font-size: 18px;
+        overflow: hidden;
+    }
+
+        .biz-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .biz-name {
+        color: #172744;
+        font-size: 14px;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+        .biz-name:hover {
+            color: #285fe7;
+        }
+
+    .biz-secondary {
+        color: #92a0b4;
+        font-size: 12px;
+        margin-top: 3px;
+    }
+
+    .biz-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        border-radius: 30px;
+        padding: 7px 11px;
+        font-size: 11px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+        .biz-status.ok {
+            background: #e5f8ee;
+            color: #14865a;
+        }
+
+        .biz-status.wait {
+            background: #fff3dc;
+            color: #ac7100;
+        }
+
+        .biz-status.no {
+            background: #ffecef;
+            color: #b93548;
+        }
+
+        .biz-status.other {
+            background: #eef2f8;
+            color: #526584;
+        }
+
+        .biz-status:before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            background: currentColor;
+            border-radius: 50%;
+        }
+
+    .biz-detail {
+        display: inline-block;
+        text-decoration: none;
+        border: 1px solid #d8e3fb;
+        border-radius: 10px;
+        padding: 9px 13px;
+        color: #285fe7;
+        font-size: 12px;
+        font-weight: 750;
+        white-space: nowrap;
+        background: #fff;
+    }
+
+        .biz-detail:hover {
+            background: #edf3ff;
+            color: #1e4bc2;
+        }
+
+    .biz-empty {
+        text-align: center;
+        padding: 65px 20px;
+        color: #8795aa;
+    }
+
+    .biz-empty-icon {
+        font-size: 34px;
+        margin-bottom: 12px;
+    }
+
+    @@media(max-width:1100px) {
+        .biz-stats {
+            grid-template-columns: repeat(2,minmax(0,1fr));
+        }
+
+        .biz-filters {
+            grid-template-columns: minmax(0,1fr) 180px 105px;
+        }
+    }
+
+    @@media(max-width:650px) {
+        .biz-stats {
+            gap: 10px
+        }
+
+        .biz-stat {
+            padding: 15px
+        }
+
+            .biz-stat strong {
+                font-size: 25px
+            }
+
+        .biz-panel-head {
+            padding: 20px 18px
+        }
+
+        .biz-filters {
+            grid-template-columns: 1fr;
+            padding: 0 18px 20px
+        }
+
+        .biz-heading {
+            margin-bottom: 18px
+        }
+
+        .biz-table th, .biz-table td {
+            padding: 14px 16px
+        }
+    }
+</style>
+<div class="biz-page">
+    <div class="biz-heading">
+        <div>
+            <div class="biz-eyebrow">Platform / Yönetim</div>
+            <h1>İşletmeler</h1>
+            <p class="biz-sub">Platforma kayıtlı işletmeleri tek merkezden inceleyin.</p>
+        </div>
+        <span class="biz-count">@toplam sonuç</span>
+    </div>
+    <div class="biz-stats">
+        <div class="biz-stat"><span class="biz-stat-label"><i class="biz-dot"></i> Listelenen İşletme</span><strong>@toplam</strong></div>
+        <div class="biz-stat"><span class="biz-stat-label"><i class="biz-dot green"></i> Onaylı</span><strong>@onayli</strong></div>
+        <div class="biz-stat"><span class="biz-stat-label"><i class="biz-dot amber"></i> Onay Bekleyen</span><strong>@bekleyen</strong></div>
+        <div class="biz-stat"><span class="biz-stat-label"><i class="biz-dot red"></i> Reddedilen</span><strong>@reddedilen</strong></div>
+    </div>
+    <section class="biz-panel">
+        <div class="biz-panel-head">
+            <div><h2>İşletme Listesi</h2><p>İşletme adı, ticari unvan veya sektör üzerinden arama yapın.</p></div>
+            <span class="biz-count">@Model.Count kayıt</span>
+        </div>
+        <form method="get" asp-controller="PlatformIsletmeler" asp-action="Index" class="biz-filters">
+            <div class="biz-field"><label for="bizAra">İşletme ara</label><input id="bizAra" name="ara" value="@ara" class="biz-input" placeholder="İşletme adı, unvan veya sektör..." /></div>
+            <div class="biz-field"><label for="bizDurum">Durum</label><select id="bizDurum" name="durum" class="biz-input"><option value="">Tüm durumlar</option><option value="OnayBekliyor" selected="@(durum == "OnayBekliyor")">Onay bekliyor</option><option value="Onaylandi" selected="@(durum == "Onaylandi")">Onaylandı</option><option value="Reddedildi" selected="@(durum == "Reddedildi")">Reddedildi</option></select></div>
+            <button type="submit" class="biz-filter-btn">Filtrele</button>
+        </form>
+        <div class="biz-table-wrap">
+            <table class="biz-table">
+                <thead><tr><th>İşletme</th><th>Sektör</th><th>Kayıt Tarihi</th><th>Durum</th><th style="text-align:right">İşlem</th></tr></thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        var statusClass = item.Durum == "Onaylandi" ? "ok" : item.Durum == "OnayBekliyor" ? "wait" : item.Durum == "Reddedildi" ? "no" : "other";
+                        var statusText = item.Durum == "Onaylandi" ? "Onaylandı" : item.Durum == "OnayBekliyor" ? "Onay bekliyor" : item.Durum == "Reddedildi" ? "Reddedildi" : item.Durum;
+                        <tr>
+                            <td><div class="biz-business"><div class="biz-avatar">@if (!string.IsNullOrWhiteSpace(item.LogoYolu))
+                                        {
+                                            <img src="@Url.Content(item.LogoYolu.StartsWith("/") ? "~" + item.LogoYolu : item.LogoYolu)" alt="@item.Ad logosu" onerror="this.style.display='none'" />
+                                        }
+                                        else
+                                        {
+                                            @(string.IsNullOrWhiteSpace(item.Ad) ? "?" : item.Ad.Substring(0, 1).ToUpper())
+                                        }</div><div><a class="biz-name" asp-controller="PlatformIsletmeler" asp-action="Detay" asp-route-id="@item.Id">@item.Ad</a><div class="biz-secondary">#@item.Id · @(string.IsNullOrWhiteSpace(item.TicariUnvan) ? "Ticari unvan belirtilmemiş" : item.TicariUnvan)</div></div></div></td>
+                            <td>@(item.Sektor?.Ad ?? "Belirtilmedi")</td>
+                            <td>@item.OlusturmaTarihi.ToString("dd.MM.yyyy")</td>
+                            <td><span class="biz-status @statusClass">@statusText</span></td>
+                            <td style="text-align:right"><a asp-controller="PlatformIsletmeler" asp-action="Detay" asp-route-id="@item.Id" class="biz-detail">Detayları Gör →</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        @if (!Model.Any())
+        {
+            <div class="biz-empty"><div class="biz-empty-icon">⌕</div><strong>İşletme bulunamadı</strong><p class="mt-2 mb-0">Arama veya durum filtrenizi değiştirmeyi deneyin.</p></div>
+        }
+    </section>
+</div>

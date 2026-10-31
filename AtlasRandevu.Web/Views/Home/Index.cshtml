@@ -1,0 +1,441 @@
+﻿@{
+    ViewData["Title"] = "Online Randevu | Atlas Randevu";
+}
+
+<style>
+    .atlas-home {
+        --atlas-blue: #315ff4;
+        --atlas-navy: #142344;
+        --atlas-muted: #6d7c96;
+        color: var(--atlas-navy);
+    }
+
+        .atlas-home * {
+            box-sizing: border-box;
+        }
+
+        .atlas-home .home-container {
+            max-width: 1190px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .atlas-home .hero {
+            position: relative;
+            overflow: hidden;
+            padding: 86px 0 94px;
+            background: linear-gradient(120deg,#eef3ff 0%,#f9fbff 58%,#e8f2ff 100%);
+        }
+
+            .atlas-home .hero:after {
+                content: "";
+                position: absolute;
+                width: 500px;
+                height: 500px;
+                border-radius: 50%;
+                background: rgba(65,108,248,.08);
+                right: -170px;
+                top: -180px;
+                pointer-events: none;
+            }
+
+        .atlas-home .hero-grid {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 1.2fr .8fr;
+            align-items: center;
+            gap: 58px;
+        }
+
+        .atlas-home .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 15px;
+            border-radius: 30px;
+            background: #e1eaff;
+            color: #2852d8;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 23px;
+        }
+
+        .atlas-home h1 {
+            font-size: clamp(36px,4.8vw,65px);
+            line-height: 1.12;
+            letter-spacing: -2px;
+            font-weight: 850;
+            margin: 0 0 22px;
+        }
+
+            .atlas-home h1 span {
+                color: var(--atlas-blue);
+            }
+
+        .atlas-home .hero-copy {
+            color: #60718f;
+            font-size: 18px;
+            line-height: 1.75;
+            max-width: 590px;
+            margin-bottom: 30px;
+        }
+
+        .atlas-home .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .atlas-home .home-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 23px;
+            min-height: 50px;
+            text-decoration: none;
+            font-weight: 750;
+            border-radius: 13px;
+            transition: transform .15s,box-shadow .15s;
+        }
+
+            .atlas-home .home-btn:hover {
+                transform: translateY(-2px);
+            }
+
+        .atlas-home .home-btn-primary {
+            color: white;
+            background: var(--atlas-blue);
+            box-shadow: 0 10px 25px rgba(49,95,244,.2);
+        }
+
+            .atlas-home .home-btn-primary:hover {
+                color: white;
+                background: #234fd9;
+            }
+
+        .atlas-home .home-btn-light {
+            color: #2443a1;
+            background: white;
+            border: 1px solid #dce6fa;
+        }
+
+            .atlas-home .home-btn-light:hover {
+                color: #2443a1;
+            }
+
+        .atlas-home .hero-panel {
+            border: 1px solid #e1e9fb;
+            background: white;
+            padding: 27px;
+            border-radius: 25px;
+            box-shadow: 0 25px 70px rgba(30,60,115,.12);
+        }
+
+        .atlas-home .panel-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            gap: 10px;
+        }
+
+            .atlas-home .panel-top strong {
+                font-size: 18px;
+            }
+
+        .atlas-home .pill {
+            padding: 7px 11px;
+            border-radius: 20px;
+            background: #e9f9f1;
+            color: #15825a;
+            font-size: 12px;
+            font-weight: 750;
+        }
+
+        .atlas-home .service-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            border: 1px solid #e9eef8;
+            border-radius: 15px;
+            padding: 14px;
+            margin-bottom: 12px;
+        }
+
+        .atlas-home .service-icon {
+            width: 47px;
+            height: 47px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            background: #eef2ff;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .atlas-home .service-row strong {
+            display: block;
+            font-size: 14px;
+        }
+
+        .atlas-home .service-row small {
+            color: var(--atlas-muted);
+        }
+
+        .atlas-home .panel-bottom {
+            background: #f2f6ff;
+            border-radius: 13px;
+            padding: 14px;
+            color: #42608f;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .atlas-home .section {
+            padding: 78px 0;
+        }
+
+        .atlas-home .section-soft {
+            background: #f7f9fd;
+        }
+
+        .atlas-home .section-head {
+            text-align: center;
+            margin: 0 auto 40px;
+            max-width: 650px;
+        }
+
+            .atlas-home .section-head h2 {
+                font-size: clamp(27px,3vw,37px);
+                font-weight: 800;
+                letter-spacing: -.9px;
+                margin: 0 0 13px;
+            }
+
+            .atlas-home .section-head p {
+                color: var(--atlas-muted);
+                line-height: 1.7;
+                margin: 0;
+            }
+
+        .atlas-home .category-grid {
+            display: grid;
+            grid-template-columns: repeat(4,minmax(0,1fr));
+            gap: 17px;
+        }
+
+        .atlas-home .category {
+            background: white;
+            border: 1px solid #e5ebf5;
+            border-radius: 19px;
+            padding: 28px 19px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(30,60,115,.035);
+        }
+
+            .atlas-home .category .emoji {
+                display: block;
+                font-size: 38px;
+                margin-bottom: 17px;
+            }
+
+            .atlas-home .category h3 {
+                font-size: 17px;
+                font-weight: 800;
+                margin-bottom: 9px;
+            }
+
+            .atlas-home .category p {
+                color: var(--atlas-muted);
+                font-size: 13px;
+                line-height: 1.65;
+                margin: 0;
+            }
+
+        .atlas-home .steps {
+            display: grid;
+            grid-template-columns: repeat(3,minmax(0,1fr));
+            gap: 24px;
+        }
+
+        .atlas-home .step {
+            padding: 26px;
+            border: 1px solid #e4eaf5;
+            border-radius: 20px;
+            background: white;
+        }
+
+        .atlas-home .step-num {
+            display: grid;
+            place-items: center;
+            width: 43px;
+            height: 43px;
+            background: #eaf0ff;
+            color: #315ff4;
+            font-weight: 850;
+            border-radius: 13px;
+            margin-bottom: 18px;
+        }
+
+        .atlas-home .step h3 {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .atlas-home .step p {
+            color: var(--atlas-muted);
+            line-height: 1.7;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .atlas-home .business-cta {
+            background: linear-gradient(120deg,#142344,#264caa);
+            color: white;
+            border-radius: 26px;
+            padding: 46px 52px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 26px;
+        }
+
+            .atlas-home .business-cta h2 {
+                font-size: clamp(25px,3vw,34px);
+                font-weight: 850;
+                margin-bottom: 12px;
+            }
+
+            .atlas-home .business-cta p {
+                color: #d6e2ff;
+                line-height: 1.7;
+                max-width: 620px;
+                margin: 0;
+            }
+
+            .atlas-home .business-cta .home-btn {
+                white-space: nowrap;
+            }
+
+    @@media (max-width:900px) {
+        .atlas-home .hero-grid {
+            grid-template-columns: 1fr;
+            gap: 36px;
+        }
+
+        .atlas-home .hero {
+            padding: 65px 0;
+        }
+
+        .atlas-home .category-grid {
+            grid-template-columns: repeat(2,minmax(0,1fr));
+        }
+
+        .atlas-home .business-cta {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 34px;
+        }
+    }
+
+    @@media (max-width:600px) {
+        .atlas-home .home-container {
+            padding: 0 16px;
+        }
+
+        .atlas-home .hero {
+            padding: 49px 0;
+        }
+
+        .atlas-home h1 {
+            letter-spacing: -1.2px;
+        }
+
+        .atlas-home .hero-copy {
+            font-size: 16px;
+        }
+
+        .atlas-home .section {
+            padding: 55px 0;
+        }
+
+        .atlas-home .category-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .atlas-home .category {
+            padding: 23px 12px;
+        }
+
+        .atlas-home .steps {
+            grid-template-columns: 1fr;
+            gap: 13px;
+        }
+
+        .atlas-home .business-cta {
+            padding: 28px 22px;
+        }
+
+        .atlas-home .hero-actions .home-btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="atlas-home">
+    <section class="hero">
+        <div class="home-container hero-grid">
+            <div>
+                <div class="eyebrow">✦ Güzellik ve bakım randevuları, tek yerde</div>
+                <h1>Bakımına zaman ayır.<br /><span>Randevunu kolayca planla.</span></h1>
+                <p class="hero-copy">Berber, kuaför ve kişisel bakım hizmetleri için pratik bir randevu deneyimi. Sana uygun hizmeti seç, zamanını planla.</p>
+                <div class="hero-actions">
+                    <a class="home-btn home-btn-primary" href="#hizmet-alanlari">Hizmetleri Keşfet →</a>
+                    <a class="home-btn home-btn-light" href="#nasil-calisir">Nasıl Çalışır?</a>
+                </div>
+            </div>
+            <div class="hero-panel" aria-label="Randevu sistemi tanıtımı">
+                <div class="panel-top"><strong>Atlas Randevu ile</strong><span class="pill">● Kolay Planlama</span></div>
+                <div class="service-row"><span class="service-icon">✂️</span><div><strong>Berber hizmetleri</strong><small>Saç ve sakal bakımı</small></div></div>
+                <div class="service-row"><span class="service-icon">💇</span><div><strong>Kuaför hizmetleri</strong><small>Kesim ve saç bakımı</small></div></div>
+                <div class="service-row"><span class="service-icon">✨</span><div><strong>Kişisel bakım</strong><small>Bakım hizmetleri</small></div></div>
+                <div class="panel-bottom">📅 Hizmet seçimi, randevu takibi ve işletme yönetimi tek platformda.</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section section-soft" id="hizmet-alanlari">
+        <div class="home-container">
+            <div class="section-head"><h2>İhtiyacına uygun bakım hizmetleri</h2><p>Atlas Randevu, farklı bakım hizmetlerini kolayca planlayabilmen için tasarlandı.</p></div>
+            <div class="category-grid">
+                <div class="category"><span class="emoji">💈</span><h3>Erkek Berberi</h3><p>Saç kesimi, sakal tıraşı ve erkek bakımı.</p></div>
+                <div class="category"><span class="emoji">💇‍♀️</span><h3>Kadın Kuaförü</h3><p>Saç kesimi, şekillendirme ve bakım.</p></div>
+                <div class="category"><span class="emoji">🧴</span><h3>Güzellik ve Bakım</h3><p>Kişisel bakım hizmetleri için planlama.</p></div>
+                <div class="category"><span class="emoji">📅</span><h3>Randevu Yönetimi</h3><p>Uygun gün ve saatlerini düzenli takip et.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="nasil-calisir">
+        <div class="home-container">
+            <div class="section-head"><h2>Randevu almak artık daha kolay</h2><p>Üç basit adımda bakım planını oluştur.</p></div>
+            <div class="steps">
+                <div class="step"><span class="step-num">01</span><h3>İşletmeni seç</h3><p>Tercih ettiğin berber veya kuaförün sunduğu hizmetleri incele.</p></div>
+                <div class="step"><span class="step-num">02</span><h3>Hizmet ve saat belirle</h3><p>İhtiyacın olan hizmeti ve sana uygun randevu zamanını seç.</p></div>
+                <div class="step"><span class="step-num">03</span><h3>Randevunu takip et</h3><p>Randevu bilgilerini hesabın üzerinden kolayca yönet.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section section-soft">
+        <div class="home-container">
+            <div class="business-cta">
+                <div><h2>İşletmeni Atlas Randevu ile yönet</h2><p>Personel, hizmet ve randevu takvimini tek panelde takip et. Günlük ve haftalık takvimle işlerini kolaylaştır.</p></div>
+                <a class="home-btn home-btn-light" asp-controller="IsletmePanel" asp-action="Index">İşletme Panelim →</a>
+            </div>
+        </div>
+    </section>
+</div>

@@ -1,0 +1,198 @@
+﻿@model AtlasRandevu.Web.Controllers.MusteriKayitViewModel
+@{
+    ViewData["Title"] = "Müşteri Kaydı | Atlas Randevu";
+}
+<style>
+    .mk-wrap {
+        min-height: calc(100vh - 120px);
+        display: grid;
+        place-items: center;
+        padding: 50px 16px;
+        background: radial-gradient(circle at 20% 15%,#e5eeff,transparent 45%),#f5f8fe
+    }
+
+    .mk-card {
+        width: min(100%,850px);
+        display: grid;
+        grid-template-columns: .8fr 1.2fr;
+        overflow: hidden;
+        border-radius: 24px;
+        background: #fff;
+        box-shadow: 0 24px 70px #1a37621c
+    }
+
+    .mk-side {
+        background: linear-gradient(150deg,#101f42,#315ee1);
+        padding: 44px 32px;
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between
+    }
+
+        .mk-side h2 {
+            font-weight: 850;
+            font-size: 32px;
+            line-height: 1.2;
+            margin: 22px 0
+        }
+
+        .mk-side p {
+            color: #d4e2ff;
+            line-height: 1.8;
+            font-size: 14px
+        }
+
+    .mk-brand {
+        font-size: 19px;
+        font-weight: 900;
+        letter-spacing: .5px
+    }
+
+    .mk-form {
+        padding: 36px 40px
+    }
+
+        .mk-form h1 {
+            font-size: 25px;
+            font-weight: 850;
+            color: #162c4f;
+            margin-bottom: 6px
+        }
+
+    .mk-desc {
+        color: #8291a9;
+        font-size: 13px;
+        margin-bottom: 25px
+    }
+
+    .mk-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px
+    }
+
+    .mk-field {
+        margin-bottom: 15px
+    }
+
+        .mk-field label {
+            display: block;
+            font-weight: 750;
+            color: #354969;
+            font-size: 12px;
+            margin-bottom: 7px
+        }
+
+        .mk-field input {
+            width: 100%;
+            border: 1px solid #dfe6f3;
+            border-radius: 11px;
+            padding: 12px 13px;
+            outline: none;
+            transition: .2s;
+            background: #fbfcff
+        }
+
+            .mk-field input:focus {
+                border-color: #4679ed;
+                box-shadow: 0 0 0 3px #4679ed1f
+            }
+
+    .mk-error {
+        color: #c63e52;
+        font-size: 12px;
+        display: block;
+        margin-top: 5px
+    }
+
+    .mk-submit {
+        width: 100%;
+        border: 0;
+        border-radius: 12px;
+        background: linear-gradient(110deg,#2452d1,#4f83f4);
+        color: #fff;
+        padding: 14px;
+        font-weight: 850;
+        cursor: pointer;
+        margin-top: 10px
+    }
+
+    .mk-bottom {
+        text-align: center;
+        margin-top: 20px;
+        color: #7688a4;
+        font-size: 13px
+    }
+
+        .mk-bottom a {
+            color: #315fdf;
+            font-weight: 800;
+            text-decoration: none
+        }
+
+    @@media(max-width:750px) {
+        .mk-card {
+            grid-template-columns: 1fr
+        }
+
+        .mk-side {
+            padding: 25px
+        }
+
+            .mk-side h2 {
+                font-size: 24px;
+                margin: 12px 0
+            }
+
+        .mk-form {
+            padding: 26px 20px
+        }
+    }
+
+    @@media(max-width:440px) {
+        .mk-grid {
+            grid-template-columns: 1fr;
+            gap: 0
+        }
+    }
+</style>
+<div class="mk-wrap">
+    <div class="mk-card">
+        <aside class="mk-side">
+            <div>
+                <div class="mk-brand">✦ ATLAS RANDEVU</div>
+                <h2>Güzelliğe ve bakıma bir adım daha yakın.</h2>
+                <p>Sevdiğin işletmeleri keşfet, hizmetini seç ve birkaç adımda randevu talebi oluştur.</p>
+            </div>
+            <p>Tek hesapla tüm işletmelerde randevu deneyimi.</p>
+        </aside>
+        <div class="mk-form">
+            <h1>Müşteri hesabı oluştur</h1>
+            <p class="mk-desc">Ücretsiz kaydol, randevularını kolayca yönet.</p>
+            <form asp-controller="MusteriKayit" asp-action="Index" method="post">
+                @Html.AntiForgeryToken()
+                <input asp-for="ReturnUrl" type="hidden" />
+                <div asp-validation-summary="ModelOnly" class="mk-error"></div>
+                <div class="mk-grid">
+                    <div class="mk-field"><label asp-for="Ad">Ad</label><input asp-for="Ad" autocomplete="given-name" placeholder="Adınız" /><span asp-validation-for="Ad" class="mk-error"></span></div>
+                    <div class="mk-field"><label asp-for="Soyad">Soyad</label><input asp-for="Soyad" autocomplete="family-name" placeholder="Soyadınız" /><span asp-validation-for="Soyad" class="mk-error"></span></div>
+                </div>
+                <div class="mk-field"><label asp-for="Email">E-posta</label><input asp-for="Email" type="email" autocomplete="email" placeholder="ornek@eposta.com" /><span asp-validation-for="Email" class="mk-error"></span></div>
+                <div class="mk-field"><label asp-for="Telefon">Telefon</label><input asp-for="Telefon" type="tel" autocomplete="tel" placeholder="05xx xxx xx xx" /><span asp-validation-for="Telefon" class="mk-error"></span></div>
+                <div class="mk-grid">
+                    <div class="mk-field"><label asp-for="Sifre">Şifre</label><input asp-for="Sifre" type="password" autocomplete="new-password" /><span asp-validation-for="Sifre" class="mk-error"></span></div>
+                    <div class="mk-field"><label asp-for="SifreTekrar">Şifre tekrar</label><input asp-for="SifreTekrar" type="password" autocomplete="new-password" /><span asp-validation-for="SifreTekrar" class="mk-error"></span></div>
+                </div>
+                <button type="submit" class="mk-submit">Ücretsiz Kayıt Ol →</button>
+            </form>
+            <div class="mk-bottom">
+                Zaten hesabın var mı?
+                <a asp-controller="Hesap" asp-action="Giris" asp-route-girisTipi="musteri" asp-route-returnUrl="@Model.ReturnUrl">Giriş Yap →</a>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

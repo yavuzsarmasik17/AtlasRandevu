@@ -1,0 +1,8 @@
+﻿User-agent: *
+Allow: /
+Disallow: /Platform
+Disallow: /IsletmePanel
+Disallow: /Randevularim
+Disallow: /PlatformAdminHesap
+
+Sitemap: https://randevu.atlassoftware.com.tr/sitemap.xml

@@ -1,0 +1,884 @@
+﻿@model AtlasRandevu.Web.Controllers.KesfetDetayViewModel
+@using System.Globalization
+@{
+    var tr = CultureInfo.GetCultureInfo("tr-TR");
+    var isletme = Model;
+    var ilkSube = Model.Subeler.FirstOrDefault();
+    var konum = ilkSube == null
+        ? ""
+        : string.Join(" ", new[]
+        {
+            ilkSube.Ilce,
+            ilkSube.Il
+                }.Where(x => !string.IsNullOrWhiteSpace(x)));
+
+    ViewData["Title"] =
+        $"{Model.Ad} - Online Randevu";
+
+    var seoAciklama =
+        $"{Model.Ad}" +
+        (string.IsNullOrWhiteSpace(konum) ? "" : $" - {konum}") +
+        $" bölgesindeki {Model.SektorAdi} işletmesini keşfedin. " +
+        "Hizmetleri, fiyatları ve müşteri yorumlarını inceleyin. " +
+        "ATLAS Randevu üzerinden online randevu alın.";
+
+    ViewData["Description"] =
+        seoAciklama.Length > 160
+            ? seoAciklama.Substring(0, 157) + "..."
+            : seoAciklama;
+
+    var webUrl = !string.IsNullOrWhiteSpace(isletme.WebSitesi) &&
+        Uri.TryCreate(isletme.WebSitesi, UriKind.Absolute, out var webUri) &&
+        (webUri.Scheme == Uri.UriSchemeHttps || webUri.Scheme == Uri.UriSchemeHttp)
+        ? isletme.WebSitesi : null;
+    var instagramUrl = !string.IsNullOrWhiteSpace(isletme.InstagramAdresi) &&
+        Uri.TryCreate(isletme.InstagramAdresi, UriKind.Absolute, out var instaUri) &&
+        (instaUri.Scheme == Uri.UriSchemeHttps || instaUri.Scheme == Uri.UriSchemeHttp)
+        ? isletme.InstagramAdresi : null;
+}
+<style>
+    .ad-page {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 28px 18px 90px;
+        color: #192c49
+    }
+
+    .ad-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        color: #567098;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 18px;
+        transition: color .2s
+    }
+
+        .ad-back:hover {
+            color: #315fdf
+        }
+
+    .ad-cover {
+        position: relative;
+        min-height: 310px;
+        overflow: hidden;
+        border-radius: 24px;
+        background: linear-gradient(125deg,#09162d,#1b3b75 65%,#4478db);
+        isolation: isolate
+    }
+
+        .ad-cover > img {
+            width: 100%;
+            height: 350px;
+            display: block;
+            object-fit: cover
+        }
+
+        .ad-cover:after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(0deg,rgba(8,23,51,.52),transparent 70%);
+            pointer-events: none
+        }
+
+    .ad-cover-glow {
+        position: absolute;
+        right: -80px;
+        top: -150px;
+        width: 430px;
+        height: 430px;
+        border-radius: 50%;
+        background: radial-gradient(circle,rgba(125,176,255,.45),transparent 68%);
+        animation: adGlow 7s ease-in-out infinite alternate
+    }
+
+    .ad-cover-placeholder {
+        height: 350px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 82px;
+        color: #a8c6ff
+    }
+
+    .ad-main-head {
+        position: relative;
+        margin: -48px 22px 25px;
+        padding: 22px 24px;
+        display: flex;
+        gap: 18px;
+        align-items: center;
+        border: 1px solid #e8edf6;
+        border-radius: 20px;
+        background: #fff;
+        box-shadow: 0 15px 45px rgba(17,40,86,.09);
+        z-index: 2
+    }
+
+    .ad-logo {
+        width: 86px;
+        height: 86px;
+        border-radius: 18px;
+        flex-shrink: 0;
+        overflow: hidden;
+        background: #eaf1ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #315fdf;
+        font-size: 34px;
+        border: 1px solid #e4ebf8
+    }
+
+        .ad-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover
+        }
+
+    .ad-head-text {
+        flex: 1;
+        min-width: 0
+    }
+
+    .ad-kicker {
+        font-size: 11px;
+        font-weight: 850;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: #4473d5;
+        margin-bottom: 6px
+    }
+
+    .ad-head-text h1 {
+        font-size: clamp(23px,3vw,32px);
+        font-weight: 850;
+        letter-spacing: -.7px;
+        margin: 0 0 7px
+    }
+
+    .ad-sub {
+        font-size: 13px;
+        color: #7788a4;
+        margin: 0 0 10px
+    }
+
+    .ad-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        font-size: 12px;
+        color: #526784
+    }
+
+    .ad-star {
+        color: #d18a0b;
+        font-weight: 850
+    }
+
+    .ad-layout {
+        display: grid;
+        grid-template-columns: minmax(0,1fr) 320px;
+        gap: 24px;
+        align-items: start
+    }
+
+    .ad-content {
+        min-width: 0;
+        display: grid;
+        gap: 20px
+    }
+
+    .ad-panel {
+        background: #fff;
+        border: 1px solid #e6ebf3;
+        border-radius: 19px;
+        padding: 25px;
+        box-shadow: 0 6px 24px rgba(15,38,81,.035);
+        animation: adRise .5s ease both
+    }
+
+        .ad-panel h2 {
+            font-size: 19px;
+            font-weight: 850;
+            margin: 0 0 17px;
+            color: #1c3153
+        }
+
+        .ad-panel p {
+            color: #667993;
+            font-size: 14px;
+            line-height: 1.85;
+            margin: 0;
+            white-space: pre-line
+        }
+
+    .ad-service {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 16px 0;
+        border-top: 1px solid #edf0f5
+    }
+
+        .ad-service:first-of-type {
+            border-top: 0;
+            padding-top: 0
+        }
+
+    .ad-service-name {
+        font-weight: 800;
+        font-size: 14px;
+        margin-bottom: 5px
+    }
+
+    .ad-service-info {
+        font-size: 12px;
+        color: #7d8da6
+    }
+
+    .ad-service-price {
+        white-space: nowrap;
+        font-weight: 850;
+        font-size: 15px;
+        color: #315fdf
+    }
+
+    .ad-gallery {
+        display: grid;
+        grid-template-columns: repeat(3,minmax(0,1fr));
+        gap: 11px
+    }
+
+    .ad-gallery-item {
+        aspect-ratio: 1/1;
+        border-radius: 13px;
+        overflow: hidden;
+        background: #e9effa
+    }
+
+        .ad-gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform .45s ease
+        }
+
+        .ad-gallery-item:hover img {
+            transform: scale(1.08)
+        }
+
+    .ad-review {
+        padding: 17px 0;
+        border-top: 1px solid #edf0f5
+    }
+
+        .ad-review:first-of-type {
+            border-top: 0;
+            padding-top: 0
+        }
+
+    .ad-review-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 9px
+    }
+
+    .ad-review-stars {
+        color: #d79a23;
+        letter-spacing: 2px;
+        font-size: 14px
+    }
+
+    .ad-review-date {
+        font-size: 11px;
+        color: #94a1b4
+    }
+
+    .ad-review-text {
+        font-size: 13px !important;
+        color: #425673 !important;
+        line-height: 1.7 !important
+    }
+
+    .ad-owner-answer {
+        margin-top: 12px;
+        padding: 13px 15px;
+        border-radius: 12px;
+        background: #f3f7ff;
+        border-left: 3px solid #5484ef
+    }
+
+        .ad-owner-answer strong {
+            display: block;
+            font-size: 12px;
+            margin-bottom: 4px;
+            color: #315fdf
+        }
+
+        .ad-owner-answer p {
+            font-size: 12px !important
+        }
+
+    .ad-side {
+        display: grid;
+        gap: 17px;
+        position: sticky;
+        top: 20px
+    }
+
+    .ad-side-panel {
+        background: #fff;
+        border: 1px solid #e6ebf3;
+        border-radius: 19px;
+        padding: 22px;
+        box-shadow: 0 8px 24px rgba(15,38,81,.04)
+    }
+
+        .ad-side-panel h3 {
+            font-size: 16px;
+            font-weight: 850;
+            margin: 0 0 15px
+        }
+
+    .ad-cta {
+        display: block;
+        width: 100%;
+        padding: 14px 16px;
+        text-align: center;
+        border: 0;
+        border-radius: 12px;
+        background: linear-gradient(110deg,#244cc4,#4f83f4);
+        color: #fff;
+        font-size: 13px;
+        font-weight: 850;
+        box-shadow: 0 10px 25px rgba(48,96,216,.2)
+    }
+
+    a.ad-cta {
+        text-decoration: none;
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+        a.ad-cta:hover {
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 14px 30px rgba(48,96,216,.3);
+        }
+
+    .ad-service-action {
+        display: flex;
+        align-items: flex-end;
+        flex-direction: column;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+
+    .ad-service-book {
+        padding: 7px 11px;
+        border-radius: 9px;
+        background: #edf3ff;
+        color: #2858c8;
+        font-size: 12px;
+        font-weight: 800;
+        text-decoration: none;
+        transition: background .2s ease;
+    }
+
+        .ad-service-book:hover {
+            background: #dce9ff;
+            color: #173c9c;
+        }
+
+    .ad-cta[disabled] {
+        opacity: .75;
+        cursor: not-allowed
+    }
+
+    .ad-note {
+        font-size: 11px;
+        color: #8190a7;
+        margin: 11px 0 0;
+        line-height: 1.6
+    }
+
+    .ad-branch {
+        padding: 14px 0;
+        border-top: 1px solid #edf0f5
+    }
+
+        .ad-branch:first-of-type {
+            border-top: 0;
+            padding-top: 0
+        }
+
+        .ad-branch strong {
+            font-size: 13px;
+            display: block;
+            margin-bottom: 5px
+        }
+
+        .ad-branch div {
+            font-size: 12px;
+            color: #6c7d96;
+            line-height: 1.7;
+            overflow-wrap: anywhere
+        }
+
+    .ad-outlink {
+        display: block;
+        margin-top: 10px;
+        color: #315fdf;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 750;
+        overflow-wrap: anywhere
+    }
+
+    .ad-empty {
+        font-size: 13px;
+        color: #8896ac;
+        line-height: 1.8
+    }
+
+    @@keyframes adRise {
+        from {
+            opacity: 0;
+            transform: translateY(15px)
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0)
+        }
+    }
+
+    @@keyframes adGlow {
+        from {
+            transform: translate(0,0)
+        }
+
+        to {
+            transform: translate(-65px,50px)
+        }
+    }
+
+    @@media(max-width:920px) {
+        .ad-layout {
+            grid-template-columns: 1fr
+        }
+
+        .ad-side {
+            position: static;
+            grid-row: 1
+        }
+
+        .ad-main-head {
+            margin-left: 12px;
+            margin-right: 12px
+        }
+    }
+
+    @@media(max-width:600px) {
+        .ad-page {
+            padding: 15px 12px 65px
+        }
+
+        .ad-cover {
+            min-height: 230px;
+            border-radius: 18px
+        }
+
+            .ad-cover > img, .ad-cover-placeholder {
+                height: 255px
+            }
+
+        .ad-main-head {
+            margin: -30px 9px 18px;
+            padding: 16px;
+            gap: 12px
+        }
+
+        .ad-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 13px
+        }
+
+        .ad-panel, .ad-side-panel {
+            padding: 18px
+        }
+
+        .ad-gallery {
+            grid-template-columns: repeat(2,minmax(0,1fr))
+        }
+
+        .ad-service {
+            align-items: flex-start
+        }
+
+        .ad-service-price {
+            font-size: 13px
+        }
+    }
+
+    @@media(prefers-reduced-motion:reduce) {
+        .ad-panel, .ad-cover-glow {
+            animation: none !important
+        }
+
+        .ad-gallery-item img {
+            transition: none !important
+        }
+    }
+
+    /* Çoklu hizmet seçimi */
+    .ad-services-help {
+        margin-bottom: 14px !important;
+    }
+
+    .ad-selectable-service {
+        cursor: pointer;
+        justify-content: flex-start;
+        border-radius: 12px;
+        padding: 15px 10px;
+        transition: background .2s;
+    }
+
+        .ad-selectable-service:hover {
+            background: #f3f7ff;
+        }
+
+        .ad-selectable-service:has(.ad-hizmet-sec:checked) {
+            background: #edf3ff;
+        }
+
+    .ad-hizmet-sec {
+        width: 20px;
+        height: 20px;
+        accent-color: #315fdf;
+        flex-shrink: 0;
+    }
+
+    .ad-service-details {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 0;
+    }
+
+        .ad-service-details .ad-service-name, .ad-service-details .ad-service-info {
+            display: block;
+        }
+
+    .ad-selection-summary {
+        background: #f1f5ff;
+        padding: 18px;
+        border-radius: 14px;
+        margin-top: 18px;
+    }
+
+        .ad-selection-summary > div {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 9px;
+        }
+
+            .ad-selection-summary > div:last-child {
+                margin-bottom: 0;
+            }
+
+        .ad-selection-summary strong {
+            color: #315fdf;
+        }
+    @@media(max - width:600px) {
+        .ad-selectable-service
+
+    {
+        flex-wrap: wrap;
+    }
+
+    .ad-selectable-service .ad-service-price {
+        margin-left: 30px;
+    }
+
+    }
+</style>
+
+<div class="ad-page">
+    <a asp-controller="Kesfet" asp-action="Index" class="ad-back">← İşletmelere dön</a>
+
+    <div class="ad-cover">
+        @if (!string.IsNullOrWhiteSpace(isletme.KapakFotografiYolu))
+        {
+            <img src="@isletme.KapakFotografiYolu" alt="@isletme.Ad kapak fotoğrafı" />
+        }
+        else
+        {
+            <div class="ad-cover-glow"></div>
+            <div class="ad-cover-placeholder" aria-hidden="true">✂</div>
+        }
+    </div>
+
+    <header class="ad-main-head">
+        <div class="ad-logo">
+            @if (!string.IsNullOrWhiteSpace(isletme.LogoYolu))
+            {
+                <img src="@isletme.LogoYolu" alt="@isletme.Ad logosu" />
+            }
+            else
+            {
+                <span aria-hidden="true">✦</span>
+            }
+        </div>
+        <div class="ad-head-text">
+            <div class="ad-kicker">@Model.SektorAdi</div>
+            <h1>@isletme.Ad</h1>
+            @if (!string.IsNullOrWhiteSpace(isletme.Slogan))
+            {
+                <p class="ad-sub">@isletme.Slogan</p>
+            }
+            <div class="ad-meta">
+                @if (Model.OrtalamaPuan.HasValue)
+                {
+                    <span class="ad-star">★ @Model.OrtalamaPuan.Value.ToString("0.0", tr)</span>
+                    <span>@Model.Yorumlar.Count değerlendirme</span>
+                }
+                else
+                {
+                    <span>Henüz değerlendirilmedi</span>
+                }
+                @if (ilkSube != null)
+                {
+                    <span>📍 @ilkSube.Ilce, @ilkSube.Il</span>
+                }
+            </div>
+        </div>
+    </header>
+
+    <div class="ad-layout">
+        <main class="ad-content">
+            <section class="ad-panel" id="hakkinda">
+                <h2>İşletme hakkında</h2>
+                @if (!string.IsNullOrWhiteSpace(isletme.Hakkimizda))
+                {
+                    <p>@isletme.Hakkimizda</p>
+                }
+                else
+                {
+                    <div class="ad-empty">İşletme henüz açıklama eklememiş.</div>
+                }
+            </section>
+
+            <section class="ad-panel" id="hizmetler">
+                <h2>Hizmetler ve fiyatlar</h2>
+                <p class="ad-services-help">Birden fazla hizmet seçebilirsiniz. Tüm işlemler için tek berber seçilecektir.</p>
+                @if (!Model.Hizmetler.Any(h => h.AktifMi))
+                {
+                    <div class="ad-empty">Henüz yayınlanmış aktif hizmet bulunmuyor.</div>
+                }
+                else
+                {
+                    @foreach (var hizmet in Model.Hizmetler.Where(h => h.AktifMi))
+                    {
+                        <label class="ad-service ad-selectable-service">
+                            <input type="checkbox" class="ad-hizmet-sec"
+                                   value="@hizmet.Id"
+                                   data-fiyat="@hizmet.Fiyat.ToString(CultureInfo.InvariantCulture)"
+                                   data-sure="@hizmet.SureDakika" />
+                            <span class="ad-service-details">
+                                <span class="ad-service-name">@hizmet.Ad</span>
+                                <span class="ad-service-info">
+                                    @hizmet.SureDakika dakika
+                                    @if (!string.IsNullOrWhiteSpace(hizmet.Aciklama))
+                                    {
+                                        <span> · @hizmet.Aciklama</span>
+                                    }
+                                </span>
+                            </span>
+                            <span class="ad-service-price">@hizmet.Fiyat.ToString("N2", tr) TL</span>
+                        </label>
+                    }
+                    <div class="ad-selection-summary" aria-live="polite">
+                        <div><span>Seçilen hizmet</span><strong id="seciliHizmetSayisi">0</strong></div>
+                        <div><span>Toplam süre</span><strong id="toplamSure">0 dakika</strong></div>
+                        <div><span>Toplam fiyat</span><strong id="toplamFiyat">0,00 TL</strong></div>
+                    </div>
+                    @if (Model.Subeler.Any(s => s.Durum == "Aktif"))
+                    {
+                        <button type="button" id="randevuDevamBtn" class="ad-cta mt-3" disabled>
+                            Berber ve Saat Seçimine Devam Et →
+                        </button>
+                    }
+                    else
+                    {
+                        <p class="ad-note">Randevu almak için işletmenin aktif şubesi bulunmalıdır.</p>
+                    }
+                }
+            </section>
+
+            <section class="ad-panel" id="galeri">
+                <h2>Fotoğraf galerisi</h2>
+                @if (Model.Fotograflar.Count == 0)
+                {
+                    <div class="ad-empty">İşletme henüz galeri fotoğrafı yüklememiş.</div>
+                }
+                else
+                {
+                    <div class="ad-gallery">
+                        @foreach (var fotograf in Model.Fotograflar)
+                        {
+                            <div class="ad-gallery-item">
+                                <img src="@fotograf.DosyaYolu" alt="@isletme.Ad galeri fotoğrafı" loading="lazy" />
+                            </div>
+                        }
+                    </div>
+                }
+            </section>
+
+            <section class="ad-panel" id="yorumlar">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+                    <div>
+                        <h2 class="mb-1">Müşteri değerlendirmeleri (@Model.Yorumlar.Count)</h2>
+                        @if (Model.OrtalamaPuan.HasValue)
+                        {
+                            <span class="ad-star">★ @Model.OrtalamaPuan.Value.ToString("0.0", tr) / 5</span>
+                        }
+                    </div>
+                    @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Musteri"))
+                    {
+                        <a asp-controller="MusteriYorum" asp-action="Index"
+                           class="ad-service-book">Randevumu değerlendir →</a>
+                    }
+                </div>
+                @if (Model.Yorumlar.Count == 0)
+                {
+                    <div class="ad-empty">Bu işletme için henüz yayınlanmış değerlendirme yok.</div>
+                }
+                else
+                {
+                    @foreach (var yorum in Model.Yorumlar)
+                    {
+                        <div class="ad-review">
+                            <div class="ad-review-top">
+                                <span class="ad-review-stars" aria-label="@yorum.Puan üzerinden 5 yıldız">@(new string('★', Math.Clamp(yorum.Puan, 0, 5)))@(new string('☆', 5 - Math.Clamp(yorum.Puan, 0, 5)))</span>
+                                <span class="ad-review-date">@yorum.OlusturmaTarihi.ToString("dd.MM.yyyy", tr)</span>
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(yorum.Yorum))
+                            {
+                                <p class="ad-review-text">@yorum.Yorum</p>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(yorum.IsletmeCevabi))
+                            {
+                                <div class="ad-owner-answer">
+                                    <strong>İşletmenin yanıtı</strong>
+                                    <p>@yorum.IsletmeCevabi</p>
+                                </div>
+                            }
+                        </div>
+                    }
+                }
+            </section>
+        </main>
+
+        <aside class="ad-side">
+            <section class="ad-side-panel">
+                <h3>Randevu oluştur</h3>
+                @if (Model.Hizmetler.Any(h => h.AktifMi) && Model.Subeler.Any(s => s.Durum == "Aktif"))
+                {
+                    <a asp-controller="Randevu"
+                       asp-action="Olustur"
+                       asp-route-isletmeId="@Model.Id"
+                       class="ad-cta">📅 Hemen Randevu Al →</a>
+                    <p class="ad-note">Hizmetini, şubeni ve uygun saatini seç. Talebin işletmenin onayına gönderilir.</p>
+                }
+                else
+                {
+                    <button class="ad-cta" type="button" disabled>Şu anda randevu alınamıyor</button>
+                    <p class="ad-note">Randevu için işletmenin aktif bir şubesi ve hizmeti bulunmalıdır.</p>
+                }
+            </section>
+
+            <section class="ad-side-panel" id="subeler">
+                <h3>Şubeler ve iletişim</h3>
+                @if (Model.Subeler.Count == 0)
+                {
+                    <div class="ad-empty">Henüz aktif şube bilgisi bulunmuyor.</div>
+                }
+                else
+                {
+                    @foreach (var sube in Model.Subeler)
+                    {
+                        <div class="ad-branch">
+                            <strong>@sube.Ad</strong>
+                            <div>📍 @sube.Ilce, @sube.Il</div>
+                            @if (!string.IsNullOrWhiteSpace(sube.Adres))
+                            {
+                                <div>@sube.Adres</div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(sube.Telefon))
+                            {
+                                <div>☎ @sube.Telefon</div>
+                            }
+                        </div>
+                    }
+                }
+                @if (webUrl != null)
+                {
+                    <a class="ad-outlink" href="@webUrl" target="_blank" rel="noopener noreferrer">🌐 Web sitesini ziyaret et ↗</a>
+                }
+                @if (instagramUrl != null)
+                {
+                    <a class="ad-outlink" href="@instagramUrl" target="_blank" rel="noopener noreferrer">◎ Instagram hesabı ↗</a>
+                }
+            </section>
+        </aside>
+    </div>
+</div>
+
+
+<script>
+    (function () {
+        const checkboxes = Array.from(document.querySelectorAll('.ad-hizmet-sec'));
+        const button = document.getElementById('randevuDevamBtn');
+        const count = document.getElementById('seciliHizmetSayisi');
+        const duration = document.getElementById('toplamSure');
+        const price = document.getElementById('toplamFiyat');
+        const money = new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const appointmentUrl = '@Url.Action("Olustur", "Randevu")';
+        const businessId = '@Model.Id';
+
+        function updateSelection() {
+            const selected = checkboxes.filter(x => x.checked);
+            const totalPrice = selected.reduce((sum, x) => sum + Number(x.dataset.fiyat), 0);
+            const totalMinutes = selected.reduce((sum, x) => sum + Number(x.dataset.sure), 0);
+            if (count) count.textContent = String(selected.length);
+            if (duration) duration.textContent = totalMinutes + ' dakika';
+            if (price) price.textContent = money.format(totalPrice) + ' TL';
+            if (button) button.disabled = selected.length === 0;
+        }
+
+        checkboxes.forEach(x => x.addEventListener('change', updateSelection));
+        if (button) {
+            button.addEventListener('click', function () {
+                const ids = checkboxes.filter(x => x.checked).map(x => x.value);
+                if (!ids.length) return;
+                const url = new URL(appointmentUrl, window.location.origin);
+                url.searchParams.set('isletmeId', businessId);
+                // Eski tek hizmetli randevu ekranıyla geriye dönük uyum.
+                url.searchParams.set('hizmetId', ids[0]);
+                // Çoklu hizmetler RandevuController tarafında ayrıca karşılanmalıdır.
+                ids.forEach(id => url.searchParams.append('hizmetIds', id));
+                window.location.href = url.toString();
+            });
+        }
+        updateSelection();
+    })();
+</script>

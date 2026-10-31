@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="AtlasRandevu.Mobile.HesabimPage"
+    BackgroundColor="#F5F7FB"
+    Shell.NavBarIsVisible="False">
+
+    <VerticalStackLayout
+        Padding="24,55,24,20"
+        Spacing="20">
+
+        <Label
+            Text="Hesabım"
+            FontSize="29"
+            FontAttributes="Bold"
+            TextColor="#142D5C" />
+
+        <Border
+            BackgroundColor="White"
+            Stroke="#E2E8F0"
+            StrokeShape="RoundRectangle 18"
+            Padding="22">
+
+            <VerticalStackLayout Spacing="15">
+
+                <Label
+                    Text="ATLAS Randevu Hesabı"
+                    FontSize="20"
+                    FontAttributes="Bold"
+                    TextColor="#142D5C" />
+
+                <Label
+                    Text="Profil bilgilerinizi ve randevularınızı yönetmek için giriş yapın."
+                    FontSize="14"
+                    TextColor="#64748B" />
+
+                <Button
+                    Text="Giriş Yap"
+                    BackgroundColor="#2563EB"
+                    TextColor="White"
+                    CornerRadius="12"
+                    HeightRequest="50"
+                    Clicked="Giris_Clicked" />
+
+            </VerticalStackLayout>
+        </Border>
+
+    </VerticalStackLayout>
+</ContentPage>

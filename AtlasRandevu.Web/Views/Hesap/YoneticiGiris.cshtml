@@ -1,0 +1,275 @@
+﻿@model AtlasRandevu.Web.Controllers.GirisViewModel
+@{
+    ViewData["Title"] = "Yönetici Girişi";
+}
+<style>
+    .atlas-admin-wrap {
+        max-width: 1050px;
+        margin: 18px auto 55px;
+        font-family: 'Segoe UI',Arial,sans-serif
+    }
+
+    .atlas-admin-shell {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        min-height: 630px;
+        border-radius: 26px;
+        overflow: hidden;
+        background: #101b30;
+        box-shadow: 0 30px 75px rgba(9,21,44,.24)
+    }
+
+    .atlas-admin-intro {
+        padding: 58px 48px;
+        background: radial-gradient(circle at 90% 12%,#234783 0,transparent 44%),linear-gradient(155deg,#0a1429,#142e57);
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative
+    }
+
+    .atlas-admin-mark {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 15px;
+        letter-spacing: 2px;
+        font-weight: 800
+    }
+
+        .atlas-admin-mark i {
+            display: grid;
+            place-items: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 13px;
+            background: rgba(108,159,255,.18);
+            font-style: normal;
+            font-size: 22px
+        }
+
+    .atlas-admin-eyebrow {
+        color: #7db3ff;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 3px;
+        margin-bottom: 16px
+    }
+
+    .atlas-admin-intro h1 {
+        font-size: clamp(32px,3.3vw,46px);
+        font-weight: 800;
+        letter-spacing: -1.4px;
+        line-height: 1.13;
+        margin-bottom: 24px
+    }
+
+    .atlas-admin-intro p {
+        color: #b7c8e5;
+        font-size: 16px;
+        line-height: 1.85;
+        max-width: 330px
+    }
+
+    .atlas-admin-status {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #a6bfe7;
+        font-size: 13px
+    }
+
+    .atlas-admin-dot {
+        width: 9px;
+        height: 9px;
+        background: #50d6ae;
+        border-radius: 50%;
+        box-shadow: 0 0 0 5px rgba(80,214,174,.1)
+    }
+
+    .atlas-admin-formside {
+        background: #fff;
+        padding: 60px 54px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center
+    }
+
+    .atlas-admin-tag {
+        font-size: 12px;
+        letter-spacing: 1.5px;
+        color: #4977c5;
+        font-weight: 800;
+        margin-bottom: 16px
+    }
+
+    .atlas-admin-formside h2 {
+        font-size: 32px;
+        font-weight: 800;
+        color: #152643;
+        letter-spacing: -.8px;
+        margin-bottom: 9px
+    }
+
+    .atlas-admin-sub {
+        color: #7d8da8;
+        margin-bottom: 34px;
+        font-size: 15px
+    }
+
+    .atlas-admin-field {
+        margin-bottom: 23px
+    }
+
+        .atlas-admin-field label {
+            display: block;
+            color: #273b5a;
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 10px
+        }
+
+    .atlas-admin-input {
+        display: block;
+        width: 100%;
+        min-height: 58px;
+        border-radius: 12px;
+        border: 1px solid #dbe3f1;
+        background: #f7f9fd;
+        padding: 13px 16px;
+        font-size: 15px;
+        color: #1c2f50;
+        outline: none;
+        transition: .2s
+    }
+
+        .atlas-admin-input:focus {
+            border-color: #3d75d9;
+            box-shadow: 0 0 0 4px rgba(61,117,217,.1);
+            background: #fff
+        }
+
+    .atlas-admin-check {
+        color: #526583;
+        font-size: 14px;
+        margin: 3px 0 25px
+    }
+
+    .atlas-admin-submit {
+        width: 100%;
+        min-height: 58px;
+        border: 0;
+        border-radius: 12px;
+        background: #2456bb;
+        color: white;
+        font-weight: 750;
+        font-size: 16px;
+        transition: .2s
+    }
+
+        .atlas-admin-submit:hover {
+            background: #173f97;
+            transform: translateY(-1px)
+        }
+
+    .atlas-admin-back {
+        margin-top: 26px;
+        text-align: center;
+        color: #65758f;
+        font-size: 14px
+    }
+
+        .atlas-admin-back a {
+            color: #2456bb;
+            text-decoration: none;
+            font-weight: 700
+        }
+
+    @@media(max-width:800px) {
+        .atlas-admin-shell {
+            grid-template-columns: 1fr
+        }
+
+        .atlas-admin-intro {
+            padding: 34px;
+            min-height: 250px;
+            gap: 30px
+        }
+
+            .atlas-admin-intro h1 {
+                font-size: 32px
+            }
+
+            .atlas-admin-intro p {
+                margin: 0
+            }
+
+        .atlas-admin-formside {
+            padding: 38px 30px
+        }
+    }
+
+    @@media(max-width:480px) {
+        .atlas-admin-wrap {
+            margin: 0 auto 30px
+        }
+
+        .atlas-admin-shell {
+            border-radius: 16px
+        }
+
+        .atlas-admin-intro {
+            padding: 27px
+        }
+
+        .atlas-admin-formside {
+            padding: 30px 22px
+        }
+
+            .atlas-admin-formside h2 {
+                font-size: 27px
+            }
+    }
+</style>
+<div class="atlas-admin-wrap">
+    <div class="atlas-admin-shell">
+        <section class="atlas-admin-intro">
+            <div class="atlas-admin-mark"><i>◆</i> ATLAS RANDEVU</div>
+            <div>
+                <div class="atlas-admin-eyebrow">PLATFORM YÖNETİM MERKEZİ</div>
+                <h1>Kontrol sizde.<br />Her şey tek panelde.</h1>
+                <p>İşletme başvurularını, platform süreçlerini ve yönetim işlemlerini güvenle yönetin.</p>
+            </div>
+            <div class="atlas-admin-status"><span class="atlas-admin-dot"></span> Yetkili yönetici erişimi</div>
+        </section>
+        <section class="atlas-admin-formside">
+            <div class="atlas-admin-tag">YÖNETİCİ HESABI</div>
+            <h2>Yönetici Girişi</h2>
+            <p class="atlas-admin-sub">Platform yönetimine erişmek için oturum açın.</p>
+            <form asp-controller="Hesap" asp-action="Giris" asp-route-girisTipi="yonetici" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3"></div>
+                <div class="atlas-admin-field">
+                    <label asp-for="Eposta">E-posta adresi</label>
+                    <input asp-for="Eposta" class="atlas-admin-input" autocomplete="username" placeholder="yonetici@ornek.com" />
+                    <span asp-validation-for="Eposta" class="text-danger small"></span>
+                </div>
+                <div class="atlas-admin-field">
+                    <label asp-for="Sifre">Şifre</label>
+                    <input asp-for="Sifre" type="password" class="atlas-admin-input" autocomplete="current-password" placeholder="Şifrenizi girin" />
+                    <span asp-validation-for="Sifre" class="text-danger small"></span>
+                </div>
+                <div class="form-check atlas-admin-check">
+                    <input asp-for="BeniHatirla" class="form-check-input" />
+                    <label asp-for="BeniHatirla" class="form-check-label">Beni hatırla</label>
+                </div>
+                <button type="submit" class="atlas-admin-submit">Yönetim Paneline Giriş &rarr;</button>
+            </form>
+            <div class="atlas-admin-back"><a asp-controller="Kesfet" asp-action="Index">&larr; Atlas Randevu ana sayfasına dön</a></div>
+        </section>
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

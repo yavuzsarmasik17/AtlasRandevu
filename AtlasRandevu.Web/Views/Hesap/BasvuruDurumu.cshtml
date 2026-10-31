@@ -1,0 +1,55 @@
+﻿@{
+    ViewData["Title"] = "Başvuru Durumu";
+    var durum = ViewBag.Durum as string;
+}
+
+<div class="row justify-content-center py-5">
+    <div class="col-md-7">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-5 text-center">
+
+                <h2 class="fw-bold mb-3">
+                    @ViewBag.IsletmeAdi
+                </h2>
+
+                @if (durum == "OnayBekliyor")
+                {
+                    <div class="alert alert-warning">
+                        İşletme başvurunuz inceleniyor.
+                    </div>
+
+                    <p class="text-muted">
+                        Başvurunuz platform yöneticisi
+                        tarafından onaylandığında
+                        işletme panelinizi kullanabileceksiniz.
+                    </p>
+                }
+                else if (durum == "Reddedildi")
+                {
+                    <div class="alert alert-danger">
+                        İşletme başvurunuz onaylanmadı.
+                    </div>
+                }
+                else if (durum == "Onaylandi")
+                {
+                    <div class="alert alert-success">
+                        İşletmeniz onaylandı.
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info">
+                        Başvuru durumunuz: @durum
+                    </div>
+                }
+
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="btn btn-primary mt-3">
+                    Ana Sayfaya Dön
+                </a>
+
+            </div>
+        </div>
+    </div>
+</div>

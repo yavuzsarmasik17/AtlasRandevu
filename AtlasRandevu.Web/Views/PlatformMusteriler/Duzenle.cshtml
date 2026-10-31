@@ -1,0 +1,97 @@
+﻿@model AtlasRandevu.Web.Controllers.PlatformMusteriDuzenleViewModel
+@{
+    Layout = "_PlatformLayout";
+    ViewData["Title"] = "Müşteri Bilgilerini Düzenle";
+}
+<style>
+    .pe-wrap {
+        max-width: 850px;
+        margin: auto
+    }
+
+    .pe-card {
+        background: #fff;
+        border: 1px solid #e7edf7;
+        border-radius: 22px;
+        padding: 32px;
+        box-shadow: 0 12px 35px rgba(20,40,80,.05)
+    }
+
+    .pe-title {
+        font-size: 29px;
+        font-weight: 800;
+        color: #132449
+    }
+
+    .pe-sub {
+        color: #8391a9
+    }
+
+    .pe-label {
+        font-size: 14px;
+        font-weight: 700;
+        color: #263e62;
+        margin-bottom: 8px
+    }
+
+    .pe-input {
+        width: 100%;
+        border: 1px solid #dce5f3;
+        border-radius: 13px;
+        background: #f8faff;
+        padding: 14px 16px;
+        color: #172d53
+    }
+
+        .pe-input:focus {
+            outline: none;
+            border-color: #3266eb;
+            box-shadow: 0 0 0 4px rgba(50,102,235,.08)
+        }
+
+    .pe-save {
+        background: linear-gradient(100deg,#2552d8,#4c7ff3);
+        color: #fff;
+        border: 0;
+        border-radius: 12px;
+        padding: 14px 26px;
+        font-weight: 750
+    }
+
+    @@media(max-width:600px) {
+        .pe-card {
+            padding: 20px
+        }
+
+        .pe-title {
+            font-size: 24px
+        }
+    }
+</style>
+<div class="pe-wrap">
+    <a asp-controller="PlatformMusteriler" asp-action="Index" class="btn btn-outline-secondary mb-3">← Müşterilere Dön</a>
+    <div class="pe-card">
+        <h1 class="pe-title mb-2">Müşteri Bilgilerini Düzenle</h1>
+        <p class="pe-sub mb-4">Yalnızca müşterinin ad ve soyadını güncelleyebilirsiniz.</p>
+        <div class="p-3 rounded-3 mb-4" style="background:#f4f7fd">
+            <div class="fw-bold" style="color:#132449">@Model.Eposta</div>
+            <div class="pe-sub small mt-1">Telefon: @(string.IsNullOrWhiteSpace(Model.Telefon) ? "—" : Model.Telefon)</div>
+        </div>
+        <form asp-controller="PlatformMusteriler" asp-action="Duzenle" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="KullaniciId" />
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <div class="row g-3">
+                <div class="col-md-6"><label asp-for="Ad" class="pe-label">Ad</label><input asp-for="Ad" class="pe-input" maxlength="60" placeholder="Müşterinin adı" /><span asp-validation-for="Ad" class="text-danger small"></span></div>
+                <div class="col-md-6"><label asp-for="Soyad" class="pe-label">Soyad</label><input asp-for="Soyad" class="pe-input" maxlength="60" placeholder="Müşterinin soyadı" /><span asp-validation-for="Soyad" class="text-danger small"></span></div>
+            </div>
+            <div class="d-flex flex-wrap gap-2 mt-4">
+                <button type="submit" class="pe-save">Değişiklikleri Kaydet →</button>
+                <a asp-controller="PlatformMusteriler" asp-action="Index" class="btn btn-outline-secondary px-4 py-3">Vazgeç</a>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,223 @@
+﻿@{
+    ViewData["Title"] = "Atlas AI Asistan";
+}
+<style>
+    .aai-wrap {
+        max-width: 960px;
+        margin: 34px auto 70px;
+        padding: 0 18px;
+        color: #172b4d
+    }
+
+    .aai-head {
+        padding: 32px;
+        border-radius: 22px;
+        background: linear-gradient(120deg,#0b1933,#234aa3);
+        color: white
+    }
+
+        .aai-head h1 {
+            font-size: 30px;
+            font-weight: 850;
+            margin: 0 0 8px
+        }
+
+        .aai-head p {
+            color: #cbdafa;
+            margin: 0;
+            line-height: 1.7
+        }
+
+    .aai-shell {
+        margin-top: 20px;
+        background: #fff;
+        border: 1px solid #e4eaf4;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 12px 36px rgba(18,44,90,.07)
+    }
+
+    .aai-chat {
+        height: 430px;
+        overflow-y: auto;
+        padding: 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        background: #f8faff
+    }
+
+    .aai-msg {
+        max-width: 88%;
+        padding: 13px 16px;
+        border-radius: 16px;
+        font-size: 14px;
+        line-height: 1.65;
+        white-space: pre-wrap
+    }
+
+    .aai-bot {
+        align-self: flex-start;
+        background: white;
+        border: 1px solid #e5ebf4
+    }
+
+    .aai-user {
+        align-self: flex-end;
+        background: #315fdf;
+        color: white
+    }
+
+    .aai-results {
+        align-self: flex-start;
+        display: grid;
+        gap: 9px;
+        width: min(100%,550px)
+    }
+
+    .aai-card {
+        background: #fff;
+        border: 1px solid #dfe7f5;
+        border-radius: 12px;
+        padding: 13px 15px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px
+    }
+
+        .aai-card strong {
+            display: block;
+            font-size: 14px
+        }
+
+        .aai-card small {
+            display: block;
+            color: #74839e;
+            margin-top: 4px
+        }
+
+        .aai-card a {
+            background: #edf3ff;
+            color: #2753bf;
+            padding: 9px 12px;
+            border-radius: 9px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 800;
+            white-space: nowrap
+        }
+
+    .aai-form {
+        display: flex;
+        gap: 10px;
+        padding: 17px;
+        border-top: 1px solid #e6ebf4
+    }
+
+        .aai-form input {
+            flex: 1;
+            min-width: 0;
+            border: 1px solid #dfe6f2;
+            border-radius: 12px;
+            padding: 13px;
+            font-size: 14px;
+            outline: 0
+        }
+
+            .aai-form input:focus {
+                border-color: #4771e8
+            }
+
+        .aai-form button {
+            border: 0;
+            background: #315fdf;
+            color: white;
+            border-radius: 12px;
+            padding: 0 22px;
+            font-weight: 800;
+            cursor: pointer
+        }
+
+            .aai-form button:disabled {
+                opacity: .55;
+                cursor: wait
+            }
+
+    .aai-note {
+        color: #71819c;
+        font-size: 12px;
+        margin-top: 13px
+    }
+
+    @@media(max-width:600px) {
+        .aai-head {
+            padding: 24px
+        }
+
+            .aai-head h1 {
+                font-size: 24px
+            }
+
+        .aai-chat {
+            height: 60vh;
+            min-height: 350px
+        }
+
+        .aai-form button {
+            padding: 0 13px
+        }
+
+        .aai-msg {
+            max-width: 95%
+        }
+
+        .aai-card {
+            align-items: flex-start;
+            flex-direction: column
+        }
+    }
+</style>
+<div class="aai-wrap">
+    <div class="aai-head"><h1>✦ Atlas AI Asistan</h1><p>Aradığınız işletmeyi veya hizmeti yazın. Atlas Randevu'daki kayıtlı işletmeler arasından size seçenekler bulalım.</p></div>
+    <div class="aai-shell">
+        <div id="aaiChat" class="aai-chat" role="log" aria-live="polite">
+            <div class="aai-msg aai-bot">Merhaba! 👋 İşletme, hizmet, ilçe ve bütçe yazabilirsiniz. Örneğin: “Arnavutköy berber bütçem 500 TL”.</div>
+        </div>
+        <form id="aaiForm" class="aai-form">
+            <input id="aaiInput" type="text" minlength="2" maxlength="160" required autocomplete="off" placeholder="Örn: Arnavutköy berber bütçem 500 TL" aria-label="Arama mesajı" />
+            <button id="aaiSend" type="submit">Gönder →</button>
+        </form>
+    </div>
+    <p class="aai-note">Ücretsiz test modu: API anahtarı gerekmez. Mesajlar basit kurallarla yorumlanır; üretken yapay zekâ ve gerçek zamanlı müsaitlik sorgulaması henüz yoktur.</p>
+    <a asp-controller="Kesfet" asp-action="Index" style="color:#315fdf;font-weight:700;text-decoration:none">← Keşfet sayfasına dön</a>
+</div>
+<script>
+    (function(){
+        const form=document.getElementById('aaiForm'),input=document.getElementById('aaiInput'),chat=document.getElementById('aaiChat'),button=document.getElementById('aaiSend');
+        const endpoint='@Url.Action("Ara", "AtlasAi")';
+        const detayBase='@Url.Action("Detay", "Kesfet")';
+        function message(value,kind){const div=document.createElement('div');div.className='aai-msg '+(kind==='user'?'aai-user':'aai-bot');div.textContent=value;chat.appendChild(div);chat.scrollTop=chat.scrollHeight;}
+        form.addEventListener('submit',async function(e){
+            e.preventDefault();const value=input.value.trim();if(value.length<2)return;
+            message(value,'user');input.value='';button.disabled=true;
+            try{
+                const res=await fetch(endpoint+'?metin='+encodeURIComponent(value),{headers:{'Accept':'application/json'}});
+                if(!res.ok)throw new Error('Arama şu anda tamamlanamadı.');
+                const data=await res.json();message(data.mesaj||'Sonuç bulunamadı.','bot');
+                if(Array.isArray(data.isletmeler)&&data.isletmeler.length){
+                    const list=document.createElement('div');list.className='aai-results';
+                    data.isletmeler.forEach(x=>{
+                        const card=document.createElement('div');card.className='aai-card';
+                        const info=document.createElement('div'),title=document.createElement('strong'),sub=document.createElement('small');
+                        title.textContent=x.ad;sub.textContent=[x.sektor,x.ilce,x.il].filter(Boolean).join(' · ')+(x.fiyat!=null?' · '+Number(x.fiyat).toLocaleString('tr-TR')+' TL’den başlayan':'');
+                        info.append(title,sub);
+                        const link=document.createElement('a');link.textContent='İncele →';link.href=detayBase+'?id='+encodeURIComponent(x.id);
+                        card.append(info,link);list.appendChild(card);
+                    });chat.appendChild(list);chat.scrollTop=chat.scrollHeight;
+                }
+            }catch(err){message('Arama sırasında bir sorun oluştu. Lütfen yeniden deneyin.','bot');}
+            finally{button.disabled=false;input.focus();}
+        });
+    })();
+</script>

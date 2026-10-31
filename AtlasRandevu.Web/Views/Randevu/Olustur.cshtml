@@ -1,0 +1,501 @@
+﻿@model AtlasRandevu.Web.Controllers.RandevuOlusturViewModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Randevu Oluştur";
+    var tr = CultureInfo.GetCultureInfo("tr-TR");
+    var tarih = Model.Tarih == default ? DateTime.Today.AddDays(1) : Model.Tarih;
+    var musteriGirisYapti = User.Identity?.IsAuthenticated == true && User.IsInRole("Musteri");
+    var farkliHesap = User.Identity?.IsAuthenticated == true && !User.IsInRole("Musteri");
+}
+<style>
+    .ar-book {
+        max-width: 1100px;
+        margin: 36px auto 70px;
+        padding: 0 18px;
+        color: #14233f
+    }
+
+        .ar-book * {
+            box-sizing: border-box
+        }
+
+    .ar-hero {
+        background: linear-gradient(120deg,#101f40,#264da0);
+        border-radius: 24px;
+        padding: 30px;
+        color: #fff;
+        box-shadow: 0 18px 45px rgba(17,41,91,.15)
+    }
+
+        .ar-hero small {
+            letter-spacing: 2px;
+            color: #bdd2ff;
+            font-weight: 700
+        }
+
+        .ar-hero h1 {
+            font-size: clamp(26px,4vw,38px);
+            margin: 10px 0
+        }
+
+        .ar-hero p {
+            margin: 0;
+            color: #dce7ff
+        }
+
+    .ar-grid {
+        display: grid;
+        grid-template-columns: minmax(0,1.6fr) minmax(270px,1fr);
+        gap: 22px;
+        margin-top: 24px;
+        align-items: start
+    }
+
+    .ar-card {
+        background: #fff;
+        border: 1px solid #e5eaf4;
+        border-radius: 20px;
+        padding: 26px;
+        box-shadow: 0 10px 35px rgba(24,46,91,.06)
+    }
+
+        .ar-card h2 {
+            font-size: 21px;
+            font-weight: 800;
+            margin: 0 0 8px
+        }
+
+    .ar-muted {
+        color: #687891;
+        font-size: 14px
+    }
+
+    .ar-field {
+        margin-top: 22px
+    }
+
+        .ar-field > label {
+            display: block;
+            font-weight: 750;
+            margin-bottom: 9px;
+            font-size: 14px
+        }
+
+        .ar-field select, .ar-field input, .ar-field textarea {
+            width: 100%;
+            border: 1px solid #d5deeb;
+            background: #f9fbff;
+            color: #162744;
+            border-radius: 12px;
+            padding: 13px 14px;
+            outline: none;
+            min-height: 49px
+        }
+
+            .ar-field select:focus, .ar-field input:focus, .ar-field textarea:focus {
+                border-color: #3766da;
+                box-shadow: 0 0 0 3px rgba(55,102,218,.12)
+            }
+
+        .ar-field textarea {
+            min-height: 110px;
+            resize: vertical
+        }
+
+    .ar-inline {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px
+    }
+
+    .ar-error {
+        color: #b42335;
+        font-size: 13px;
+        display: block;
+        margin-top: 6px
+    }
+
+    .ar-validation {
+        background: #fff1f1;
+        border: 1px solid #ffc9ce;
+        color: #a11d31;
+        padding: 12px 15px;
+        border-radius: 12px;
+        margin-top: 18px
+    }
+
+        .ar-validation:empty {
+            display: none
+        }
+
+    .ar-summary-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        border-bottom: 1px solid #edf1f7;
+        padding: 14px 0;
+        font-size: 14px
+    }
+
+        .ar-summary-row span:first-child {
+            color: #70809a
+        }
+
+        .ar-summary-row span:last-child {
+            font-weight: 750;
+            text-align: right
+        }
+
+    .ar-btn {
+        display: block;
+        width: 100%;
+        border: 0;
+        border-radius: 13px;
+        background: #315ed4;
+        color: #fff;
+        font-weight: 800;
+        padding: 15px 20px;
+        margin-top: 24px;
+        cursor: pointer
+    }
+
+        .ar-btn:hover {
+            background: #214cbd
+        }
+
+    .ar-info {
+        margin-top: 16px;
+        padding: 13px;
+        background: #eff5ff;
+        color: #34517d;
+        border-radius: 12px;
+        font-size: 13px;
+        line-height: 1.6
+    }
+
+    .ar-slot-grid {
+        display: grid;
+        grid-template-columns: repeat(4,minmax(0,1fr));
+        gap: 9px;
+        margin-top: 8px
+    }
+
+    .ar-slot {
+        padding: 11px 5px;
+        border-radius: 10px;
+        border: 1px solid #cfdcf3;
+        background: #f5f8ff;
+        color: #17335d;
+        cursor: pointer;
+        font-weight: 700
+    }
+
+        .ar-slot.selected {
+            background: #315ed4;
+            border-color: #315ed4;
+            color: #fff
+        }
+
+        .ar-slot:disabled {
+            opacity: .43;
+            cursor: not-allowed;
+            text-decoration: line-through
+        }
+
+    .ar-services {
+        display: grid;
+        gap: 9px
+    }
+
+    .ar-service {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 13px;
+        border: 1px solid #dbe4f2;
+        background: #f9fbff;
+        border-radius: 12px;
+        cursor: pointer
+    }
+
+        .ar-service:has(input:checked) {
+            border-color: #3766da;
+            background: #eef4ff
+        }
+
+        .ar-service input {
+            width: 19px;
+            height: 19px;
+            min-height: 0;
+            flex: none;
+            accent-color: #315ed4
+        }
+
+    .ar-service-body {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex: 1;
+        min-width: 0
+    }
+
+        .ar-service-body strong {
+            font-size: 14px
+        }
+
+        .ar-service-body small {
+            display: block;
+            color: #70809a;
+            font-size: 12px;
+            margin-top: 3px
+        }
+
+    .ar-service-price {
+        white-space: nowrap;
+        font-size: 13px;
+        font-weight: 750
+    }
+
+    @@media(max-width:760px) {
+        .ar-grid {
+            grid-template-columns: 1fr
+        }
+
+        .ar-card {
+            padding: 20px
+        }
+
+        .ar-inline {
+            grid-template-columns: 1fr
+        }
+
+        .ar-hero {
+            padding: 25px
+        }
+    }
+</style>
+<div class="ar-book">
+    <div class="ar-hero">
+        <small>ATLAS RANDEVU / ONLINE REZERVASYON</small>
+        <h1>Randevunu oluştur</h1>
+        <p>@Model.IsletmeAdi işletmesinden hizmetlerini, berberini ve uygun saatini seç.</p>
+    </div>
+    <div class="ar-grid">
+        <section class="ar-card">
+            <h2>Randevu bilgileri</h2>
+            <p class="ar-muted">Uygun saati seçtiğinde randevun otomatik olarak onaylanır.</p>
+            @if (User.Identity?.IsAuthenticated == true && !User.IsInRole("Musteri"))
+            {
+                <div class="ar-info">Randevu almak için müşteri hesabıyla giriş yapmanız gerekir. Mevcut hesabınızdan çıkış yapıp müşteri hesabınıza geçebilirsiniz.</div>
+            }
+            <form asp-controller="Randevu" asp-action="Olustur" method="post" id="randevuForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="IsletmeId" />
+                <div asp-validation-summary="ModelOnly" class="ar-validation"></div>
+                <div class="ar-field">
+                    <label>Hizmet seçimi <span class="ar-muted">(Birden fazla seçebilirsin)</span></label>
+                    <div class="ar-services" id="hizmetSecimleri">
+                        @foreach (var h in Model.Hizmetler)
+                        {
+                            <label class="ar-service">
+                                <input type="checkbox" name="HizmetIds" value="@h.Id" class="ar-hizmet" data-ad="@h.Ad" data-sure="@h.SureDakika" data-fiyat="@h.Fiyat.ToString(CultureInfo.InvariantCulture)" checked="@(Model.HizmetIds.Contains(h.Id))" />
+                                <span class="ar-service-body">
+                                    <span><strong>@h.Ad</strong><small>@h.SureDakika dakika</small></span>
+                                    <span class="ar-service-price">@h.Fiyat.ToString("N2", tr) TL</span>
+                                </span>
+                            </label>
+                        }
+                    </div>
+                    <span asp-validation-for="HizmetIds" class="ar-error"></span>
+                </div>
+                <div class="ar-field">
+                    <label asp-for="SubeId">Şube seçimi</label>
+                    <select asp-for="SubeId" id="subeSecimi" required>
+                        <option value="0">Şube seçiniz</option>
+                        @foreach (var s in Model.Subeler)
+                        {
+                            <option value="@s.Id" data-ad="@s.Ad">@s.Ad (@s.Il / @s.Ilce)</option>
+                        }
+                    </select>
+                    <span asp-validation-for="SubeId" class="ar-error"></span>
+                </div>
+                <div class="ar-field">
+                    <label asp-for="PersonelId">Berber / personel seçimi</label>
+                    <select asp-for="PersonelId" id="personelSecimi" required>
+                        <option value="0">Önce şube seçiniz</option>
+                        @foreach (var p in Model.Personeller)
+                        {
+                            <option value="@p.Id" data-sube="@p.SubeId" data-ad="@p.AdSoyad">@p.AdSoyad @(string.IsNullOrWhiteSpace(p.Unvan) ? "" : "— " + p.Unvan)</option>
+                        }
+                    </select>
+                    <span asp-validation-for="PersonelId" class="ar-error"></span>
+                    <small class="ar-muted" id="personelBilgi">Seçtiğin şubedeki aktif personeller listelenir.</small>
+                </div>
+                <div class="ar-inline">
+                    <div class="ar-field">
+                        <label asp-for="Tarih">Randevu tarihi</label>
+                        <input asp-for="Tarih" type="date" asp-format="{0:yyyy-MM-dd}" min="@DateTime.Today.ToString("yyyy-MM-dd")" max="@DateTime.Today.AddMonths(3).ToString("yyyy-MM-dd")" id="tarihSecimi" required />
+                        <span asp-validation-for="Tarih" class="ar-error"></span>
+                    </div>
+                    <div class="ar-field">
+                        <label asp-for="Saat">Başlangıç saati</label>
+                        <input asp-for="Saat" type="time" step="60" id="saatSecimi" readonly required aria-describedby="saatBilgi" />
+                        <div id="saatBilgi" class="ar-muted" style="margin-top:8px">Önce hizmet, şube, berber ve tarih seçin.</div>
+                        <span asp-validation-for="Saat" class="ar-error"></span>
+                    </div>
+                </div>
+                <div class="ar-field">
+                    <label>Uygun saatler</label>
+                    <div id="musaitSaatler" class="ar-slot-grid" aria-live="polite"></div>
+                </div>
+                <div class="ar-field">
+                    <label asp-for="MusteriNotu">İşletmeye not (isteğe bağlı)</label>
+                    <textarea asp-for="MusteriNotu" maxlength="500" placeholder="Varsa özel isteğini buraya yazabilirsin..."></textarea>
+                    <span asp-validation-for="MusteriNotu" class="ar-error"></span>
+                </div>
+                <button type="submit" class="ar-btn" disabled="@farkliHesap">@(farkliHesap ? "Müşteri hesabıyla giriş yapın" : musteriGirisYapti ? "Randevuyu oluştur →" : "Devam etmek için üye ol →")</button>
+            </form>
+        </section>
+        <aside class="ar-card">
+            <h2>Randevu özeti</h2>
+            <p class="ar-muted">Seçimlerin burada güncellenir.</p>
+            <div class="ar-summary-row"><span>İşletme</span><span>@Model.IsletmeAdi</span></div>
+            <div class="ar-summary-row"><span>Hizmetler</span><span id="ozetHizmet">Henüz seçilmedi</span></div>
+            <div class="ar-summary-row"><span>Şube</span><span id="ozetSube">Henüz seçilmedi</span></div>
+            <div class="ar-summary-row"><span>Berber</span><span id="ozetPersonel">Henüz seçilmedi</span></div>
+            <div class="ar-summary-row"><span>Tarih</span><span id="ozetTarih">@tarih.ToString("dd.MM.yyyy")</span></div>
+            <div class="ar-summary-row"><span>Saat</span><span id="ozetSaat">—</span></div>
+            <div class="ar-summary-row"><span>Toplam süre</span><span id="ozetSure">—</span></div>
+            <div class="ar-summary-row"><span>Toplam fiyat</span><span id="ozetFiyat">—</span></div>
+            <div class="ar-info">ℹ️ Aynı berberin çakışan randevusu olamaz. Farklı berberler aynı anda başka müşterilere hizmet verebilir. Eski, berber atanmamış randevular ise şubenin tamamını meşgul sayılır.</div>
+        </aside>
+    </div>
+</div>
+<script>
+    (function () {
+        const hizmetler = [...document.querySelectorAll('.ar-hizmet')];
+        const sube = document.getElementById('subeSecimi');
+        const personel = document.getElementById('personelSecimi');
+        const personelSecenekleri = [...personel.querySelectorAll('option[data-sube]')];
+        const tarih = document.getElementById('tarihSecimi');
+        const saat = document.getElementById('saatSecimi');
+        const saatler = document.getElementById('musaitSaatler');
+        const bilgi = document.getElementById('saatBilgi');
+        const isletmeId = document.querySelector('[name="IsletmeId"]').value;
+        const url = '@Url.Action("MusaitSaatler", "Randevu")';
+        const musteriGirisYapti = @(musteriGirisYapti ? "true" : "false");
+        const kayitUrl = '@Url.Action("Index", "MusteriKayit")';
+        const ilkSaat = '@Model.Saat.ToString(@"hh\:mm")';
+        let ilkSaatDenendi = false;
+        // Kayıt ve girişten dönüşte not tarayıcı oturumunda korunur (URL'ye yazılmaz).
+        const notAnahtari = 'atlas_randevu_not_' + isletmeId;
+        const notAlani = document.querySelector('[name="MusteriNotu"]');
+        try { if (!notAlani.value) notAlani.value = sessionStorage.getItem(notAnahtari) || ''; } catch (_) {}
+        if (notAlani) notAlani.addEventListener('input', () => {
+            try { sessionStorage.setItem(notAnahtari, notAlani.value); } catch (_) {}
+        });
+        function donusAdresi() {
+            const q = new URLSearchParams({ isletmeId });
+            secilenHizmetler().forEach(x => q.append('hizmetIds', x.value));
+            if (sube.value !== '0') q.set('subeId', sube.value);
+            if (personel.value !== '0') q.set('personelId', personel.value);
+            if (tarih.value) q.set('tarih', tarih.value);
+            if (saat.value) q.set('saat', saat.value);
+            return '/Randevu/Olustur?' + q.toString();
+        }
+        const yaz = (id, val) => document.getElementById(id).textContent = val;
+        const para = n => n.toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' TL';
+        let istekNo = 0;
+
+        function secilenHizmetler() { return hizmetler.filter(x => x.checked); }
+        function personelleriFiltrele() {
+            const eski = personel.value;
+            personelSecenekleri.forEach(x => x.hidden = x.dataset.sube !== sube.value);
+            const uygun = personelSecenekleri.filter(x => !x.hidden);
+            personel.replaceChildren(new Option(uygun.length ? 'Berber seçiniz' : 'Bu şubede aktif berber bulunamadı', '0'));
+            uygun.forEach(x => personel.appendChild(x));
+            personel.value = uygun.some(x => x.value === eski) ? eski : '0';
+            document.getElementById('personelBilgi').textContent = uygun.length
+                ? uygun.length + ' aktif personel listelendi.'
+                : 'Bu şubede aktif personel yok. İşletmenin personel eklemesi gerekiyor.';
+        }
+        function guncelle() {
+            const secilen = secilenHizmetler();
+            const toplamSure = secilen.reduce((a,x) => a + Number(x.dataset.sure || 0), 0);
+            const toplamFiyat = secilen.reduce((a,x) => a + Number(x.dataset.fiyat || 0), 0);
+            yaz('ozetHizmet', secilen.length ? secilen.map(x => x.dataset.ad).join(', ') : 'Henüz seçilmedi');
+            yaz('ozetSure', toplamSure ? toplamSure + ' dakika' : '—');
+            yaz('ozetFiyat', secilen.length ? para(toplamFiyat) : '—');
+            yaz('ozetSube', sube.selectedOptions[0]?.dataset.ad || 'Henüz seçilmedi');
+            yaz('ozetPersonel', personel.selectedOptions[0]?.dataset.ad || 'Henüz seçilmedi');
+            yaz('ozetTarih', tarih.value ? tarih.value.split('-').reverse().join('.') : '—');
+            yaz('ozetSaat', saat.value || '—');
+        }
+        async function saatleriGetir() {
+            const buIstek = ++istekNo;
+            // İlk açılışta URL'den gelen saati koru; diğer seçim değişikliklerinde sıfırla.
+            const korunacakSaat = !ilkSaatDenendi ? ilkSaat : '';
+            ilkSaatDenendi = true;
+            saat.value = '';
+            saatler.replaceChildren();
+            guncelle();
+            const secilen = secilenHizmetler();
+            if (!secilen.length || sube.value === '0' || personel.value === '0' || !tarih.value) {
+                bilgi.textContent = 'Önce hizmet, şube, berber ve tarih seçin.';
+                return;
+            }
+            bilgi.textContent = 'Uygun saatler yükleniyor...';
+            const q = new URLSearchParams({isletmeId, subeId:sube.value, personelId:personel.value, tarih:tarih.value});
+            secilen.forEach(x => q.append('hizmetIds', x.value));
+            try {
+                const cevap = await fetch(url + '?' + q.toString(), {headers:{'Accept':'application/json'}});
+                const sonuc = await cevap.json();
+                if (buIstek !== istekNo) return;
+                if (!cevap.ok) throw new Error(sonuc.mesaj || 'Saatler alınamadı.');
+                for (const slot of sonuc.saatler) {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'ar-slot';
+                    btn.textContent = slot.saat;
+                    btn.disabled = !slot.uygun;
+                    btn.title = slot.uygun ? 'Bu saati seç' : 'Dolu veya geçmiş saat';
+                    btn.addEventListener('click', () => {
+                        saat.value = slot.saat;
+                        saatler.querySelectorAll('.ar-slot').forEach(b => b.classList.remove('selected'));
+                        btn.classList.add('selected');
+                        bilgi.textContent = 'Seçilen saat: ' + slot.saat;
+                        guncelle();
+                    });
+                    saatler.appendChild(btn);
+                }
+                bilgi.textContent = sonuc.saatler.some(x => x.uygun)
+                    ? 'Müsait bir saat seçin. Üzeri çizili saatler dolu veya geçmiş.'
+                    : (sonuc.mesaj || 'Bu gün için uygun saat bulunamadı.');
+            } catch (hata) {
+                if (buIstek !== istekNo) return;
+                bilgi.textContent = hata.message || 'Saatler alınamadı.';
+            }
+        }
+        sube.addEventListener('change', () => {personelleriFiltrele(); saatleriGetir();});
+        personel.addEventListener('change', saatleriGetir);
+        tarih.addEventListener('change', saatleriGetir);
+        hizmetler.forEach(x => x.addEventListener('change', saatleriGetir));
+        const form = document.getElementById('randevuForm');
+        form.addEventListener('submit', e => {
+            if (!secilenHizmetler().length || sube.value === '0' || personel.value === '0' || !saat.value) {
+                e.preventDefault();
+                bilgi.textContent = 'Hizmet, şube, berber ve müsait saat seçimini tamamlayın.';
+                return;
+            }
+            // Üye olmayan müşterinin seçimi kayıt ekranına dönüş adresiyle taşınır.
+            if (!musteriGirisYapti) {
+                e.preventDefault();
+                window.location.assign(kayitUrl + '?returnUrl=' + encodeURIComponent(donusAdresi()));
+            }
+        });
+        personelleriFiltrele();
+        guncelle();
+        saatleriGetir();
+    })();
+</script>

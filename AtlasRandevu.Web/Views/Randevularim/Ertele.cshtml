@@ -1,0 +1,261 @@
+﻿@model AtlasRandevu.Web.Controllers.RandevuErteleViewModel
+@{
+    ViewData["Title"] = "Randevu Ertele";
+}
+<style>
+    .er-wrap {
+        max-width: 920px;
+        margin: 30px auto 70px;
+        padding: 0 18px;
+        color: #172641
+    }
+
+    .er-hero {
+        background: linear-gradient(120deg,#101f40,#315ed4);
+        color: #fff;
+        padding: 29px;
+        border-radius: 22px
+    }
+
+        .er-hero h1 {
+            font-size: 29px;
+            font-weight: 800;
+            margin: 0 0 9px
+        }
+
+        .er-hero p {
+            margin: 0;
+            color: #dce7ff
+        }
+
+    .er-grid {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 20px;
+        margin-top: 22px
+    }
+
+    .er-card {
+        background: #fff;
+        border: 1px solid #e2e9f5;
+        border-radius: 18px;
+        padding: 24px;
+        box-shadow: 0 9px 28px rgba(25,46,92,.06)
+    }
+
+        .er-card h2 {
+            font-size: 19px;
+            font-weight: 800;
+            margin: 0 0 18px
+        }
+
+    .er-field {
+        margin: 17px 0
+    }
+
+        .er-field label {
+            display: block;
+            font-weight: 750;
+            margin-bottom: 8px
+        }
+
+        .er-field input {
+            width: 100%;
+            border: 1px solid #cdd9ed;
+            background: #f9fbff;
+            padding: 13px;
+            border-radius: 11px;
+            color: #162743
+        }
+
+    .er-slots {
+        display: grid;
+        grid-template-columns: repeat(4,minmax(0,1fr));
+        gap: 9px;
+        margin-top: 12px
+    }
+
+    .er-slot {
+        border: 1px solid #cbd8f1;
+        background: #f3f7ff;
+        border-radius: 10px;
+        padding: 12px 5px;
+        color: #203d72;
+        font-weight: 750;
+        cursor: pointer
+    }
+
+        .er-slot.active {
+            background: #315ed4;
+            color: white;
+            border-color: #315ed4
+        }
+
+        .er-slot:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            text-decoration: line-through
+        }
+
+    .er-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid #e9eef7;
+        font-size: 14px
+    }
+
+        .er-row span:first-child {
+            color: #667a96
+        }
+
+        .er-row span:last-child {
+            font-weight: 750;
+            text-align: right
+        }
+
+    .er-info {
+        color: #5f7190;
+        font-size: 13px;
+        line-height: 1.6;
+        margin-top: 10px
+    }
+
+    .er-error {
+        color: #ad2338;
+        background: #fff0f2;
+        border: 1px solid #f3c5cf;
+        padding: 12px;
+        border-radius: 11px;
+        margin: 15px 0
+    }
+
+    .er-submit {
+        width: 100%;
+        border: 0;
+        background: #315ed4;
+        color: #fff;
+        padding: 15px;
+        border-radius: 12px;
+        font-weight: 800;
+        margin-top: 18px;
+        cursor: pointer
+    }
+
+        .er-submit:disabled {
+            opacity: .5;
+            cursor: not-allowed
+        }
+
+    .er-back {
+        display: inline-block;
+        margin-top: 17px;
+        color: #315ed4;
+        text-decoration: none;
+        font-weight: 700
+    }
+
+    @@media(max-width:700px) {
+        .er-grid {
+            grid-template-columns: 1fr
+        }
+
+        .er-card {
+            padding: 18px
+        }
+
+        .er-slots {
+            grid-template-columns: repeat(3,minmax(0,1fr))
+        }
+    }
+</style>
+<div class="er-wrap">
+    <div class="er-hero"><h1>Randevunu ertele</h1><p>Mevcut randevunun yerine yeni bir müsait tarih ve saat seç.</p></div>
+    @if (TempData["RandevuHata"] is string hata)
+    {
+        <div class="er-error">@hata</div>
+    }
+    <div class="er-grid">
+        <section class="er-card">
+            <h2>Yeni tarih ve saat</h2>
+            <form asp-controller="Randevularim" asp-action="Ertele" method="post" id="erForm">
+                @Html.AntiForgeryToken()
+                <input asp-for="Id" type="hidden" />
+                <div class="er-field">
+                    <label asp-for="Tarih">Yeni tarih</label>
+                    <input asp-for="Tarih" type="date" asp-format="{0:yyyy-MM-dd}" id="erTarih"
+                           min="@DateTime.Today.ToString("yyyy-MM-dd")" max="@DateTime.Today.AddMonths(3).ToString("yyyy-MM-dd")" required />
+                </div>
+                <div class="er-field">
+                    <label asp-for="Saat">Yeni saat</label>
+                    <input asp-for="Saat" type="time" id="erSaat" readonly required />
+                    <div id="erBilgi" class="er-info" aria-live="polite">Müsait saatler yükleniyor...</div>
+                </div>
+                <div class="er-field">
+                    <label>Müsait saatler</label>
+                    <div id="erSaatler" class="er-slots" aria-live="polite"></div>
+                </div>
+                <button type="submit" id="erKaydet" class="er-submit" disabled>Randevuyu Ertele</button>
+            </form>
+            <a asp-controller="Randevularim" asp-action="Index" class="er-back">← Randevularıma dön</a>
+        </section>
+        <aside class="er-card">
+            <h2>Mevcut randevun</h2>
+            <div class="er-row"><span>İşletme</span><span>@Model.IsletmeAdi</span></div>
+            <div class="er-row"><span>Şube</span><span>@Model.SubeAdi</span></div>
+            <div class="er-row"><span>Personel</span><span>@Model.PersonelAdi</span></div>
+            <div class="er-row"><span>Hizmet</span><span>@Model.HizmetAdi</span></div>
+            <div class="er-row"><span>Süre</span><span>@Model.ToplamSure dakika</span></div>
+            <div class="er-row"><span>Eski tarih</span><span>@Model.EskiBaslangic.ToString("dd.MM.yyyy HH:mm")</span></div>
+            <div class="er-row"><span>Yeni tarih</span><span id="erOzet">Henüz seçilmedi</span></div>
+            <p class="er-info">Erteleme başarılı olursa eski saat boşalır ve işletmeye bildirim gönderilir. Randevu numaran değişmez.</p>
+        </aside>
+    </div>
+</div>
+<script>
+    (() => {
+        const tarih=document.getElementById('erTarih');
+        const saat=document.getElementById('erSaat');
+        const alan=document.getElementById('erSaatler');
+        const bilgi=document.getElementById('erBilgi');
+        const kaydet=document.getElementById('erKaydet');
+        const ozet=document.getElementById('erOzet');
+        const url='@Url.Action("ErteleMusaitSaatler", "Randevularim")';
+        const id='@Model.Id';
+        let istek=0;
+        async function getir(){
+            const no=++istek;
+            saat.value='';kaydet.disabled=true;alan.replaceChildren();ozet.textContent='Henüz seçilmedi';
+            if(!tarih.value){bilgi.textContent='Tarih seçin.';return;}
+            bilgi.textContent='Müsait saatler yükleniyor...';
+            try{
+                const q=new URLSearchParams({id,tarih:tarih.value});
+                const cevap=await fetch(url+'?'+q.toString(),{headers:{Accept:'application/json'}});
+                const sonuc=await cevap.json();
+                if(no!==istek)return;
+                if(!cevap.ok)throw new Error(sonuc.mesaj||'Saatler alınamadı.');
+                (sonuc.saatler||[]).forEach(slot=>{
+                    const b=document.createElement('button');b.type='button';b.className='er-slot';
+                    b.textContent=slot.saat;b.disabled=!slot.uygun;
+                    b.title=slot.uygun?'Bu saati seç':'Dolu veya geçmiş saat';
+                    b.addEventListener('click',()=>{
+                        saat.value=slot.saat;
+                        alan.querySelectorAll('.er-slot').forEach(x=>x.classList.remove('active'));
+                        b.classList.add('active');kaydet.disabled=false;
+                        bilgi.textContent='Seçilen yeni saat: '+slot.saat;
+                        ozet.textContent=tarih.value.split('-').reverse().join('.')+' '+slot.saat;
+                    });
+                    alan.appendChild(b);
+                });
+                bilgi.textContent=(sonuc.saatler||[]).some(x=>x.uygun)?'Yeni saatini seç. Üzeri çizili saatler dolu veya geçmiş.':(sonuc.mesaj||'Bu gün için müsait saat bulunamadı.');
+            }catch(e){if(no===istek)bilgi.textContent=e.message||'Saatler alınamadı.';}
+        }
+        tarih.addEventListener('change',getir);
+        document.getElementById('erForm').addEventListener('submit',e=>{
+            if(!saat.value){e.preventDefault();bilgi.textContent='Lütfen müsait bir saat seçin.';return;}
+            kaydet.disabled=true;
+        });
+        getir();
+    })();
+</script>

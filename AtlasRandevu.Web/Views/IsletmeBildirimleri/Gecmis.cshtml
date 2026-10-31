@@ -1,0 +1,231 @@
+﻿@model AtlasRandevu.Web.Controllers.BildirimGecmisiModel
+@{
+    ViewData["Title"] = "Bildirim Geçmişi";
+    Layout = "_IsletmeLayout";
+    var tz = TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time");
+}
+<style>
+    .bg-card {
+        background: #fff;
+        border: 1px solid #e4eaf5;
+        border-radius: 18px;
+        padding: 22px;
+        box-shadow: 0 10px 30px rgba(21,38,72,.04)
+    }
+
+    .bg-title {
+        font-size: 24px;
+        font-weight: 800;
+        color: #172642;
+        margin-bottom: 5px
+    }
+
+    .bg-sub {
+        color: #8190a8;
+        font-size: 13px
+    }
+
+    .bg-filters {
+        display: grid;
+        grid-template-columns: repeat(4,minmax(0,1fr)) auto;
+        gap: 12px;
+        align-items: end
+    }
+
+        .bg-filters label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #53627d
+        }
+
+        .bg-filters .form-control, .bg-filters .form-select {
+            border-radius: 10px;
+            min-height: 41px
+        }
+
+    .bg-item {
+        display: flex;
+        gap: 14px;
+        align-items: start;
+        padding: 17px 0;
+        border-bottom: 1px solid #edf1f8
+    }
+
+        .bg-item:last-child {
+            border-bottom: 0
+        }
+
+        .bg-item.unread {
+            background: #f5f8ff;
+            margin: 0 -12px;
+            padding: 17px 12px;
+            border-radius: 12px
+        }
+
+    .bg-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: #eaf0ff;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+        font-size: 20px
+    }
+
+    .bg-main {
+        min-width: 0;
+        flex: 1
+    }
+
+        .bg-main strong {
+            color: #1b2b4b
+        }
+
+        .bg-main p {
+            margin: 5px 0;
+            color: #53627d;
+            overflow-wrap: anywhere
+        }
+
+    .bg-date {
+        font-size: 12px;
+        color: #8190a8
+    }
+
+    .bg-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap
+    }
+
+    .bg-pill {
+        border-radius: 30px;
+        padding: 4px 9px;
+        font-size: 11px;
+        font-weight: 700;
+        background: #e9edfa;
+        color: #425779
+    }
+
+        .bg-pill.unread {
+            background: #dfeaff;
+            color: #2854cc
+        }
+
+    @@media(max-width:900px) {
+        .bg-filters {
+            grid-template-columns: repeat(2,minmax(0,1fr))
+        }
+
+            .bg-filters button {
+                grid-column: 1/-1
+            }
+    }
+
+    @@media(max-width:550px) {
+        .bg-filters {
+            grid-template-columns: 1fr
+        }
+
+        .bg-item {
+            flex-wrap: wrap
+        }
+
+        .bg-actions {
+            width: 100%;
+            justify-content: flex-end
+        }
+    }
+</style>
+<div class="mb-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div><div class="bg-title">🔔 Bildirim Geçmişi</div><div class="bg-sub">Randevular ve müşteri girişleri · Toplam @Model.ToplamKayit kayıt</div></div>
+    <button id="tumunuOku" type="button" class="btn btn-outline-primary">Tümünü okundu yap</button>
+</div>
+<div class="bg-card mb-4">
+    <form method="get" action="/isletme-bildirimleri/gecmis" class="bg-filters">
+        <div>
+            <label for="tur">Bildirim türü</label><select id="tur" name="tur" class="form-select">
+                <option value="">Tüm türler</option>
+                <option value="YeniRandevu" selected="@(Model.Tur == "YeniRandevu")">Yeni randevu</option>
+                <option value="MusteriGeldi" selected="@(Model.Tur == "MusteriGeldi")">Müşteri geldi</option>
+            </select>
+        </div>
+        <div>
+            <label for="durum">Durum</label><select id="durum" name="durum" class="form-select">
+                <option value="">Tümü</option>
+                <option value="okunmadi" selected="@(Model.Durum == "okunmadi")">Okunmadı</option>
+                <option value="okundu" selected="@(Model.Durum == "okundu")">Okundu</option>
+            </select>
+        </div>
+        <div><label for="baslangic">Başlangıç</label><input id="baslangic" name="baslangic" type="date" class="form-control" value="@(Model.Baslangic?.ToString("yyyy-MM-dd"))" /></div>
+        <div><label for="bitis">Bitiş</label><input id="bitis" name="bitis" type="date" class="form-control" value="@(Model.Bitis?.ToString("yyyy-MM-dd"))" /></div>
+        <button class="btn btn-primary" type="submit">Filtrele</button>
+    </form>
+</div>
+<div class="bg-card">
+    @if (!Model.Kayitlar.Any())
+    {
+        <div class="text-center py-5 text-muted">Bu filtrelere uygun bildirim bulunamadı.</div>
+    }
+    @foreach (var item in Model.Kayitlar)
+    {
+        <div class="bg-item @(!item.OkunduMu ? "unread" : "")" data-id="@item.Id">
+            <div class="bg-icon">@(item.Tur == "MusteriGeldi" ? "👤" : "📅")</div>
+            <div class="bg-main">
+                <strong>@item.Baslik</strong>
+                <p>@item.Mesaj</p>
+                <div class="bg-date">@TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(item.OlusturulmaTarihi, DateTimeKind.Utc), tz).ToString("dd.MM.yyyy HH:mm")</div>
+            </div>
+            <div class="bg-actions">
+                <span class="bg-pill @(!item.OkunduMu ? "unread" : "")">@(item.OkunduMu ? "Okundu" : "Okunmadı")</span>
+                @if (!item.OkunduMu)
+                {
+                    <button class="btn btn-sm btn-outline-primary bg-read" type="button" data-id="@item.Id">Okundu yap</button>
+                }
+            </div>
+        </div>
+    }
+</div>
+@if (Model.ToplamSayfa > 1)
+{
+    <nav class="mt-4 d-flex justify-content-between align-items-center" aria-label="Bildirim sayfaları">
+        <span class="text-muted small">Sayfa @Model.Sayfa / @Model.ToplamSayfa</span>
+        <div class="d-flex gap-2">
+            @if (Model.Sayfa > 1)
+            {
+                <a class="btn btn-outline-secondary btn-sm" href="@Url.Action("Gecmis", "IsletmeBildirimleri", new { tur = Model.Tur, durum = Model.Durum, baslangic = Model.Baslangic?.ToString("yyyy-MM-dd"), bitis = Model.Bitis?.ToString("yyyy-MM-dd"), sayfa = Model.Sayfa - 1 })">← Önceki</a>
+            }
+            @if (Model.Sayfa < Model.ToplamSayfa)
+            {
+                <a class="btn btn-outline-secondary btn-sm" href="@Url.Action("Gecmis", "IsletmeBildirimleri", new { tur = Model.Tur, durum = Model.Durum, baslangic = Model.Baslangic?.ToString("yyyy-MM-dd"), bitis = Model.Bitis?.ToString("yyyy-MM-dd"), sayfa = Model.Sayfa + 1 })">Sonraki →</a>
+            }
+        </div>
+    </nav>
+}
+<form id="bgTokenForm" class="d-none" method="post">@Html.AntiForgeryToken()</form>
+<script>
+    (() => {
+        const token = document.querySelector('#bgTokenForm input[name="__RequestVerificationToken"]')?.value;
+        async function post(url) {
+            const body = new URLSearchParams();
+            body.set('__RequestVerificationToken', token || '');
+            const response = await fetch(url, {method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},body});
+            if (!response.ok) throw new Error('İşlem başarısız (' + response.status + ')');
+            return await response.json();
+        }
+        document.querySelectorAll('.bg-read').forEach(button => button.addEventListener('click', async () => {
+            button.disabled = true;
+            try { await post('/isletme-bildirimleri/oku/' + encodeURIComponent(button.dataset.id)); location.reload(); }
+            catch(e) { alert(e.message); button.disabled = false; }
+        }));
+        document.getElementById('tumunuOku')?.addEventListener('click', async function() {
+            this.disabled = true;
+            try { await post('/isletme-bildirimleri/tumunu-oku'); location.reload(); }
+            catch(e) { alert(e.message); this.disabled = false; }
+        });
+    })();
+</script>

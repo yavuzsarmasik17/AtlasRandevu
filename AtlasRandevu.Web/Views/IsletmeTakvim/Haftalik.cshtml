@@ -1,0 +1,438 @@
+﻿@using AtlasRandevu.Domain.Entities
+@using System.Linq
+@using System.Globalization
+@{
+    Layout = "_IsletmeLayout";
+    ViewData["Title"] = "Haftalık Personel Takvimi";
+    var subeler = ViewBag.Subeler as List<Sube> ?? new List<Sube>();
+    var personeller = ViewBag.Personeller as List<Personel> ?? new List<Personel>();
+    var randevular = ViewBag.Randevular as List<Randevu> ?? new List<Randevu>();
+    var kapalilar = ViewBag.KapaliZamanlar as List<PersonelKapaliZaman> ?? new List<PersonelKapaliZaman>();
+    var calismaSaatleri = ViewBag.CalismaSaatleri as List<SubeCalismaSaati> ?? new List<SubeCalismaSaati>();
+    var hizmetler = ViewBag.Hizmetler as List<Hizmet> ?? new List<Hizmet>();
+    int? seciliSubeId = ViewBag.SeciliSubeId as int?;
+    int? seciliPersonelId = ViewBag.SeciliPersonelId as int?;
+    DateTime baslangic = ViewBag.HaftaBaslangic is DateTime t ? t : DateTime.Today;
+    var tr = new CultureInfo("tr-TR");
+    var gunler = Enumerable.Range(0, 7).Select(i => baslangic.AddDays(i)).ToList();
+    var gorunenPersoneller = personeller.Where(x => !seciliPersonelId.HasValue || x.Id == seciliPersonelId.Value).ToList();
+}
+<style>
+    .hafta-page {
+        max-width: 1550px;
+        margin: 0 auto;
+        color: #1e293b;
+    }
+
+    .hafta-baslik {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+    }
+
+        .hafta-baslik h1 {
+            font-size: 25px;
+            font-weight: 800;
+            margin: 0;
+        }
+
+    .hafta-panel {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+
+    .hafta-filtre {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: end;
+        gap: 12px;
+    }
+
+        .hafta-filtre label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .hafta-filtre select, .hafta-filtre input {
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 9px;
+            min-height: 40px;
+        }
+
+    .hafta-btn {
+        display: inline-block;
+        background: #2563eb;
+        color: #fff;
+        border: 0;
+        border-radius: 8px;
+        padding: 10px 13px;
+        text-decoration: none;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+        .hafta-btn.ikincil {
+            background: #eaf0ff;
+            color: #244a9b;
+        }
+
+    .hafta-navigasyon {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 14px;
+    }
+
+    .hafta-kaydir {
+        overflow-x: auto;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        background: #fff;
+    }
+
+    .hafta-tablo {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 1040px;
+        table-layout: fixed;
+    }
+
+        .hafta-tablo th {
+            padding: 12px 7px;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            font-size: 13px;
+        }
+
+            .hafta-tablo th:first-child {
+                width: 160px;
+            }
+
+        .hafta-tablo td {
+            border: 1px solid #e2e8f0;
+            padding: 8px;
+            vertical-align: top;
+            min-height: 130px;
+        }
+
+    .hafta-personel {
+        background: #f8fafc;
+        font-weight: 700;
+    }
+
+    .hafta-gun {
+        font-size: 12px;
+        color: #64748b;
+        margin-bottom: 8px;
+    }
+
+    .hafta-kart {
+        width: 100%;
+        display: block;
+        text-align: left;
+        font: inherit;
+        border: 0;
+        border-left: 4px solid #2563eb;
+        border-radius: 7px;
+        padding: 8px;
+        background: #dbeafe;
+        color: #1e40af;
+        margin: 5px 0;
+        cursor: pointer;
+        font-size: 12px;
+    }
+
+        .hafta-kart.onaybekliyor {
+            background: #fef3c7;
+            color: #92400e;
+            border-left-color: #d97706;
+        }
+
+        .hafta-kart.geldi {
+            background: #dcfce7;
+            color: #166534;
+            border-left-color: #16a34a;
+        }
+
+        .hafta-kart.tamamlandi {
+            background: #f3e8ff;
+            color: #6b21a8;
+            border-left-color: #9333ea;
+        }
+
+        .hafta-kart:hover {
+            filter: brightness(.96);
+        }
+
+        .hafta-kart span {
+            display: block;
+            margin-top: 3px;
+        }
+
+    .hafta-kapali {
+        padding: 7px;
+        margin: 5px 0;
+        border-radius: 7px;
+        background: #f1f5f9;
+        border-left: 4px solid #94a3b8;
+        font-size: 12px;
+    }
+
+    .hafta-ekle {
+        display: inline-block;
+        color: #15803d;
+        font-size: 12px;
+        font-weight: 700;
+        text-decoration: none;
+        margin-top: 7px;
+    }
+
+    .hafta-uyari {
+        font-size: 12px;
+        color: #64748b;
+    }
+
+    .hafta-arka {
+        position: fixed;
+        inset: 0;
+        z-index: 1050;
+        background: rgba(15,23,42,.65);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+    }
+
+        .hafta-arka.acik {
+            display: flex;
+        }
+
+    .hafta-modal {
+        width: 100%;
+        max-width: 490px;
+        max-height: 90vh;
+        overflow: auto;
+        background: #fff;
+        border-radius: 14px;
+        padding: 22px;
+    }
+
+    .hafta-modalust {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+        .hafta-modalust h2 {
+            font-size: 21px;
+            margin: 0;
+        }
+
+    .hafta-satir {
+        display: grid;
+        grid-template-columns: 120px 1fr;
+        gap: 8px;
+        border-bottom: 1px solid #edf2f7;
+        padding: 9px 0;
+        font-size: 14px;
+    }
+
+        .hafta-satir dt {
+            color: #64748b;
+        }
+
+        .hafta-satir dd {
+            margin: 0;
+            overflow-wrap: anywhere;
+        }
+
+    .hafta-islem {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px;
+        margin-top: 18px;
+    }
+
+    @@media(max-width:650px) {
+        .hafta-baslik h1 {
+            font-size: 21px;
+        }
+
+        .hafta-panel {
+            padding: 12px;
+        }
+    }
+</style>
+<div class="hafta-page">
+    <div class="hafta-baslik">
+        <div><h1>Haftalık Personel Takvimi</h1><p class="hafta-uyari">Personel ve gün bazında randevuları inceleyin.</p></div>
+        <a asp-controller="IsletmeTakvim" asp-action="Index" asp-route-subeId="@seciliSubeId" asp-route-tarih="@DateTime.Today.ToString("yyyy-MM-dd")" class="hafta-btn ikincil">Günlük Takvim</a>
+    </div>
+    <div class="hafta-panel">
+        <form asp-controller="IsletmeTakvim" asp-action="Haftalik" method="get" class="hafta-filtre">
+            <div>
+                <label for="subeId">Şube</label><select id="subeId" name="subeId">
+                    @foreach (var sube in subeler)
+                    {
+                        <option value="@sube.Id" selected="@(sube.Id == seciliSubeId)">@sube.Ad</option>
+                    }
+                </select>
+            </div>
+            <div><label for="tarih">Haftadaki bir tarih</label><input type="date" id="tarih" name="tarih" value="@baslangic.ToString("yyyy-MM-dd")" /></div>
+            <div>
+                <label for="personelId">Personel</label><select id="personelId" name="personelId">
+                    <option value="">Tüm personeller</option>
+                    @foreach (var p in personeller)
+                    {
+                        <option value="@p.Id" selected="@(p.Id == seciliPersonelId)">@p.AdSoyad</option>
+                    }
+                </select>
+            </div>
+            <button class="hafta-btn" type="submit">Göster</button>
+        </form>
+    </div>
+    <div class="hafta-navigasyon">
+        <a class="hafta-btn ikincil" asp-action="Haftalik" asp-route-subeId="@seciliSubeId" asp-route-personelId="@seciliPersonelId" asp-route-tarih="@baslangic.AddDays(-7).ToString("yyyy-MM-dd")">← Önceki hafta</a>
+        <strong>@baslangic.ToString("dd MMMM", tr) – @baslangic.AddDays(6).ToString("dd MMMM yyyy", tr)</strong>
+        <a class="hafta-btn ikincil" asp-action="Haftalik" asp-route-subeId="@seciliSubeId" asp-route-personelId="@seciliPersonelId" asp-route-tarih="@baslangic.AddDays(7).ToString("yyyy-MM-dd")">Sonraki hafta →</a>
+    </div>
+    @if (!subeler.Any())
+    {
+        <div class="hafta-panel">Aktif şube bulunamadı.</div>
+    }
+    else if (!gorunenPersoneller.Any())
+    {
+        <div class="hafta-panel">Bu şubede aktif personel bulunamadı.</div>
+    }
+    else
+    {
+        <div class="hafta-kaydir">
+            <table class="hafta-tablo">
+                <thead>
+                    <tr>
+                        <th>Personel</th>
+                        @foreach (var gun in gunler)
+                        {
+                            <th>@gun.ToString("dddd", tr)<div class="hafta-uyari">@gun.ToString("dd.MM.yyyy")</div></th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var personel in gorunenPersoneller)
+                    {
+                        <tr>
+                            <td class="hafta-personel">@personel.AdSoyad</td>
+                            @foreach (var gun in gunler)
+                            {
+                                var gunBitis = gun.AddDays(1);
+                                var gunRandevular = randevular.Where(r => r.PersonelId == personel.Id && r.BaslangicTarihi < gunBitis && r.BitisTarihi > gun).ToList();
+                                var gunKapalilar = kapalilar.Where(k => k.PersonelId == personel.Id && k.BaslangicTarihi < gunBitis && k.BitisTarihi > gun).ToList();
+                                var calisma = calismaSaatleri.FirstOrDefault(x => x.Gun == gun.DayOfWeek);
+                                var acik = calisma != null && calisma.AcikMi && calisma.Kapanis > calisma.Acilis;
+                                <td>
+                                    <div class="hafta-gun">@(acik ? calisma!.Acilis.ToString(@"hh\:mm") + "–" + calisma.Kapanis.ToString(@"hh\:mm") : "Şube kapalı")</div>
+                                    @foreach (var r in gunRandevular)
+                                    {
+                                        var hizmetAdi = hizmetler.FirstOrDefault(h => h.Id == r.HizmetId)?.Ad ?? "Hizmet belirtilmemiş";
+                                        var manuel = (r.RandevuKaynagi == "Telefon" || r.RandevuKaynagi == "Elden") && r.MusteriKullaniciId == null;
+                                        var duzenlenebilir = manuel && r.Durum == "Onaylandi" && r.BaslangicTarihi > DateTime.Now;
+                                        <button type="button" class="hafta-kart @(r.Durum == "OnayBekliyor" ? "onaybekliyor" : r.Durum == "Geldi" ? "geldi" : r.Durum == "Tamamlandi" ? "tamamlandi" : "")"
+                                                data-id="@r.Id" data-musteri="@(string.IsNullOrWhiteSpace(r.ManuelMusteriAdi) ? "Online müşteri" : r.ManuelMusteriAdi)"
+                                                data-telefon="@r.ManuelMusteriTelefonu" data-personel="@personel.AdSoyad" data-hizmet="@hizmetAdi"
+                                                data-tarih="@r.BaslangicTarihi.ToString("dd.MM.yyyy")" data-saat="@(r.BaslangicTarihi.ToString("HH:mm") + " – " + r.BitisTarihi.ToString("HH:mm"))"
+                                                data-kaynak="@r.RandevuKaynagi" data-durum="@r.Durum" data-duzenlenebilir="@(duzenlenebilir ? "true" : "false")">
+                                            <strong>@r.BaslangicTarihi.ToString("HH:mm")–@r.BitisTarihi.ToString("HH:mm")</strong>
+                                            <span>@(string.IsNullOrWhiteSpace(r.ManuelMusteriAdi) ? "Online randevu" : r.ManuelMusteriAdi)</span>
+                                            <span>@hizmetAdi · @r.Durum</span>
+                                        </button>
+                                    }
+                                    @foreach (var k in gunKapalilar)
+                                    {
+                                        <div class="hafta-kapali">🔒 @k.BaslangicTarihi.ToString("HH:mm")–@k.BitisTarihi.ToString("HH:mm")<div>@(string.IsNullOrWhiteSpace(k.Aciklama) ? "Kapalı zaman" : k.Aciklama)</div></div>
+                                    }
+                                    @if (acik && gun >= DateTime.Today && seciliSubeId.HasValue)
+                                    {
+                                        <a class="hafta-ekle" asp-controller="IsletmeManuelRandevu" asp-action="Ekle"
+                                           asp-route-subeId="@seciliSubeId.Value" asp-route-personelId="@personel.Id"
+                                           asp-route-tarih="@gun.ToString("yyyy-MM-dd")">+ Randevu Ekle</a>
+                                    }
+                                    @if (!gunRandevular.Any() && !gunKapalilar.Any())
+                                    {
+                                        <div class="hafta-uyari">Kayıt yok</div>
+                                    }
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <p class="hafta-uyari">Randevulara tıklayarak detayları görebilirsiniz. Yeni randevu saatinin uygunluğu kayıt sırasında kontrol edilir. Haftalık görünüm boş saat garantisi vermez.</p>
+    }
+</div>
+<div class="hafta-arka" id="haftaArka" aria-hidden="true">
+    <section class="hafta-modal" role="dialog" aria-modal="true" aria-labelledby="haftaModalBaslik">
+        <div class="hafta-modalust"><h2 id="haftaModalBaslik">Randevu Detayları</h2><button type="button" id="haftaKapat" class="hafta-btn ikincil">Kapat</button></div>
+        <dl>
+            <div class="hafta-satir"><dt>Müşteri</dt><dd id="haftaMusteri"></dd></div>
+            <div class="hafta-satir"><dt>Telefon</dt><dd id="haftaTelefon"></dd></div>
+            <div class="hafta-satir"><dt>Personel</dt><dd id="haftaPersonel"></dd></div>
+            <div class="hafta-satir"><dt>Hizmet</dt><dd id="haftaHizmet"></dd></div>
+            <div class="hafta-satir"><dt>Tarih</dt><dd id="haftaTarih"></dd></div>
+            <div class="hafta-satir"><dt>Saat</dt><dd id="haftaSaat"></dd></div>
+            <div class="hafta-satir"><dt>Kaynak</dt><dd id="haftaKaynak"></dd></div>
+            <div class="hafta-satir"><dt>Durum</dt><dd id="haftaDurum"></dd></div>
+        </dl>
+        <div class="hafta-islem"><a id="haftaDuzenle" class="hafta-btn" href="#" hidden>Düzenle</a><a asp-controller="IsletmeRandevular" asp-action="Index" class="hafta-btn ikincil">Randevu Yönetimi</a></div>
+    </section>
+</div>
+<script>
+    (function () {
+        const arka = document.getElementById('haftaArka');
+        const kapat = document.getElementById('haftaKapat');
+        const duzenle = document.getElementById('haftaDuzenle');
+        const temel = '@Url.Action("Duzenle", "IsletmeManuelRandevu")';
+        let oncekiOdak = null;
+        const alanlar = ['musteri','telefon','personel','hizmet','tarih','saat','kaynak','durum'];
+        document.querySelectorAll('.hafta-kart').forEach(btn => btn.addEventListener('click', () => {
+            oncekiOdak = btn;
+            alanlar.forEach(ad => document.getElementById('hafta' + ad.charAt(0).toUpperCase() + ad.slice(1)).textContent = btn.dataset[ad] || '—');
+            const uygun = btn.dataset.duzenlenebilir === 'true';
+            duzenle.hidden = !uygun;
+            if (uygun) duzenle.href = temel + '?id=' + encodeURIComponent(btn.dataset.id);
+            arka.classList.add('acik');
+            arka.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+            kapat.focus();
+        }));
+        function kapatPencere() {
+            arka.classList.remove('acik');
+            arka.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+            if (oncekiOdak) oncekiOdak.focus();
+        }
+        kapat.addEventListener('click', kapatPencere);
+        arka.addEventListener('click', e => { if (e.target === arka) kapatPencere(); });
+        document.addEventListener('keydown', e => {
+            if (!arka.classList.contains('acik')) return;
+            if (e.key === 'Escape') kapatPencere();
+            if (e.key === 'Tab') {
+                const odak = Array.from(arka.querySelectorAll('button, a[href]')).filter(x => !x.hidden);
+                const ilk = odak[0], son = odak[odak.length - 1];
+                if (e.shiftKey && document.activeElement === ilk) { e.preventDefault(); son.focus(); }
+                else if (!e.shiftKey && document.activeElement === son) { e.preventDefault(); ilk.focus(); }
+            }
+        });
+    })();
+</script>

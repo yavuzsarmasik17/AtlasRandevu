@@ -1,0 +1,244 @@
+﻿@model List<AtlasRandevu.Domain.Entities.Personel>
+@{
+    ViewData["Title"] = "Personel Yönetimi";
+    Layout = "_IsletmeLayout";
+    var toplam = Model.Count;
+    var aktif = Model.Count(x => x.AktifMi);
+}
+<style>
+    .ap-wrap {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 25px 15px 65px;
+        color: #1b3051
+    }
+
+    .ap-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 23px
+    }
+
+        .ap-top h1 {
+            font-weight: 850;
+            font-size: 27px;
+            margin: 0
+        }
+
+    .ap-sub {
+        color: #7889a4;
+        font-size: 13px;
+        margin-top: 6px
+    }
+
+    .ap-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 18px;
+        background: linear-gradient(110deg,#244cc4,#4f83f4);
+        color: #fff !important;
+        border: 0;
+        border-radius: 11px;
+        text-decoration: none;
+        font-weight: 800;
+        font-size: 13px;
+        cursor: pointer
+    }
+
+        .ap-btn:hover {
+            filter: brightness(.96)
+        }
+
+    .ap-stats {
+        display: grid;
+        grid-template-columns: repeat(3,1fr);
+        gap: 13px;
+        margin-bottom: 22px
+    }
+
+    .ap-stat, .ap-card {
+        background: #fff;
+        border: 1px solid #e6ebf3;
+        border-radius: 17px;
+        box-shadow: 0 6px 24px rgba(15,38,81,.04)
+    }
+
+    .ap-stat {
+        padding: 20px
+    }
+
+        .ap-stat strong {
+            display: block;
+            font-size: 27px;
+            color: #284fc1
+        }
+
+        .ap-stat span {
+            color: #73849f;
+            font-size: 12px
+        }
+
+    .ap-card {
+        padding: 21px
+    }
+
+    .ap-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 0;
+        border-bottom: 1px solid #edf0f5;
+        flex-wrap: wrap
+    }
+
+        .ap-row:last-child {
+            border: 0
+        }
+
+    .ap-person {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        min-width: 210px
+    }
+
+    .ap-avatar {
+        width: 44px;
+        height: 44px;
+        display: grid;
+        place-items: center;
+        border-radius: 13px;
+        background: #edf3ff;
+        color: #315fdf;
+        font-size: 21px;
+        font-weight: 800
+    }
+
+    .ap-name {
+        font-weight: 850;
+        font-size: 14px
+    }
+
+    .ap-meta {
+        font-size: 12px;
+        color: #7889a4;
+        margin-top: 4px
+    }
+
+    .ap-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap
+    }
+
+    .ap-link {
+        padding: 9px 12px;
+        border-radius: 9px;
+        border: 1px solid #d9e4fa;
+        background: #f4f7ff;
+        color: #315fdf;
+        text-decoration: none;
+        font-weight: 750;
+        font-size: 12px;
+        cursor: pointer
+    }
+
+    .ap-status {
+        border-radius: 99px;
+        padding: 5px 9px;
+        font-size: 11px;
+        font-weight: 800;
+        background: #eaf8f0;
+        color: #16834c
+    }
+
+        .ap-status.off {
+            background: #f2f3f6;
+            color: #777
+        }
+
+    .ap-msg {
+        padding: 13px 16px;
+        border-radius: 11px;
+        margin-bottom: 16px;
+        background: #ecf8f0;
+        color: #14643b
+    }
+
+        .ap-msg.error {
+            background: #fff0f0;
+            color: #ad263a
+        }
+
+    @@media(max-width:600px) {
+        .ap-stats {
+            grid-template-columns: repeat(3,1fr)
+        }
+
+        .ap-stat {
+            padding: 13px
+        }
+
+            .ap-stat strong {
+                font-size: 21px
+            }
+
+        .ap-card {
+            padding: 15px
+        }
+    }
+</style>
+<div class="ap-wrap">
+    <div class="ap-top">
+        <div><h1>Personel Yönetimi</h1><div class="ap-sub">Çalışanlarını ve şube atamalarını buradan yönet.</div></div>
+        <a asp-controller="Personel" asp-action="Ekle" class="ap-btn">+ Yeni Personel</a>
+    </div>
+    @if (TempData["PersonelMesaj"] != null)
+    {
+        <div class="ap-msg" role="status">@TempData["PersonelMesaj"]</div>
+    }
+    @if (TempData["PersonelHata"] != null)
+    {
+        <div class="ap-msg error" role="alert">@TempData["PersonelHata"]</div>
+    }
+    <div class="ap-stats">
+        <div class="ap-stat"><strong>@toplam</strong><span>Toplam personel</span></div>
+        <div class="ap-stat"><strong>@aktif</strong><span>Aktif personel</span></div>
+        <div class="ap-stat"><strong>@(toplam - aktif)</strong><span>Pasif personel</span></div>
+    </div>
+    <section class="ap-card">
+        @if (!Model.Any())
+        {
+            <p class="ap-sub">Henüz personel eklenmemiş. “Yeni Personel” ile ilk çalışanını ekleyebilirsin.</p>
+        }
+        @foreach (var p in Model)
+        {
+            <div class="ap-row">
+                <div class="ap-person">
+                    <div class="ap-avatar" aria-hidden="true">@(string.IsNullOrWhiteSpace(p.AdSoyad) ? "?" : p.AdSoyad.Substring(0, 1).ToUpperInvariant())</div>
+                    <div>
+                        <div class="ap-name">@p.AdSoyad <span class="ap-status @(p.AktifMi ? "" : "off")">@(p.AktifMi ? "Aktif" : "Pasif")</span></div>
+                        <div class="ap-meta">@p.Unvan · @p.Sube.Ad</div>
+                        @if (!string.IsNullOrWhiteSpace(p.Telefon))
+                        {
+                            <div class="ap-meta">@p.Telefon</div>
+                        }
+                    </div>
+                </div>
+                <div class="ap-actions">
+                    <a class="ap-link" asp-controller="Personel" asp-action="Duzenle" asp-route-id="@p.Id">Düzenle</a>
+                    <form asp-controller="Personel" asp-action="DurumDegistir" asp-route-id="@p.Id" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="ap-link" onclick="return confirm('Personelin durumunu değiştirmek istiyor musunuz?')">@(p.AktifMi ? "Pasifleştir" : "Aktifleştir")</button>
+                    </form>
+                </div>
+            </div>
+        }
+    </section>
+</div>

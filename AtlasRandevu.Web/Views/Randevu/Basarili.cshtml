@@ -1,0 +1,114 @@
+﻿@model AtlasRandevu.Web.Controllers.RandevuBasariliViewModel
+
+@{
+    ViewData["Title"] = "Randevunuz Onaylandı";
+}
+
+<style>
+    .ar-success-wrap {
+        max-width: 620px;
+        margin: 65px auto;
+        padding: 0 18px;
+    }
+
+    .ar-success {
+        background: white;
+        border: 1px solid #e6eaf3;
+        border-radius: 25px;
+        padding: 45px 32px;
+        text-align: center;
+        box-shadow: 0 18px 50px rgba(17,35,70,.08);
+    }
+
+    .ar-success-icon {
+        width: 76px;
+        height: 76px;
+        display: grid;
+        place-items: center;
+        background: #e8f8ef;
+        color: #138b51;
+        font-size: 36px;
+        border-radius: 50%;
+        margin: 0 auto 22px;
+    }
+
+    .ar-success h1 {
+        font-size: 29px;
+        font-weight: 850;
+        color: #142440;
+    }
+
+    .ar-success p {
+        color: #6b7890;
+        line-height: 1.7;
+    }
+
+    .ar-success-details {
+        background: #f5f8ff;
+        border-radius: 15px;
+        padding: 20px;
+        text-align: left;
+        margin: 24px 0;
+        color: #213452;
+        line-height: 2;
+    }
+
+    .ar-success a {
+        display: inline-block;
+        background: #315ed4;
+        color: white;
+        text-decoration: none;
+        border-radius: 12px;
+        padding: 13px 24px;
+        font-weight: 700;
+        margin: 5px;
+    }
+
+    .ar-notice {
+        background: #e8f8ef;
+        color: #176b42;
+        padding: 15px;
+        border-radius: 12px;
+        margin: 20px 0;
+        font-weight: 600;
+    }
+</style>
+
+<div class="ar-success-wrap">
+    <div class="ar-success">
+        <div class="ar-success-icon">✓</div>
+
+        <h1>Randevun onaylandı!</h1>
+
+        <p>
+            Randevun ATLAS Randevu sistemine kaydedildi.
+            İşletmeye otomatik bildirim gönderildi.
+        </p>
+
+        <div class="ar-success-details">
+            <div><strong>Randevu No:</strong> #@Model.Id</div>
+            <div><strong>İşletme:</strong> @Model.IsletmeAdi</div>
+            <div><strong>Tarih:</strong> @Model.BaslangicTarihi.ToString("dd.MM.yyyy")</div>
+            <div><strong>Saat:</strong> @Model.BaslangicTarihi.ToString("HH:mm")</div>
+            <div>
+                <strong>Durum:</strong>
+                @(Model.Durum == "Onaylandi" ? "Onaylandı" :
+                    Model.Durum == "OnayBekliyor" ? "Onay bekliyor" :
+                    Model.Durum)
+            </div>
+        </div>
+
+        <div class="ar-notice">
+            ✓ Randevunuz başarıyla oluşturuldu.
+            İşletmeye ayrıca mesaj göndermenize gerek yok.
+        </div>
+
+        <p>
+            Randevu bilgilerinizi hesabınızdan takip edebilirsiniz.
+        </p>
+
+        <a asp-controller="Kesfet" asp-action="Index">
+            İşletmeleri keşfet →
+        </a>
+    </div>
+</div>

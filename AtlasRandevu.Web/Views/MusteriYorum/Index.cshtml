@@ -1,0 +1,30 @@
+﻿@model List<AtlasRandevu.Web.Controllers.MusteriYorumRandevuSatiri>
+@{
+	ViewData["Title"] = "Değerlendirmelerim";
+}
+<div class="container py-5" style="max-width:950px">
+	<h1 class="fw-bold mb-2">Değerlendirmelerim</h1><p class="text-muted mb-4">Tamamlanan randevularınızı değerlendirin.</p>
+	@if (TempData["YorumMesaj"] != null)
+	{
+		<div class="alert alert-success">@TempData["YorumMesaj"]</div>
+	}
+	@if (TempData["YorumHata"] != null)
+	{
+		<div class="alert alert-warning">@TempData["YorumHata"]</div>
+	}
+	@if (!Model.Any())
+	{
+		<div class="card p-4">Henüz tamamlanmış randevunuz bulunmuyor.</div>
+	}
+	@foreach (var r in Model)
+	{
+		<div class="card p-4 mb-3" style="border-radius:17px"><div class="d-flex align-items-center justify-content-between gap-3 flex-wrap"><div><strong>@r.IsletmeAdi</strong><div class="text-muted small">@r.HizmetAdi · @r.Tarih.ToString("dd.MM.yyyy HH:mm")</div></div>@if (r.YorumYapildi)
+				{
+					<span class="badge bg-success">Değerlendirildi</span>
+				}
+				else
+				{
+					<a class="btn btn-primary" asp-action="Yaz" asp-route-randevuId="@r.Id">★ Değerlendir</a>
+				}</div></div>
+	}
+</div>

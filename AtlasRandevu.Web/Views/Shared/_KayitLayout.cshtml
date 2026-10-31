@@ -1,0 +1,23 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - Atlas Randevu</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/isletme-kayit.css" asp-append-version="true" />
+</head>
+<body class="registration-body">
+    <header class="registration-header">
+        <div class="container header-inner">
+            <a class="brand" asp-controller="Home" asp-action="Index"><span class="brand-symbol">✦</span> ATLAS <span>RANDEVU</span></a>
+            <span class="header-caption">İşletmenizi kaydedin, randevularınızı yönetin.</span>
+        </div>
+    </header>
+    <main class="container registration-main">@RenderBody()</main>
+    <footer class="registration-footer">© @DateTime.Now.Year Atlas Randevu · Atlas Soft</footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

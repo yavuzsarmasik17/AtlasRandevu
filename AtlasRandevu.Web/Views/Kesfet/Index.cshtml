@@ -1,0 +1,1286 @@
+﻿@model List<AtlasRandevu.Web.Controllers.KesfetIsletmeViewModel>
+@using AtlasRandevu.Domain.Entities
+
+@{
+    ViewData["Title"] = "İşletmeleri Keşfet";
+
+    var sektorler = ViewBag.Sektorler as List<Sektor>
+        ?? new List<Sektor>();
+
+    var iller = ViewBag.Iller as List<string>
+        ?? new List<string>();
+
+    var ilceler = ViewBag.Ilceler as List<string>
+        ?? new List<string>();
+
+    string arama = ViewBag.Arama ?? "";
+    string il = ViewBag.Il ?? "";
+    string ilce = ViewBag.Ilce ?? "";
+    string hizmet = ViewBag.Hizmet ?? "";
+    string siralama = ViewBag.Siralama ?? "onerilen";
+
+    int? sektorId = ViewBag.SektorId;
+    decimal? minFiyat = ViewBag.MinFiyat;
+    decimal? maxFiyat = ViewBag.MaxFiyat;
+    decimal? minPuan = ViewBag.MinPuan;
+    int? minYorum = ViewBag.MinYorum;
+    bool yorumlu = ViewBag.Yorumlu ?? false;
+    bool fotografli = ViewBag.Fotografli ?? false;
+}
+
+<style>
+    .kf-wrap {
+        max-width: 1320px;
+        margin: 0 auto;
+        padding: 34px 18px 80px;
+        color: #1d2c46;
+    }
+
+    .kf-heading h1 {
+        font-size: 30px;
+        font-weight: 850;
+        letter-spacing: -.8px;
+        margin-bottom: 8px;
+    }
+
+    .kf-heading p {
+        color: #8793a7;
+        font-size: 14px;
+        margin-bottom: 28px;
+    }
+
+    .kf-layout {
+        display: grid;
+        grid-template-columns: 285px minmax(0,1fr);
+        gap: 25px;
+        align-items: start;
+    }
+
+    .kf-filter {
+        background: white;
+        border: 1px solid #e7ebf2;
+        border-radius: 17px;
+        padding: 22px;
+    }
+
+        .kf-filter h2 {
+            font-size: 17px;
+            font-weight: 850;
+            margin-bottom: 20px;
+        }
+
+    .kf-field {
+        margin-bottom: 18px;
+    }
+
+        .kf-field label {
+            display: block;
+            font-size: 12px;
+            font-weight: 800;
+            color: #40516d;
+            margin-bottom: 7px;
+        }
+
+        .kf-field input,
+        .kf-field select {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #e0e6ef;
+            border-radius: 10px;
+            background: #fafcff;
+            font-size: 13px;
+            color: #273c5e;
+            outline: none;
+        }
+
+            .kf-field input:focus,
+            .kf-field select:focus {
+                border-color: #4771e8;
+            }
+
+    .kf-price {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 9px;
+    }
+
+    .kf-check {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        margin-bottom: 12px;
+        font-size: 13px;
+        color: #40516d;
+    }
+
+        .kf-check input {
+            accent-color: #315fdf;
+        }
+
+    .kf-submit {
+        width: 100%;
+        border: 0;
+        border-radius: 11px;
+        padding: 13px;
+        background: #315fdf;
+        color: white;
+        font-size: 13px;
+        font-weight: 850;
+        margin-top: 10px;
+    }
+
+    .kf-reset {
+        display: block;
+        text-align: center;
+        text-decoration: none;
+        color: #7d8ba2;
+        font-size: 12px;
+        margin-top: 15px;
+    }
+
+    .kf-results-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+        gap: 15px;
+    }
+
+        .kf-results-head h2 {
+            font-size: 19px;
+            font-weight: 850;
+            margin: 0;
+        }
+
+    .kf-sort {
+        padding: 10px 12px;
+        border: 1px solid #e0e6ef;
+        border-radius: 10px;
+        background: white;
+        font-size: 13px;
+    }
+
+    .kf-list {
+        display: grid;
+        gap: 15px;
+    }
+
+    .kf-card {
+        display: flex;
+        gap: 20px;
+        padding: 16px;
+        background: white;
+        border: 1px solid #e7ebf2;
+        border-radius: 17px;
+        transition: box-shadow .2s;
+    }
+
+        .kf-card:hover {
+            box-shadow: 0 10px 30px rgba(20,38,75,.08);
+        }
+
+    .kf-image {
+        width: 185px;
+        height: 165px;
+        border-radius: 12px;
+        background: linear-gradient(135deg,#dbe5fc,#eff4ff);
+        overflow: hidden;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #7790c4;
+        font-size: 35px;
+    }
+
+        .kf-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .kf-card-body {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .kf-category {
+        font-size: 11px;
+        font-weight: 850;
+        color: #4771e8;
+        margin-bottom: 7px;
+    }
+
+    .kf-card-body h3 {
+        font-size: 19px;
+        font-weight: 850;
+        margin-bottom: 8px;
+    }
+
+    .kf-location {
+        font-size: 12px;
+        color: #8793a7;
+        margin-bottom: 10px;
+    }
+
+    .kf-rating {
+        font-size: 13px;
+        margin-bottom: 10px;
+    }
+
+        .kf-rating strong {
+            color: #d99a19;
+        }
+
+    .kf-slogan {
+        font-size: 12px;
+        color: #8291ab;
+        margin-bottom: 12px;
+    }
+
+    .kf-card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .kf-price-label {
+        font-size: 13px;
+        font-weight: 850;
+        color: #243958;
+    }
+
+    .kf-detail {
+        text-decoration: none;
+        background: #edf3ff;
+        color: #315fdf;
+        padding: 10px 16px;
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: 850;
+    }
+
+    .kf-empty {
+        padding: 70px 20px;
+        text-align: center;
+        background: white;
+        border: 1px solid #e7ebf2;
+        border-radius: 17px;
+        color: #8793a7;
+    }
+
+    @@media(max-width:950px) {
+        .kf-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .kf-filter {
+            display: grid;
+            grid-template-columns: repeat(2,minmax(0,1fr));
+            gap: 0 18px;
+        }
+
+            .kf-filter h2 {
+                grid-column: 1/-1;
+            }
+    }
+
+    @@media(max-width:650px) {
+        .kf-filter {
+            display: block;
+        }
+
+        .kf-card {
+            flex-direction: column;
+        }
+
+        .kf-image {
+            width: 100%;
+            height: 200px;
+        }
+
+        .kf-results-head {
+            flex-wrap: wrap;
+        }
+    }
+
+
+    /* ATLAS RANDEVU - PREMIUM ANIMASYONLAR */
+
+    .kf-wrap {
+        animation: atlasFadeIn .65s ease both;
+    }
+
+    .kf-heading h1 {
+        background: linear-gradient(100deg, #14264a, #315fdf, #739dff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .kf-filter {
+        box-shadow: 0 12px 35px rgba(25, 55, 110, .05);
+        transition: box-shadow .3s ease, transform .3s ease;
+    }
+
+        .kf-filter:hover {
+            box-shadow: 0 18px 45px rgba(25, 55, 110, .10);
+        }
+
+    .kf-field input,
+    .kf-field select {
+        transition: border-color .25s ease, box-shadow .25s ease, background-color .25s ease;
+    }
+
+        .kf-field input:focus,
+        .kf-field select:focus {
+            background: #fff;
+            border-color: #4975f5;
+            box-shadow: 0 0 0 4px rgba(73, 117, 245, .12);
+        }
+
+    .kf-card {
+        position: relative;
+        overflow: hidden;
+        animation: atlasCardIn .55s ease both;
+        transition: transform .3s ease, border-color .3s ease, box-shadow .3s ease;
+    }
+
+        .kf-card:nth-child(2) {
+            animation-delay: .08s;
+        }
+
+        .kf-card:nth-child(3) {
+            animation-delay: .16s;
+        }
+
+        .kf-card:nth-child(4) {
+            animation-delay: .24s;
+        }
+
+        .kf-card:nth-child(5) {
+            animation-delay: .32s;
+        }
+
+        .kf-card:hover {
+            transform: translateY(-5px);
+            border-color: #cbd9ff;
+            box-shadow: 0 20px 45px rgba(26, 56, 115, .13);
+        }
+
+    .kf-image img {
+        transition: transform .55s cubic-bezier(.2,.7,.2,1);
+    }
+
+    .kf-card:hover .kf-image img {
+        transform: scale(1.07);
+    }
+
+    .kf-detail,
+    .kf-submit {
+        position: relative;
+        overflow: hidden;
+        transition: transform .25s ease, box-shadow .25s ease, background-color .25s ease;
+    }
+
+        .kf-detail:hover,
+        .kf-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 9px 22px rgba(49, 95, 223, .25);
+        }
+
+    .kf-submit {
+        background: linear-gradient(110deg, #234bc2, #477cf5, #234bc2);
+        background-size: 200% 100%;
+    }
+
+        .kf-submit:hover {
+            background-position: 100% 0;
+        }
+
+    .kf-rating strong {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    @@keyframes atlasFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@keyframes atlasCardIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .kf-wrap,
+        .kf-card {
+            animation: none !important;
+        }
+
+        .kf-card,
+        .kf-image img,
+        .kf-detail,
+        .kf-submit,
+        .kf-filter {
+            transition: none !important;
+        }
+    }
+
+    /* ATLAS RANDEVU - PREMIUM HERO */
+
+    .atlas-hero {
+        position: relative;
+        overflow: hidden;
+        isolation: isolate;
+        border-radius: 24px;
+        padding: 55px 45px;
+        margin-bottom: 28px;
+        background: linear-gradient( 125deg, #09162d 0%, #142e5b 55%, #234aa3 100% );
+        box-shadow: 0 18px 45px rgba(13, 37, 86, .15);
+    }
+
+    .atlas-hero-glow {
+        position: absolute;
+        z-index: -1;
+        width: 440px;
+        height: 440px;
+        right: -100px;
+        top: -170px;
+        border-radius: 50%;
+        background: radial-gradient( circle, rgba(100, 159, 255, .32), transparent 70% );
+        pointer-events: none;
+        animation: atlasGlow 7s ease-in-out infinite alternate;
+    }
+
+    .atlas-hero-content {
+        position: relative;
+        z-index: 1;
+        max-width: 740px;
+        animation: atlasHeroEnter .7s ease both;
+    }
+
+    .atlas-hero-badge {
+        display: inline-block;
+        color: #a9c8ff;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        margin-bottom: 17px;
+    }
+
+    .atlas-hero h1 {
+        color: white;
+        font-size: clamp(30px, 4vw, 49px);
+        font-weight: 900;
+        letter-spacing: -1.6px;
+        line-height: 1.15;
+        margin-bottom: 18px;
+    }
+
+        .atlas-hero h1 span {
+            color: #91b7ff;
+        }
+
+    .atlas-hero p {
+        max-width: 570px;
+        color: #bdcce4;
+        font-size: 14px;
+        line-height: 1.85;
+        margin-bottom: 25px;
+    }
+
+    .atlas-hero-search {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 7px 7px 7px 18px;
+        background: white;
+        border: 1px solid rgba(255,255,255,.6);
+        border-radius: 14px;
+        box-shadow: 0 8px 30px rgba(0,0,0,.12);
+        transition: box-shadow .3s, transform .3s;
+    }
+
+        .atlas-hero-search:focus-within {
+            box-shadow: 0 0 0 5px rgba(113,164,255,.23), 0 12px 35px rgba(0,0,0,.15);
+            transform: translateY(-2px);
+        }
+
+    .atlas-search-icon {
+        color: #5976ad;
+        font-size: 26px;
+        line-height: 1;
+    }
+
+    .atlas-hero-search input {
+        flex: 1;
+        min-width: 0;
+        border: 0;
+        outline: 0;
+        background: transparent;
+        color: #213657;
+        font-size: 14px;
+    }
+
+    .atlas-hero-search button {
+        flex-shrink: 0;
+        border: 0;
+        border-radius: 10px;
+        padding: 13px 22px;
+        background: linear-gradient(110deg,#315fdf,#5487ff);
+        color: white;
+        font-size: 13px;
+        font-weight: 800;
+        transition: transform .25s, box-shadow .25s;
+    }
+
+        .atlas-hero-search button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(49,95,223,.35);
+        }
+
+        .atlas-hero-search button span {
+            margin-left: 8px;
+        }
+
+    .atlas-hero-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-top: 22px;
+        color: #a9c1e8;
+        font-size: 11px;
+    }
+
+    .atlas-mobile-filter-button {
+        display: none;
+    }
+
+    @@keyframes atlasGlow {
+        from {
+            transform: translate(0,0) scale(1);
+        }
+
+        to {
+            transform: translate(-60px,60px) scale(1.2);
+        }
+    }
+
+    @@keyframes atlasHeroEnter {
+        from {
+            opacity: 0;
+            transform: translateY(18px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@media (max-width: 950px) {
+        .atlas-mobile-filter-button {
+            display: flex;
+            width: 100%;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 18px;
+            margin-bottom: 18px;
+            border: 1px solid #dce5f6;
+            border-radius: 12px;
+            background: white;
+            color: #234a9e;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .atlas-filter-panel {
+            display: none;
+        }
+
+            .atlas-filter-panel.atlas-filter-open {
+                display: block;
+                animation: atlasHeroEnter .3s ease both;
+            }
+
+        .atlas-hero {
+            padding: 38px 25px;
+        }
+    }
+
+    @@media (max-width: 650px) {
+        .atlas-hero {
+            padding: 32px 20px;
+            border-radius: 18px;
+        }
+
+        .atlas-hero-search {
+            gap: 6px;
+            padding-left: 12px;
+        }
+
+            .atlas-hero-search button {
+                padding: 12px 14px;
+            }
+
+        .atlas-hero-tags {
+            gap: 9px 15px;
+        }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .atlas-hero-glow, .atlas-hero-content, .atlas-filter-panel.atlas-filter-open {
+            animation: none !important;
+        }
+
+        .atlas-hero-search,
+        .atlas-hero-search button {
+            transition: none !important;
+        }
+    }
+
+
+    /* ATLAS - HIZMET KATEGORILERI */
+
+    .atlas-categories {
+        margin: 28px 0 34px;
+    }
+
+    .atlas-categories-heading h2 {
+        font-size: 23px;
+        font-weight: 850;
+        color: #172b4d;
+        margin-bottom: 6px;
+    }
+
+    .atlas-categories-heading p {
+        color: #8492a9;
+        font-size: 13px;
+        margin-bottom: 20px;
+    }
+
+    .atlas-category-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 17px;
+    }
+
+    .atlas-category-card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-height: 175px;
+        padding: 24px;
+        background: #fff;
+        border: 1px solid #e5ebf5;
+        border-radius: 18px;
+        text-decoration: none;
+        color: #1c3154;
+        overflow: hidden;
+        transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+    }
+
+        .atlas-category-card::before {
+            content: "";
+            position: absolute;
+            width: 160px;
+            height: 160px;
+            right: -75px;
+            top: -85px;
+            border-radius: 50%;
+            background: #edf3ff;
+            transition: transform .4s ease;
+        }
+
+        .atlas-category-card:hover {
+            transform: translateY(-6px);
+            border-color: #92b1fa;
+            box-shadow: 0 18px 38px rgba(30, 70, 145, .13);
+        }
+
+            .atlas-category-card:hover::before {
+                transform: scale(1.5);
+            }
+
+        .atlas-category-card.active {
+            border-color: #315fdf;
+            box-shadow: 0 0 0 2px rgba(49,95,223,.12);
+        }
+
+    .atlas-category-icon {
+        position: relative;
+        z-index: 1;
+        font-size: 31px;
+        color: #315fdf;
+    }
+
+    .atlas-category-card strong {
+        position: relative;
+        z-index: 1;
+        font-size: 17px;
+        font-weight: 850;
+    }
+
+    .atlas-category-card small {
+        position: relative;
+        z-index: 1;
+        color: #8291a8;
+        font-size: 12px;
+    }
+
+    .atlas-category-arrow {
+        position: absolute;
+        right: 20px;
+        bottom: 18px;
+        color: #315fdf;
+        font-size: 23px;
+        transition: transform .3s;
+    }
+
+    .atlas-category-card:hover .atlas-category-arrow {
+        transform: translateX(5px);
+    }
+
+    @@media (max-width: 700px) {
+        .atlas-category-grid {
+            grid-template-columns: 1fr;
+            gap: 11px;
+        }
+
+        .atlas-category-card {
+            min-height: 120px;
+            padding: 18px;
+        }
+
+        .atlas-category-icon {
+            font-size: 25px;
+        }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .atlas-category-card,
+        .atlas-category-card::before,
+        .atlas-category-arrow {
+            transition: none;
+        }
+    }
+
+    .atlas-category-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 20px;
+    }
+
+    .atlas-category-photo {
+        position: relative;
+        display: block;
+        height: 260px;
+        overflow: hidden;
+        border-radius: 20px;
+        background: linear-gradient(135deg, #142b50, #315fdf);
+        text-decoration: none !important;
+        box-shadow: 0 12px 30px rgba(20, 40, 80, .15);
+        transition: transform .3s ease, box-shadow .3s ease;
+    }
+
+        .atlas-category-photo img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+            transition: transform .5s ease;
+        }
+
+        .atlas-category-photo:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 45px rgba(20, 40, 80, .25);
+        }
+
+            .atlas-category-photo:hover img {
+                transform: scale(1.08);
+            }
+
+    .atlas-category-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 24px;
+        background: linear-gradient( to top, rgba(4, 14, 34, .95), rgba(4, 14, 34, .08) );
+        color: white !important;
+    }
+
+        .atlas-category-overlay span {
+            color: #a7c5ff;
+            font-size: 11px;
+            letter-spacing: 1.5px;
+        }
+
+        .atlas-category-overlay h3 {
+            color: white !important;
+            font-size: 23px;
+            font-weight: 850;
+            margin: 8px 0;
+        }
+
+        .atlas-category-overlay p {
+            color: #dbe5f5 !important;
+            font-size: 13px;
+            margin: 0;
+        }
+
+        .atlas-category-overlay strong {
+            color: #9fc0ff;
+            font-size: 13px;
+            margin-top: 15px;
+        }
+
+    .atlas-category-photo.active {
+        outline: 3px solid #4779f4;
+        outline-offset: 3px;
+    }
+
+    @@media (max-width: 700px) {
+        .atlas-category-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .atlas-category-photo {
+            height: 220px;
+        }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .atlas-category-photo,
+        .atlas-category-photo img {
+            transition: none;
+        }
+    }
+
+</style>
+
+<div class="kf-wrap">
+    <a asp-controller="AtlasAi" asp-action="Index" class="atlas-ai-entry">✦ Atlas AI Asistan ile İşletme Bul <span>→</span></a>
+    <style>
+        .atlas-ai-entry {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 18px;
+            padding: 17px 22px;
+            border: 1px solid #b9ccfa;
+            border-radius: 15px;
+            background: linear-gradient(110deg,#edf3ff,#fff);
+            color: #234bb4;
+            text-decoration: none;
+            font-weight: 850;
+            box-shadow: 0 7px 20px rgba(33,76,164,.07);
+            transition: transform .2s,box-shadow .2s
+        }
+
+            .atlas-ai-entry:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px rgba(33,76,164,.13);
+                color: #1c439d
+            }
+    </style>
+    <div class="atlas-hero">
+        <div class="atlas-hero-glow"></div>
+
+        <div class="atlas-hero-content">
+            <div class="atlas-hero-badge">
+                ✦ ATLAS RANDEVU
+            </div>
+
+            <h1>
+                Aradığın hizmet,
+                <span>doğru adres.</span>
+            </h1>
+
+            <p>
+                Kuaförleri, berberleri ve güzellik merkezlerini
+                keşfet. Gerçek yorumları incele, sana en uygun
+                işletmeyi bul.
+            </p>
+
+            <form asp-controller="Kesfet"
+                  asp-action="Index"
+                  method="get"
+                  class="atlas-hero-search">
+
+                <span class="atlas-search-icon">⌕</span>
+
+                <input type="text"
+                       name="arama"
+                       value="@arama"
+                       placeholder="İşletme veya hizmet ara..." />
+
+                <button type="submit">
+                    Keşfet <span>→</span>
+                </button>
+            </form>
+
+            <div class="atlas-hero-tags">
+                <span>✦ Gerçek değerlendirmeler</span>
+                <span>✦ Detaylı filtreleme</span>
+                <span>✦ Kolay randevu</span>
+            </div>
+        </div>
+    </div>
+
+    <section class="atlas-categories">
+        <div class="atlas-categories-heading">
+            <div>
+                <h2>Hizmet Kategorileri</h2>
+                <p>Aradığın hizmeti seç, sana uygun işletmeleri keşfet.</p>
+            </div>
+        </div>
+
+
+        <div class="atlas-category-grid">
+
+            <a asp-controller="Kesfet"
+               asp-action="Index"
+               asp-route-sektorId="1"
+               class="atlas-category-photo @(sektorId == 1 ? "active" : "")">
+
+                <img src="~/images/kategoriler/erkek-kuaforu.jpg"
+                     alt="Erkek Kuaförü" loading="lazy" />
+
+                <div class="atlas-category-overlay">
+                    <span>01 / ERKEK BAKIM</span>
+                    <h3>Erkek Kuaförü</h3>
+                    <p>Tarzını yeniden keşfet</p>
+                    <strong>Keşfet →</strong>
+                </div>
+            </a>
+
+            <a asp-controller="Kesfet"
+               asp-action="Index"
+               asp-route-sektorId="2"
+               class="atlas-category-photo @(sektorId == 2 ? "active" : "")">
+
+                <img src="~/images/kategoriler/kadin-kuaforu.jpg"
+                     alt="Kadın Kuaförü" loading="lazy" />
+
+                <div class="atlas-category-overlay">
+                    <span>02 / SAÇ TASARIMI</span>
+                    <h3>Kadın Kuaförü</h3>
+                    <p>Güzelliğine değer kat</p>
+                    <strong>Keşfet →</strong>
+                </div>
+            </a>
+
+            <a asp-controller="Kesfet"
+               asp-action="Index"
+               asp-route-sektorId="3"
+               class="atlas-category-photo @(sektorId == 3 ? "active" : "")">
+
+                <img src="~/images/kategoriler/guzellik-merkezi.jpg"
+                     alt="Güzellik Merkezi" loading="lazy" />
+
+                <div class="atlas-category-overlay">
+                    <span>03 / KİŞİSEL BAKIM</span>
+                    <h3>Güzellik Merkezi</h3>
+                    <p>Kendine zaman ayır</p>
+                    <strong>Keşfet →</strong>
+                </div>
+            </a>
+
+        </div>
+
+    </section>
+
+    <div class="kf-layout">
+
+        <button type="button"
+                class="atlas-mobile-filter-button"
+                id="atlasFilterToggle"
+                aria-controls="atlasFilterPanel"
+                aria-expanded="false">
+            <span>☷ Filtreleri Göster</span>
+            <span id="atlasFilterArrow">⌄</span>
+        </button>
+
+        <aside id="atlasFilterPanel" class="atlas-filter-panel">
+            <form asp-controller="Kesfet"
+                  asp-action="Index"
+                  method="get"
+                  id="filtreForm"
+                  class="kf-filter">
+
+                <h2>Filtreler</h2>
+
+                <div class="kf-field">
+                    <label>İşletme veya hizmet ara</label>
+                    <input name="arama" value="@arama"
+                           placeholder="Örn: Saç kesimi..." />
+                </div>
+
+                <div class="kf-field">
+                    <label>Kategori</label>
+                    <select name="sektorId">
+                        <option value="">Tüm kategoriler</option>
+                        @foreach (var s in sektorler)
+                        {
+                            <option value="@s.Id"
+                                    selected="@(sektorId == s.Id)">
+                                @s.Ad
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="kf-field">
+                    <label>İl</label>
+                    <select name="il" id="ilSecimi">
+                        <option value="">Tüm iller</option>
+                        @foreach (var item in iller)
+                        {
+                            <option value="@item" selected="@(il == item)">
+                                @item
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="kf-field">
+                    <label>İlçe</label>
+                    <select name="ilce" id="ilceSecimi">
+                        <option value="">Tüm ilçeler</option>
+                        @foreach (var item in ilceler)
+                        {
+                            <option value="@item" selected="@(ilce == item)">
+                                @item
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="kf-field">
+                    <label>Hizmet</label>
+                    <input name="hizmet" value="@hizmet"
+                           placeholder="Örn: Sakal tıraşı" />
+                </div>
+
+                <div class="kf-field">
+                    <label>Fiyat aralığı (TL)</label>
+                    <div class="kf-price">
+                        <input name="minFiyat" type="number"
+                               min="0" step="0.01"
+                               value="@(minFiyat?.ToString(System.Globalization.CultureInfo.InvariantCulture))"
+                               placeholder="En az" />
+                        <input name="maxFiyat" type="number"
+                               min="0" step="0.01"
+                               value="@(maxFiyat?.ToString(System.Globalization.CultureInfo.InvariantCulture))"
+                               placeholder="En çok" />
+                    </div>
+                </div>
+
+                <div class="kf-field">
+                    <label>Minimum puan</label>
+                    <select name="minPuan">
+                        <option value="">Tüm puanlar</option>
+                        <option value="3" selected="@(minPuan == 3)">3,0 ve üzeri</option>
+                        <option value="4" selected="@(minPuan == 4)">4,0 ve üzeri</option>
+                        <option value="4.5" selected="@(minPuan == 4.5m)">4,5 ve üzeri</option>
+                    </select>
+                </div>
+
+                <div class="kf-field">
+                    <label>En az yorum sayısı</label>
+                    <select name="minYorum">
+                        <option value="">Farketmez</option>
+                        <option value="5" selected="@(minYorum == 5)">5 yorum</option>
+                        <option value="10" selected="@(minYorum == 10)">10 yorum</option>
+                        <option value="25" selected="@(minYorum == 25)">25 yorum</option>
+                        <option value="50" selected="@(minYorum == 50)">50 yorum</option>
+                    </select>
+                </div>
+
+                <label class="kf-check">
+                    <input type="checkbox" name="yorumlu"
+                           value="true" checked="@yorumlu" />
+                    Yorum yapılan işletmeler
+                </label>
+
+                <label class="kf-check">
+                    <input type="checkbox" name="fotografli"
+                           value="true" checked="@fotografli" />
+                    Fotoğraflı işletmeler
+                </label>
+
+                <div class="kf-field">
+                    <label>Sıralama</label>
+                    <select name="siralama">
+                        <option value="onerilen" selected="@(siralama == "onerilen")">Önerilen</option>
+                        <option value="puan" selected="@(siralama == "puan")">En yüksek puan</option>
+                        <option value="yorum" selected="@(siralama == "yorum")">En çok yorum</option>
+                        <option value="fiyat" selected="@(siralama == "fiyat")">En düşük fiyat</option>
+                        <option value="isim" selected="@(siralama == "isim")">İsme göre</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="kf-submit">
+                    İşletmeleri Göster →
+                </button>
+
+                <a asp-controller="Kesfet"
+                   asp-action="Index"
+                   class="kf-reset">
+                    Filtreleri Temizle
+                </a>
+            </form>
+        </aside>
+
+        <main>
+            <div class="kf-results-head">
+                <h2>@Model.Count işletme bulundu</h2>
+            </div>
+
+            @if (!Model.Any())
+            {
+                <div class="kf-empty">
+                    <h3>İşletme bulunamadı</h3>
+                    <p>Filtreleri değiştirerek tekrar deneyebilirsiniz.</p>
+                </div>
+            }
+            else
+            {
+                <div class="kf-list">
+                    @foreach (var isletme in Model)
+                    {
+                        <article class="kf-card">
+                            <div class="kf-image">
+                                @if (!string.IsNullOrWhiteSpace(isletme.KapakFotografiYolu))
+                                {
+                                    <img src="@isletme.KapakFotografiYolu"
+                                         alt="@isletme.Ad"
+                                         loading="lazy" />
+                                }
+                                else
+                                {
+                                    <span>✂</span>
+                                }
+                            </div>
+
+                            <div class="kf-card-body">
+                                <div class="kf-category">@isletme.SektorAdi</div>
+                                <h3>@isletme.Ad</h3>
+
+                                <div class="kf-location">
+                                    📍 @isletme.Ilce, @isletme.Il
+                                </div>
+
+                                <div class="kf-rating">
+                                    @if (isletme.OrtalamaPuan.HasValue)
+                                    {
+                                        <strong>★ @isletme.OrtalamaPuan.Value.ToString("0.0")</strong>
+                                        <span>(@isletme.YorumSayisi yorum)</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Henüz değerlendirilmedi</span>
+                                    }
+                                </div>
+
+                                <div class="kf-slogan">
+                                    @isletme.Slogan
+                                </div>
+
+                                <div class="kf-card-footer">
+                                    <span class="kf-price-label">
+                                        @if (isletme.BaslangicFiyati.HasValue)
+                                        {
+                                            <text>
+                                                @isletme.BaslangicFiyati.Value.ToString("N0") TL'den başlayan
+                                            </text>
+                                        }
+                                        else
+                                        {
+                                            <text>Fiyat bilgisi yok</text>
+                                        }
+                                    </span>
+
+                                    <a asp-controller="Kesfet"
+                                       asp-action="Detay"
+                                       asp-route-id="@isletme.Id"
+                                       class="kf-detail">
+                                        İşletmeyi İncele →
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+                    }
+                </div>
+            }
+        </main>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const ilSecimi = document.getElementById('ilSecimi');
+            const ilceSecimi = document.getElementById('ilceSecimi');
+            const filtreForm = document.getElementById('filtreForm');
+            const filterButton = document.getElementById('atlasFilterToggle');
+            const filterPanel = document.getElementById('atlasFilterPanel');
+            const filterArrow = document.getElementById('atlasFilterArrow');
+
+            if (ilSecimi && ilceSecimi && filtreForm) {
+                ilSecimi.addEventListener('change', function () {
+                    ilceSecimi.value = '';
+                    filtreForm.submit();
+                });
+            }
+
+            // Aktif filtre varsa mobilde paneli açık tut.
+            const aktifFiltreVar = @((!string.IsNullOrWhiteSpace(arama) ||
+            !string.IsNullOrWhiteSpace(il) || !string.IsNullOrWhiteSpace(ilce) ||
+            !string.IsNullOrWhiteSpace(hizmet) || sektorId.HasValue ||
+            minFiyat.HasValue || maxFiyat.HasValue || minPuan.HasValue ||
+            minYorum.HasValue || yorumlu || fotografli ||
+            siralama != "onerilen").ToString().ToLowerInvariant());
+
+            if (filterButton && filterPanel && aktifFiltreVar) {
+                filterPanel.classList.add('atlas-filter-open');
+                filterButton.setAttribute('aria-expanded', 'true');
+                filterButton.querySelector('span').textContent = '☷ Filtreleri Gizle';
+                if (filterArrow) filterArrow.textContent = '⌃';
+            }
+
+            if (filterButton && filterPanel) {
+                filterButton.addEventListener('click', function () {
+                    const isOpen = filterPanel.classList.toggle('atlas-filter-open');
+                    filterButton.setAttribute('aria-expanded', String(isOpen));
+                    filterButton.querySelector('span').textContent =
+                        isOpen ? '☷ Filtreleri Gizle' : '☷ Filtreleri Göster';
+                    if (filterArrow) filterArrow.textContent = isOpen ? '⌃' : '⌄';
+                });
+            }
+        })();
+    </script>
+}

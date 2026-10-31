@@ -1,0 +1,15 @@
+﻿@model AtlasRandevu.Web.Controllers.MusteriYorumYazModel
+@{
+	ViewData["Title"] = "Yorum Yaz";
+}
+<div class="container py-5" style="max-width:740px">
+	<div class="card p-4 p-md-5" style="border-radius:22px">
+		<h1 class="h3 fw-bold">Hizmeti Değerlendir</h1><p class="text-muted">@Model.IsletmeAdi · @Model.HizmetAdi</p>
+		<form asp-action="Yaz" method="post">
+			@Html.AntiForgeryToken()<input type="hidden" asp-for="RandevuId" /><div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+			<div class="mb-3"><label asp-for="Puan" class="form-label fw-semibold">Yıldız puanı</label><select asp-for="Puan" class="form-select"><option value="5">★★★★★ — 5 / Çok iyi</option><option value="4">★★★★☆ — 4 / İyi</option><option value="3">★★★☆☆ — 3 / Orta</option><option value="2">★★☆☆☆ — 2 / Kötü</option><option value="1">★☆☆☆☆ — 1 / Çok kötü</option></select><span asp-validation-for="Puan" class="text-danger"></span></div>
+			<div class="mb-3"><label asp-for="Yorum" class="form-label fw-semibold">Deneyiminiz</label><textarea asp-for="Yorum" rows="5" maxlength="3000" class="form-control" placeholder="Hizmet hakkındaki deneyiminizi yazın..."></textarea><span asp-validation-for="Yorum" class="text-danger"></span></div>
+			<div class="d-flex gap-2"><button class="btn btn-primary" type="submit">Değerlendirmeyi Yayınla</button><a asp-action="Index" class="btn btn-outline-secondary">Vazgeç</a></div>
+		</form>
+	</div>
+</div>

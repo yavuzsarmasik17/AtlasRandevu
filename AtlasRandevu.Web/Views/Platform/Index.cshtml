@@ -1,0 +1,313 @@
+﻿@model List<AtlasRandevu.Domain.Entities.Isletme>
+@{
+    Layout = "_PlatformLayout";
+    ViewData["Title"] = "Genel Bakış";
+    int toplamIsletme = ViewBag.ToplamIsletme;
+    int bekleyen = ViewBag.BekleyenBasvuru;
+    int onayli = ViewBag.OnayliIsletme;
+    int toplamRandevu = ViewBag.ToplamRandevu;
+    int toplamMusteri = ViewBag.ToplamMusteri;
+    int tamamlananRandevu = ViewBag.TamamlananRandevu;
+}
+<style>
+    .atlas-overview {
+        color: #14213d;
+    }
+
+        .atlas-overview .dashboard-heading {
+            font-size: 29px;
+            font-weight: 800;
+            letter-spacing: -.7px;
+        }
+
+        .atlas-overview .dashboard-subtitle {
+            color: #8793a7;
+            font-size: 14px;
+        }
+
+        .atlas-overview .stat-card {
+            height: 100%;
+            padding: 24px;
+            border: 1px solid #e9eef7;
+            border-radius: 20px;
+            background: #fff;
+            box-shadow: 0 6px 24px rgba(20,35,65,.04);
+            transition: transform .2s, box-shadow .2s;
+        }
+
+            .atlas-overview .stat-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 12px 30px rgba(20,35,65,.09);
+            }
+
+        .atlas-overview .stat-label {
+            color: #8190a6;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .atlas-overview .stat-value {
+            font-size: 34px;
+            font-weight: 850;
+            letter-spacing: -1px;
+            margin-top: 8px;
+        }
+
+        .atlas-overview .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .atlas-overview .stat-blue {
+            background: #eaf1ff;
+            color: #2563eb;
+        }
+
+        .atlas-overview .stat-orange {
+            background: #fff4df;
+            color: #d68a00;
+        }
+
+        .atlas-overview .stat-green {
+            background: #e7f8ef;
+            color: #169b60;
+        }
+
+        .atlas-overview .stat-purple {
+            background: #f0eaff;
+            color: #8057d8;
+        }
+
+        .atlas-overview .stat-cyan {
+            background: #e6f8fc;
+            color: #078ca6;
+        }
+
+        .atlas-overview .stat-indigo {
+            background: #edf0ff;
+            color: #4d57bd;
+        }
+
+        .atlas-overview .atlas-panel-card {
+            background: #fff;
+            border: 1px solid #e9eef7;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 6px 24px rgba(20,35,65,.04);
+        }
+
+        .atlas-overview .atlas-table {
+            margin-bottom: 0;
+        }
+
+            .atlas-overview .atlas-table thead th {
+                background: #f8faff;
+                color: #8490a5;
+                font-size: 12px;
+                text-transform: uppercase;
+                letter-spacing: .4px;
+                padding: 16px;
+                white-space: nowrap;
+                border-bottom: 0;
+            }
+
+            .atlas-overview .atlas-table tbody td {
+                padding: 16px;
+                vertical-align: middle;
+                border-color: #f0f2f7;
+                font-size: 14px;
+            }
+
+        .atlas-overview .business-avatar {
+            width: 43px;
+            height: 43px;
+            background: #eaf1ff;
+            color: #2563eb;
+            border-radius: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .atlas-overview .status-pill {
+            display: inline-block;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .atlas-overview .status-waiting {
+            background: #fff4df;
+            color: #bb7900;
+        }
+
+        .atlas-overview .status-approved {
+            background: #e6f8ef;
+            color: #148a56;
+        }
+
+        .atlas-overview .status-rejected {
+            background: #ffe9ea;
+            color: #d53e49;
+        }
+
+        .atlas-overview .action-btn {
+            border-radius: 9px;
+            padding: 8px 14px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .atlas-overview .atlas-filter {
+            min-height: 44px;
+            border: 1px solid #e0e8f4;
+            border-radius: 11px;
+            background: #f9fbff;
+            padding: 9px 13px;
+            color: #253858;
+            width: 100%;
+        }
+
+            .atlas-overview .atlas-filter:focus {
+                outline: 0;
+                border-color: #4978e8;
+                box-shadow: 0 0 0 3px rgba(73,120,232,.1);
+            }
+
+    @@media (max-width: 575px) {
+        .atlas-overview .atlas-panel-card {
+            padding: 17px;
+        }
+
+        .atlas-overview .dashboard-heading {
+            font-size: 24px;
+        }
+    }
+</style>
+<div class="atlas-overview">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
+        <div>
+            <h1 class="dashboard-heading mb-2">Platform Genel Bakış</h1>
+            <p class="dashboard-subtitle mb-0">Atlas Randevu platformunun güncel durumunu buradan takip edebilirsiniz.</p>
+        </div>
+        <span class="badge rounded-pill text-bg-light border px-3 py-2">Yönetim Merkezi</span>
+    </div>
+
+    @if (TempData["Basari"] != null)
+    {
+        <div class="alert alert-success rounded-3" role="alert">@TempData["Basari"]</div>
+    }
+    @if (TempData["Hata"] != null)
+    {
+        <div class="alert alert-danger rounded-3" role="alert">@TempData["Hata"]</div>
+    }
+
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-xl-4"><div class="stat-card"><div class="d-flex justify-content-between"><span class="stat-label">Toplam İşletme</span><span class="stat-icon stat-blue">▣</span></div><div class="stat-value">@toplamIsletme</div><div class="text-muted small mt-1">Kayıtlı tüm işletmeler</div></div></div>
+        <div class="col-12 col-sm-6 col-xl-4"><div class="stat-card"><div class="d-flex justify-content-between"><span class="stat-label">Bekleyen Başvurular</span><span class="stat-icon stat-orange">◷</span></div><div class="stat-value">@bekleyen</div><div class="text-muted small mt-1">İnceleme bekleyen işletmeler</div></div></div>
+        <div class="col-12 col-sm-6 col-xl-4"><div class="stat-card"><div class="d-flex justify-content-between"><span class="stat-label">Onaylı İşletmeler</span><span class="stat-icon stat-green">✓</span></div><div class="stat-value">@onayli</div><div class="text-muted small mt-1">Platforma kabul edilenler</div></div></div>
+        <div class="col-12 col-sm-6 col-xl-4"><div class="stat-card"><div class="d-flex justify-content-between"><span class="stat-label">Toplam Randevu</span><span class="stat-icon stat-purple">▦</span></div><div class="stat-value">@toplamRandevu</div><div class="text-muted small mt-1">Oluşturulan tüm randevular</div></div></div>
+        <div class="col-12 col-sm-6 col-xl-4"><div class="stat-card"><div class="d-flex justify-content-between"><span class="stat-label">Toplam Müşteri</span><span class="stat-icon stat-cyan">♙</span></div><div class="stat-value">@toplamMusteri</div><div class="text-muted small mt-1">Müşteri rolündeki kullanıcılar</div></div></div>
+        <div class="col-12 col-sm-6 col-xl-4"><div class="stat-card"><div class="d-flex justify-content-between"><span class="stat-label">Tamamlanan Randevular</span><span class="stat-icon stat-indigo">☑</span></div><div class="stat-value">@tamamlananRandevu</div><div class="text-muted small mt-1">Hizmeti tamamlanan randevular</div></div></div>
+    </div>
+
+    <div id="basvurular" class="atlas-panel-card">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+            <div><h4 class="fw-bold mb-1">İşletme Başvuruları</h4><p class="text-muted small mb-0">Başvuruları inceleyin, arayın ve yönetin.</p></div>
+            <span class="badge rounded-pill text-bg-primary px-3 py-2">@Model.Count İşletme</span>
+        </div>
+        <div class="row g-2 mb-3">
+            <div class="col-12 col-md-8"><input id="isletmeAra" class="atlas-filter" type="search" placeholder="İşletme adı veya sektör ara..." aria-label="İşletme ara" /></div>
+            <div class="col-12 col-md-4"><select id="durumFiltre" class="atlas-filter" aria-label="Duruma göre filtrele"><option value="">Tüm durumlar</option><option value="OnayBekliyor">Onay bekliyor</option><option value="Onaylandi">Onaylandı</option><option value="Reddedildi">Reddedildi</option></select></div>
+        </div>
+        <div class="table-responsive">
+            <table class="table atlas-table align-middle">
+                <thead><tr><th>İşletme</th><th>Sektör</th><th>Başvuru Tarihi</th><th>Durum</th><th class="text-end">İşlem</th></tr></thead>
+                <tbody>
+                    @foreach (var isletme in Model)
+                    {
+                        <tr class="isletme-satiri" data-durum="@isletme.Durum" data-arama="@((isletme.Ad + " " + (isletme.Sektor?.Ad ?? "")).ToLowerInvariant())">
+                            <td><div class="d-flex align-items-center gap-3"><div class="business-avatar">@(string.IsNullOrEmpty(isletme.Ad) ? "?" : isletme.Ad.Substring(0, 1).ToUpper())</div><div><div class="fw-bold">@isletme.Ad</div><div class="text-muted small">İşletme #@isletme.Id</div></div></div></td>
+                            <td>@isletme.Sektor?.Ad</td>
+                            <td>@(isletme.OlusturmaTarihi.ToString("dd.MM.yyyy HH:mm"))</td>
+                            <td>
+                                @if (isletme.Durum == "OnayBekliyor")
+                                {
+                                    <span class="status-pill status-waiting">Onay Bekliyor</span>
+                                }
+                                else if (isletme.Durum == "Onaylandi")
+                                {
+                                    <span class="status-pill status-approved">Onaylandı</span>
+                                }
+                                else if (isletme.Durum == "Reddedildi")
+                                {
+                                    <span class="status-pill status-rejected">Reddedildi</span>
+                                }
+                                else
+                                {
+                                    <span class="status-pill bg-light">@isletme.Durum</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                @if (isletme.Durum == "OnayBekliyor")
+                                {
+                                    <div class="d-inline-flex gap-2">
+                                        <form asp-controller="Platform" asp-action="Onayla" method="post" onsubmit="return confirm('Bu işletme başvurusunu onaylamak istiyor musunuz?');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@isletme.Id" />
+                                            <button type="submit" class="btn btn-success action-btn">Onayla</button>
+                                        </form>
+                                        <form asp-controller="Platform" asp-action="Reddet" method="post" onsubmit="return confirm('Bu işletme başvurusunu reddetmek istiyor musunuz?');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@isletme.Id" />
+                                            <button type="submit" class="btn btn-outline-danger action-btn">Reddet</button>
+                                        </form>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">İşlem tamamlandı</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div id="filtreBos" class="text-center text-muted py-4" style="display:none">Aramanıza uygun işletme bulunamadı.</div>
+        @if (!Model.Any())
+        {
+            <div class="text-center py-4 text-muted">Henüz işletme başvurusu bulunmuyor.</div>
+        }
+    </div>
+</div>
+<script>
+    (function () {
+        const arama = document.getElementById('isletmeAra');
+        const durum = document.getElementById('durumFiltre');
+        const satirlar = Array.from(document.querySelectorAll('.isletme-satiri'));
+        const bos = document.getElementById('filtreBos');
+        function filtrele() {
+            const kelime = arama.value.trim().toLocaleLowerCase('tr-TR');
+            let gorunen = 0;
+            satirlar.forEach(satir => {
+                const metin = (satir.dataset.arama || '').toLocaleLowerCase('tr-TR');
+                const uygun = metin.includes(kelime) && (!durum.value || satir.dataset.durum === durum.value);
+                satir.style.display = uygun ? '' : 'none';
+                if (uygun) gorunen++;
+            });
+            bos.style.display = satirlar.length > 0 && gorunen === 0 ? '' : 'none';
+        }
+        arama.addEventListener('input', filtrele);
+        durum.addEventListener('change', filtrele);
+    })();
+</script>

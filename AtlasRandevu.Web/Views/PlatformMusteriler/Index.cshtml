@@ -1,0 +1,229 @@
+﻿@model List<AtlasRandevu.Web.Controllers.PlatformMusteriSatiri>
+@{
+    Layout = "_PlatformLayout";
+    ViewData["Title"] = "Müşteriler";
+    string ara = ViewBag.Ara as string ?? "";
+}
+<style>
+    .pm-title {
+        font-size: 30px;
+        font-weight: 800;
+        letter-spacing: -.6px;
+        color: #132449
+    }
+
+    .pm-muted {
+        color: #8291aa
+    }
+
+    .pm-card {
+        background: white;
+        border: 1px solid #e6ecf6;
+        border-radius: 20px;
+        padding: 24px;
+        box-shadow: 0 12px 34px rgba(22,42,85,.045)
+    }
+
+    .pm-stats {
+        display: grid;
+        grid-template-columns: repeat(4,minmax(0,1fr));
+        gap: 16px;
+        margin-bottom: 22px
+    }
+
+    .pm-stat {
+        background: #fff;
+        border: 1px solid #e6ecf6;
+        border-radius: 17px;
+        padding: 22px
+    }
+
+    .pm-stat-label {
+        font-size: 13px;
+        color: #7c8ca6;
+        font-weight: 650
+    }
+
+    .pm-stat-number {
+        font-size: 31px;
+        color: #12264b;
+        font-weight: 800;
+        margin-top: 10px
+    }
+
+    .pm-search {
+        width: 100%;
+        border: 1px solid #dce5f4;
+        border-radius: 13px;
+        padding: 15px 17px;
+        background: #f8faff;
+        outline: none
+    }
+
+        .pm-search:focus {
+            border-color: #3266eb;
+            box-shadow: 0 0 0 4px rgba(50,102,235,.08)
+        }
+
+    .pm-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 750px
+    }
+
+        .pm-table th {
+            background: #f7f9fd;
+            color: #8291a9;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            padding: 16px;
+            text-align: left
+        }
+
+        .pm-table td {
+            border-bottom: 1px solid #edf1f7;
+            padding: 17px 16px;
+            vertical-align: middle
+        }
+
+    .pm-person {
+        display: flex;
+        align-items: center;
+        gap: 12px
+    }
+
+    .pm-avatar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 46px;
+        height: 46px;
+        flex-shrink: 0;
+        border-radius: 14px;
+        background: #e7efff;
+        color: #2459d8;
+        font-weight: 800;
+        font-size: 18px
+    }
+
+    .pm-name {
+        font-weight: 750;
+        color: #132449
+    }
+
+    .pm-email {
+        font-size: 13px;
+        color: #8291aa;
+        overflow-wrap: anywhere
+    }
+
+    .pm-tag {
+        display: inline-block;
+        border-radius: 30px;
+        padding: 7px 12px;
+        background: #e9f8ef;
+        color: #138552;
+        font-size: 12px;
+        font-weight: 700
+    }
+
+        .pm-tag.missing {
+            background: #fff2df;
+            color: #a96c08
+        }
+
+    .pm-action {
+        display: inline-block;
+        border: 1px solid #cddbf8;
+        border-radius: 10px;
+        padding: 9px 14px;
+        color: #2559d8;
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
+        white-space: nowrap
+    }
+
+        .pm-action:hover {
+            background: #eff4ff
+        }
+
+    @@media(max-width:1100px) {
+        .pm-stats {
+            grid-template-columns: repeat(2,minmax(0,1fr))
+        }
+    }
+
+    @@media(max-width:560px) {
+        .pm-stats {
+            grid-template-columns: 1fr 1fr;
+            gap: 10px
+        }
+
+        .pm-stat {
+            padding: 16px
+        }
+
+        .pm-stat-number {
+            font-size: 26px
+        }
+
+        .pm-card {
+            padding: 16px
+        }
+
+        .pm-title {
+            font-size: 25px
+        }
+    }
+</style>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div><h1 class="pm-title mb-1">Müşteri Yönetimi</h1><div class="pm-muted">Kayıtlı müşterilerin bilgilerini ve randevularını takip edin.</div></div>
+    <span class="badge rounded-pill px-3 py-2" style="background:#e9efff;color:#2459d8">@Model.Count sonuç</span>
+</div>
+@if (TempData["Basari"] != null)
+{
+     <div class="alert alert-success">@TempData["Basari"]</div>
+}
+<div class="pm-stats">
+    <div class="pm-stat"><div class="pm-stat-label">Toplam Müşteri</div><div class="pm-stat-number">@ViewBag.ToplamMusteri</div></div>
+    <div class="pm-stat"><div class="pm-stat-label">Randevusu Olan</div><div class="pm-stat-number">@ViewBag.RandevusuOlan</div></div>
+    <div class="pm-stat"><div class="pm-stat-label">Toplam Randevu</div><div class="pm-stat-number">@ViewBag.ToplamRandevu</div></div>
+    <div class="pm-stat"><div class="pm-stat-label">Eksik İsim Bilgisi</div><div class="pm-stat-number">@ViewBag.EksikProfil</div></div>
+</div>
+<div class="pm-card">
+    <div class="mb-4"><h2 class="h5 fw-bold mb-1">Müşteri Listesi</h2><div class="pm-muted small">Ad, soyad, e-posta veya telefonla arayın.</div></div>
+    <form method="get" asp-controller="PlatformMusteriler" asp-action="Index" class="d-flex flex-wrap gap-2 mb-4">
+        <input name="ara" value="@ara" class="pm-search flex-grow-1" style="width:auto;min-width:200px" placeholder="Müşteri adı, soyadı, e-posta veya telefon..." />
+        <button class="btn btn-primary px-4" type="submit">Ara</button>
+        <a asp-controller="PlatformMusteriler" asp-action="Index" class="btn btn-outline-secondary px-3">Temizle</a>
+    </form>
+    <div class="table-responsive">
+        <table class="pm-table">
+            <thead><tr><th>Müşteri</th><th>Telefon</th><th>Kayıt Tarihi</th><th>Randevu</th><th class="text-end">İşlem</th></tr></thead>
+            <tbody>
+                @foreach (var m in Model)
+                {
+                    var adSoyad = (m.Ad + " " + m.Soyad).Trim();
+                    var eksik = string.IsNullOrWhiteSpace(m.Ad) || string.IsNullOrWhiteSpace(m.Soyad);
+                    var harf = !string.IsNullOrWhiteSpace(m.Ad) ? m.Ad.Substring(0, 1).ToUpper() : "M";
+                    <tr>
+                        <td><div class="pm-person"><div class="pm-avatar">@harf</div><div><div class="pm-name">@(string.IsNullOrWhiteSpace(adSoyad) ? "İsim belirtilmemiş" : adSoyad)</div><div class="pm-email">@m.Eposta</div>@if (eksik)
+                                    {
+                                        <span class="pm-tag missing mt-1">Bilgi eksik</span>
+                                    }</div></div></td>
+                        <td>@(string.IsNullOrWhiteSpace(m.Telefon) ? "—" : m.Telefon)</td>
+                        <td>@(m.KayitTarihi?.ToString("dd.MM.yyyy") ?? "—")</td>
+                        <td><span class="pm-tag">@m.RandevuSayisi randevu</span></td>
+                        <td class="text-end"><a asp-controller="PlatformMusteriler" asp-action="Duzenle" asp-route-id="@m.KullaniciId" class="pm-action">Bilgileri Düzenle</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (!Model.Any())
+    {
+        <div class="text-center pm-muted py-5">Aramanıza uygun müşteri bulunamadı.</div>
+    }
+</div>

@@ -1,0 +1,992 @@
+﻿@model List<AtlasRandevu.Domain.Entities.Randevu>
+
+@{
+    Layout = "_IsletmeLayout";
+    ViewData["Title"] = "Genel Bakış";
+
+    int toplamHizmet = ViewBag.ToplamHizmet;
+    int bekleyen = ViewBag.BekleyenRandevu;
+    int onayli = ViewBag.OnayliRandevu;
+    int tamamlanan = ViewBag.TamamlananRandevu;
+    int toplamYorum = ViewBag.ToplamYorum;
+
+    string isletmeAdi = ViewBag.IsletmeAdi ?? "İşletmem";
+    int bugunToplam = ViewBag.BugunToplam;
+    int bugunGelen = ViewBag.BugunGelen;
+    int bugunBeklenen = ViewBag.BugunBeklenen;
+    int bugunTamamlanan = ViewBag.BugunTamamlanan;
+    DateTime bugunTarih = ViewBag.BugunTarih;
+    var bugunRandevular = ViewBag.BugunRandevular as List<AtlasRandevu.Web.Controllers.GunlukRandevuSatiri>
+        ?? new List<AtlasRandevu.Web.Controllers.GunlukRandevuSatiri>();
+}
+
+<style>
+    .db-page {
+        color: #172443;
+    }
+
+    .db-hero {
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 25px;
+        flex-wrap: wrap;
+        padding: 38px;
+        border-radius: 26px;
+        background: linear-gradient( 115deg, #152447 0%, #284da9 62%, #6279fa 100% );
+        color: white;
+        box-shadow: 0 18px 40px rgba(35,73,160,.15);
+        margin-bottom: 25px;
+    }
+
+        .db-hero::before {
+            content: "";
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border: 48px solid rgba(255,255,255,.07);
+            border-radius: 50%;
+            right: -80px;
+            top: -140px;
+            pointer-events: none;
+        }
+
+    .db-hero-main {
+        position: relative;
+        z-index: 1;
+    }
+
+    .db-eyebrow {
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 1.8px;
+        color: #c0d2ff;
+        margin-bottom: 12px;
+    }
+
+    .db-hero h1 {
+        font-size: clamp(28px, 3vw, 40px);
+        font-weight: 850;
+        letter-spacing: -1px;
+        margin-bottom: 12px;
+    }
+
+    .db-hero p {
+        max-width: 540px;
+        color: #dce5ff;
+        font-size: 14px;
+        line-height: 1.7;
+        margin-bottom: 0;
+    }
+
+    .db-hero-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        position: relative;
+        z-index: 1;
+    }
+
+    .db-hero-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        padding: 13px 19px;
+        border-radius: 13px;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 800;
+        transition: transform .2s;
+    }
+
+        .db-hero-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .db-hero-btn.primary {
+            background: #fff;
+            color: #2853d5;
+        }
+
+        .db-hero-btn.secondary {
+            background: rgba(255,255,255,.13);
+            border: 1px solid rgba(255,255,255,.24);
+            color: #fff;
+        }
+
+    .db-stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 17px;
+        margin-bottom: 25px;
+    }
+
+    .db-stat {
+        position: relative;
+        background: #fff;
+        border: 1px solid #e7edf7;
+        border-radius: 21px;
+        padding: 23px;
+        box-shadow: 0 8px 26px rgba(24,39,68,.045);
+        overflow: hidden;
+        transition: transform .2s, box-shadow .2s;
+    }
+
+        .db-stat:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(24,39,68,.08);
+        }
+
+    .db-stat-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 18px;
+    }
+
+    .db-stat-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 53px;
+        height: 53px;
+        border-radius: 16px;
+        font-size: 25px;
+    }
+
+        .db-stat-icon.blue {
+            color: #3268f5;
+            background: #eaf0ff;
+        }
+
+        .db-stat-icon.orange {
+            color: #dd961b;
+            background: #fff3dc;
+        }
+
+        .db-stat-icon.green {
+            color: #0e9869;
+            background: #e4f8ee;
+        }
+
+        .db-stat-icon.purple {
+            color: #7656db;
+            background: #f0ebff;
+        }
+
+    .db-stat-tag {
+        color: #a0abc0;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: .7px;
+    }
+
+    .db-stat-label {
+        font-size: 13px;
+        font-weight: 700;
+        color: #7f8ca5;
+        margin-bottom: 8px;
+    }
+
+    .db-stat-number {
+        font-size: 37px;
+        font-weight: 850;
+        line-height: 1.1;
+        letter-spacing: -1px;
+        margin-bottom: 11px;
+    }
+
+        .db-stat-number.blue {
+            color: #3268f5;
+        }
+
+        .db-stat-number.orange {
+            color: #e9a21b;
+        }
+
+        .db-stat-number.green {
+            color: #109568;
+        }
+
+        .db-stat-number.purple {
+            color: #7457dc;
+        }
+
+    .db-stat-desc {
+        font-size: 12px;
+        color: #94a0b5;
+    }
+
+    .db-bottom-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.65fr) minmax(290px, 1fr);
+        gap: 20px;
+        align-items: start;
+    }
+
+    .db-panel {
+        background: #fff;
+        border: 1px solid #e7edf7;
+        border-radius: 22px;
+        padding: 26px;
+        box-shadow: 0 8px 28px rgba(24,39,68,.045);
+        min-width: 0;
+    }
+
+    .db-panel-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+    }
+
+    .db-panel-title {
+        font-size: 20px;
+        font-weight: 850;
+        margin: 0 0 6px;
+    }
+
+    .db-panel-desc {
+        font-size: 12px;
+        color: #8b99b0;
+        margin: 0;
+    }
+
+    .db-count {
+        background: #edf2ff;
+        color: #3864df;
+        border-radius: 30px;
+        padding: 7px 12px;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .db-table-wrap {
+        overflow-x: auto;
+    }
+
+    .db-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        min-width: 530px;
+    }
+
+        .db-table th {
+            background: #f6f8fd;
+            color: #8897af;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .7px;
+            text-transform: uppercase;
+            padding: 15px 13px;
+            border-bottom: 1px solid #e5ebf5;
+        }
+
+            .db-table th:first-child {
+                border-radius: 10px 0 0 0;
+            }
+
+            .db-table th:last-child {
+                border-radius: 0 10px 0 0;
+            }
+
+        .db-table td {
+            padding: 17px 13px;
+            border-bottom: 1px solid #eef1f7;
+            font-size: 13px;
+            vertical-align: middle;
+        }
+
+        .db-table tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+    .db-table-id {
+        font-weight: 850;
+        color: #3562e6;
+    }
+
+    .db-table-service {
+        font-weight: 750;
+        color: #23314f;
+    }
+
+    .db-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 30px;
+        padding: 7px 11px;
+        font-size: 11px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+        .db-status.waiting {
+            background: #fff3da;
+            color: #ab7419;
+        }
+
+        .db-status.approved {
+            background: #e4f8ed;
+            color: #07865b;
+        }
+
+        .db-status.completed {
+            background: #e9efff;
+            color: #315fe2;
+        }
+
+        .db-status.other {
+            background: #eef1f6;
+            color: #64748b;
+        }
+
+    .db-status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    .db-empty {
+        padding: 40px 20px;
+        text-align: center;
+        border: 1px dashed #dce4f2;
+        background: #fafbff;
+        border-radius: 16px;
+    }
+
+    .db-empty-icon {
+        font-size: 38px;
+        margin-bottom: 13px;
+        color: #5677df;
+    }
+
+    .db-empty h3 {
+        font-size: 17px;
+        font-weight: 800;
+        margin-bottom: 7px;
+    }
+
+    .db-empty p {
+        font-size: 12px;
+        line-height: 1.7;
+        color: #8c9bb2;
+        margin-bottom: 0;
+    }
+
+    .db-actions {
+        display: grid;
+        gap: 13px;
+    }
+
+    .db-action {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        border: 1px solid #e8edf6;
+        border-radius: 16px;
+        padding: 16px;
+        color: #1c2b49;
+        text-decoration: none;
+        transition: transform .2s, border-color .2s, box-shadow .2s;
+    }
+
+        .db-action:hover {
+            color: #1c2b49;
+            transform: translateY(-2px);
+            border-color: #c9d7ff;
+            box-shadow: 0 7px 20px rgba(50,104,245,.07);
+        }
+
+    .db-action-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 49px;
+        height: 49px;
+        border-radius: 14px;
+        background: #eaf0ff;
+        color: #3268f5;
+        font-size: 23px;
+        flex-shrink: 0;
+    }
+
+    .db-action-name {
+        font-size: 13px;
+        font-weight: 800;
+        margin-bottom: 4px;
+    }
+
+    .db-action-desc {
+        font-size: 11px;
+        color: #8c9bb2;
+    }
+
+    .db-action-arrow {
+        margin-left: auto;
+        color: #a1afc6;
+        font-size: 21px;
+    }
+
+    .db-note {
+        margin-top: 17px;
+        padding: 16px;
+        border-radius: 15px;
+        background: #eef3ff;
+        color: #5b73aa;
+        font-size: 12px;
+        line-height: 1.7;
+    }
+
+    @@media (max-width: 1250px) {
+        .db-stats {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .db-bottom-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@media (max-width: 650px) {
+        .db-hero {
+            padding: 27px 22px;
+        }
+
+        .db-hero-actions {
+            width: 100%;
+        }
+
+        .db-hero-btn {
+            width: 100%;
+        }
+
+        .db-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .db-panel {
+            padding: 20px 16px;
+        }
+    }
+
+    /* Günlük operasyon özeti */
+    .db-daily {
+        margin-bottom: 25px;
+    }
+
+    .db-daily-heading {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 15px;
+    }
+
+        .db-daily-heading h2 {
+            font-size: 20px;
+            font-weight: 850;
+            margin: 0;
+        }
+
+    .db-daily-date {
+        color: #8190aa;
+        font-size: 12px;
+        font-weight: 650;
+    }
+
+    .db-daily-stats {
+        display: grid;
+        grid-template-columns: repeat(4,minmax(0,1fr));
+        gap: 15px;
+        margin-bottom: 18px;
+    }
+
+    .db-daily-stat {
+        background: #fff;
+        border: 1px solid #e7edf7;
+        border-radius: 18px;
+        padding: 19px;
+        box-shadow: 0 7px 22px rgba(24,39,68,.04);
+    }
+
+        .db-daily-stat .value {
+            font-size: 32px;
+            font-weight: 850;
+            color: #315fe2;
+        }
+
+        .db-daily-stat .label {
+            font-size: 12px;
+            color: #74839e;
+            font-weight: 700;
+        }
+
+    .db-daily-panel {
+        background: #fff;
+        border: 1px solid #e7edf7;
+        border-radius: 20px;
+        padding: 22px;
+    }
+
+        .db-daily-panel h3 {
+            font-size: 17px;
+            font-weight: 800;
+            margin: 0 0 14px;
+        }
+
+    .db-daily-filter {
+        border: 1px solid #dce5f5;
+        border-radius: 9px;
+        padding: 9px 12px;
+        max-width: 100%;
+    }
+
+    .db-daily-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 680px;
+    }
+
+        .db-daily-table th, .db-daily-table td {
+            padding: 13px 11px;
+            text-align: left;
+            border-bottom: 1px solid #edf1f8;
+            font-size: 12px;
+        }
+
+        .db-daily-table th {
+            color: #8290a7;
+            background: #f8faff;
+        }
+
+    @@media(max-width:1100px) {
+        .db-daily-stats {
+            grid-template-columns: repeat(2,minmax(0,1fr));
+        }
+    }
+
+    @@media(max-width:575px) {
+        .db-daily-stats {
+            grid-template-columns: repeat(2,minmax(0,1fr));
+            gap: 9px;
+        }
+
+        .db-daily-stat {
+            padding: 14px;
+        }
+    }
+</style>
+
+<div class="db-page">
+
+    <section class="db-hero">
+        <div class="db-hero-main">
+            <div class="db-eyebrow">
+                ATLAS RANDEVU / İŞLETME YÖNETİMİ
+            </div>
+
+            <h1>@isletmeAdi</h1>
+
+            <p>
+                İşletmenizin hizmetlerini, randevularını ve
+                müşteri deneyimini tek merkezden yönetin.
+            </p>
+        </div>
+
+        <div class="db-hero-actions">
+            <a asp-controller="Hizmetler"
+               asp-action="Index"
+               class="db-hero-btn secondary">
+                ✂ Hizmetlerim
+            </a>
+
+            <a asp-controller="Hizmetler"
+               asp-action="Ekle"
+               class="db-hero-btn primary">
+                ＋ Yeni Hizmet
+            </a>
+        </div>
+    </section>
+
+    <section class="db-stats" aria-label="İşletme istatistikleri">
+
+        <div class="db-stat">
+            <div class="db-stat-top">
+                <div class="db-stat-icon blue">✂</div>
+                <span class="db-stat-tag">HİZMETLER</span>
+            </div>
+
+            <div class="db-stat-label">Toplam Hizmet</div>
+            <div class="db-stat-number blue">@toplamHizmet</div>
+            <div class="db-stat-desc">Tanımlanan hizmetler</div>
+        </div>
+
+        <div class="db-stat">
+            <div class="db-stat-top">
+                <div class="db-stat-icon orange">◷</div>
+                <span class="db-stat-tag">TALEPLER</span>
+            </div>
+
+            <div class="db-stat-label">Bekleyen Randevu</div>
+            <div class="db-stat-number orange">@bekleyen</div>
+            <div class="db-stat-desc">Onay bekleyen talepler</div>
+        </div>
+
+        <div class="db-stat">
+            <div class="db-stat-top">
+                <div class="db-stat-icon green">✓</div>
+                <span class="db-stat-tag">ONAYLANAN</span>
+            </div>
+
+            <div class="db-stat-label">Onaylı Randevu</div>
+            <div class="db-stat-number green">@onayli</div>
+            <div class="db-stat-desc">Kabul edilen randevular</div>
+        </div>
+
+        <div class="db-stat">
+            <div class="db-stat-top">
+                <div class="db-stat-icon purple">★</div>
+                <span class="db-stat-tag">TAMAMLANAN</span>
+            </div>
+
+            <div class="db-stat-label">Tamamlanan İşlem</div>
+            <div class="db-stat-number purple">@tamamlanan</div>
+            <div class="db-stat-desc">
+                Toplam @toplamYorum müşteri yorumu
+            </div>
+        </div>
+
+    </section>
+
+
+    <section class="db-daily" aria-label="Günlük operasyon özeti">
+        <div class="db-daily-heading">
+            <h2>📊 Günlük Operasyon Özeti</h2>
+            <span class="db-daily-date">@bugunTarih.ToString("dd.MM.yyyy") · Türkiye saati</span>
+        </div>
+        <div class="db-daily-stats">
+            <div class="db-daily-stat"><div class="value" id="atlas-bugunToplam">@bugunToplam</div><div class="label">Bugünkü Randevular</div></div>
+            <div class="db-daily-stat"><div class="value" id="atlas-bugunGelen">@bugunGelen</div><div class="label">Giriş Yapan Müşteriler</div></div>
+            <div class="db-daily-stat"><div class="value" id="atlas-bugunBeklenen">@bugunBeklenen</div><div class="label">Beklenen Müşteriler</div></div>
+            <div class="db-daily-stat"><div class="value" id="atlas-bugunTamamlanan">@bugunTamamlanan</div><div class="label">Tamamlanan İşlemler</div></div>
+        </div>
+        <div class="db-daily-panel" id="atlasGunlukPanel">
+            <div class="db-panel-head">
+                <div>
+                    <h3>Bugünün Randevu Akışı</h3>
+                    <p class="db-panel-desc">Saat sırasıyla tüm bugünkü randevular.</p>
+                </div>
+                <select id="gunlukPersonelFiltre" class="db-daily-filter" aria-label="Personel filtrele">
+                    <option value="">Tüm personeller</option>
+                    @foreach (var ad in bugunRandevular.Select(x => x.PersonelAdi).Distinct().OrderBy(x => x))
+                    {
+                        <option value="@ad">@ad</option>
+                    }
+                </select>
+            </div>
+            @if (bugunRandevular.Any())
+            {
+                <div class="db-table-wrap">
+                    <table class="db-daily-table" id="gunlukRandevuTablosu">
+                        <thead><tr><th>Saat</th><th>Müşteri</th><th>Hizmet</th><th>Personel</th><th>Durum</th></tr></thead>
+                        <tbody id="atlasGunlukSatirlar">
+                            @foreach (var r in bugunRandevular)
+                            {
+                                <tr data-personel="@r.PersonelAdi">
+                                    <td><strong>@r.BaslangicTarihi.ToString("HH:mm")</strong></td>
+                                    <td>@r.MusteriAdi</td>
+                                    <td>@r.HizmetAdi</td>
+                                    <td>@r.PersonelAdi</td>
+                                    <td>
+                                        @if (r.Durum == "Tamamlandi")
+                                        {
+                                            <span class="db-status completed">Tamamlandı</span>
+                                        }
+                                        else if (r.Durum == "Geldi" || r.GelisDogrulandiMi)
+                                        {
+                                            <span class="db-status approved">Geldi</span>
+                                        }
+                                        else if (r.Durum == "Onaylandi")
+                                        {
+                                            <span class="db-status approved">Onaylandı</span>
+                                        }
+                                        else if (r.Durum == "OnayBekliyor")
+                                        {
+                                            <span class="db-status waiting">Onay Bekliyor</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="db-status other">@r.Durum</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <p id="gunlukFiltreBos" class="db-panel-desc mt-3" hidden>Bu personel için bugün randevu yok.</p>
+            }
+            else
+            {
+                <div class="db-empty" id="atlasGunlukBos">Bugün için randevu bulunmuyor.</div>
+            }
+        </div>
+    </section>
+
+    <div class="db-bottom-grid">
+
+        <section class="db-panel">
+            <div class="db-panel-head">
+                <div>
+                    <h2 class="db-panel-title">Son Randevular</h2>
+                    <p class="db-panel-desc">
+                        İşletmenize gelen en son randevu talepleri.
+                    </p>
+                </div>
+
+                <span class="db-count">
+                    @Model.Count kayıt
+                </span>
+            </div>
+
+            @if (Model.Any())
+            {
+                <div class="db-table-wrap">
+                    <table class="db-table">
+                        <thead>
+                            <tr>
+                                <th>Randevu No</th>
+                                <th>Hizmet</th>
+                                <th>Tarih</th>
+                                <th>Durum</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var randevu in Model)
+                            {
+                                <tr>
+                                    <td class="db-table-id">
+                                        #@randevu.Id
+                                    </td>
+
+                                    <td class="db-table-service">
+                                        @randevu.Hizmet.Ad
+                                    </td>
+
+
+                                    <td>
+                                        @(randevu.BaslangicTarihi.ToString("dd.MM.yyyy HH:mm"))
+                                    </td>
+
+
+                                    <td>
+                                        @if (randevu.Durum == "OnayBekliyor")
+                                        {
+                                            <span class="db-status waiting">
+                                                <span class="db-status-dot"></span>
+                                                Onay Bekliyor
+                                            </span>
+                                        }
+                                        else if (randevu.Durum == "Onaylandi")
+                                        {
+                                            <span class="db-status approved">
+                                                <span class="db-status-dot"></span>
+                                                Onaylandı
+                                            </span>
+                                        }
+                                        else if (randevu.Durum == "Tamamlandi")
+                                        {
+                                            <span class="db-status completed">
+                                                <span class="db-status-dot"></span>
+                                                Tamamlandı
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="db-status other">
+                                                <span class="db-status-dot"></span>
+                                                @randevu.Durum
+                                            </span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="db-empty">
+                    <div class="db-empty-icon">▦</div>
+                    <h3>Henüz randevu bulunmuyor</h3>
+                    <p>
+                        Müşterileriniz randevu oluşturduğunda
+                        talepler burada görüntülenecek.
+                    </p>
+                </div>
+            }
+        </section>
+
+        <section class="db-panel">
+            <div class="db-panel-head">
+                <div>
+                    <h2 class="db-panel-title">Hızlı İşlemler</h2>
+                    <p class="db-panel-desc">
+                        İşletmenizi kolayca yönetin.
+                    </p>
+                </div>
+            </div>
+
+            <div class="db-actions">
+
+                <a asp-controller="Hizmetler"
+                   asp-action="Index"
+                   class="db-action">
+
+                    <div class="db-action-icon">✂</div>
+
+                    <div>
+                        <div class="db-action-name">
+                            Hizmetlerimi Yönet
+                        </div>
+                        <div class="db-action-desc">
+                            Fiyatları ve işlem sürelerini düzenle
+                        </div>
+                    </div>
+
+                    <span class="db-action-arrow">›</span>
+                </a>
+
+                <a asp-controller="Hizmetler"
+                   asp-action="Ekle"
+                   class="db-action">
+
+                    <div class="db-action-icon">＋</div>
+
+                    <div>
+                        <div class="db-action-name">
+                            Yeni Hizmet Ekle
+                        </div>
+                        <div class="db-action-desc">
+                            Yeni hizmet ve fiyat oluştur
+                        </div>
+                    </div>
+
+                    <span class="db-action-arrow">›</span>
+                </a>
+
+            </div>
+
+            <div class="db-note">
+                <strong>Atlas Randevu</strong> ile hizmetlerinizi
+                düzenleyebilir ve işletmenize gelen
+                randevu taleplerini takip edebilirsiniz.
+            </div>
+        </section>
+
+    </div>
+</div>
+
+<script>
+    (() => {
+        const filtre = document.getElementById('gunlukPersonelFiltre');
+        const tablo = document.getElementById('gunlukRandevuTablosu');
+        if (!filtre || !tablo) return;
+        filtre.addEventListener('change', () => {
+            let gorunen = 0;
+            tablo.querySelectorAll('tbody tr').forEach(satir => {
+                const uygun = !filtre.value || satir.dataset.personel === filtre.value;
+                satir.hidden = !uygun;
+                if (uygun) gorunen++;
+            });
+            const bos = document.getElementById('gunlukFiltreBos');
+            if (bos) bos.hidden = gorunen !== 0;
+        });
+    })();
+</script>
+
+<script>
+    (() => {
+        const url = '@Url.Action("GunlukVeriler", "IsletmePanel")';
+        let bekleyenIstek = null;
+        const sayi = (id, deger) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = String(deger);
+        };
+        const td = (tr, value) => {
+            const cell = document.createElement('td');
+            cell.textContent = value == null ? '' : String(value);
+            tr.appendChild(cell);
+            return cell;
+        };
+        async function yenile() {
+            if (bekleyenIstek) return;
+            bekleyenIstek = (async () => {
+                const response = await fetch(url, { credentials: 'same-origin', cache: 'no-store' });
+                if (!response.ok) throw new Error('Günlük veriler alınamadı: ' + response.status);
+                const data = await response.json();
+                sayi('atlas-bugunToplam', data.toplam);
+                sayi('atlas-bugunGelen', data.gelen);
+                sayi('atlas-bugunBeklenen', data.beklenen);
+                sayi('atlas-bugunTamamlanan', data.tamamlanan);
+                const panel = document.getElementById('atlasGunlukPanel');
+                if (!panel) return;
+                const table = document.getElementById('gunlukRandevuTablosu');
+                const filtre = document.getElementById('gunlukPersonelFiltre');
+                if (!table || !filtre) {
+                    // İlk açılışta hiç randevu yoksa tablo bulunmaz; sayfayı yenileyerek oluştur.
+                    if (data.randevular.length) window.location.reload();
+                    return;
+                }
+                const tbody = document.getElementById('atlasGunlukSatirlar');
+                if (!tbody) return;
+                const onceki = filtre.value;
+                const personeller = [...new Set(data.randevular.map(x => x.personelAdi))].sort();
+                filtre.replaceChildren(new Option('Tüm personeller', ''));
+                personeller.forEach(ad => filtre.add(new Option(ad, ad)));
+                filtre.value = personeller.includes(onceki) ? onceki : '';
+                tbody.replaceChildren();
+                for (const r of data.randevular) {
+                    const tr = document.createElement('tr');
+                    tr.dataset.personel = r.personelAdi;
+                    td(tr, r.saat);
+                    td(tr, r.musteriAdi);
+                    td(tr, r.hizmetAdi);
+                    td(tr, r.personelAdi);
+                    const status = td(tr, '');
+                    const span = document.createElement('span');
+                    span.className = 'db-status ' + (r.durum === 'Tamamlandi' ? 'completed' :
+                        (r.durum === 'Geldi' || r.gelisDogrulandiMi || r.durum === 'Onaylandi') ? 'approved' :
+                        r.durum === 'OnayBekliyor' ? 'waiting' : 'other');
+                    span.textContent = r.durum === 'Tamamlandi' ? 'Tamamlandı' :
+                        (r.durum === 'Geldi' || r.gelisDogrulandiMi) ? 'Geldi' :
+                        r.durum === 'Onaylandi' ? 'Onaylandı' :
+                        r.durum === 'OnayBekliyor' ? 'Onay Bekliyor' : r.durum;
+                    status.appendChild(span);
+                    tbody.appendChild(tr);
+                }
+                filtre.dispatchEvent(new Event('change'));
+            })();
+            try { await bekleyenIstek; }
+            catch (err) { console.error('Canlı operasyon güncellemesi:', err); }
+            finally { bekleyenIstek = null; }
+        }
+        window.addEventListener('atlas:operasyon-degisti', yenile);
+        window.addEventListener('focus', yenile);
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) yenile();
+        });
+    })();
+</script>

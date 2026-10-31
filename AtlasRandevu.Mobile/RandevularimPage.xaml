@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="AtlasRandevu.Mobile.RandevularimPage"
+    BackgroundColor="#F5F7FB"
+    Shell.NavBarIsVisible="False">
+
+    <VerticalStackLayout
+        Padding="24,55,24,20"
+        Spacing="20">
+
+        <Label
+            Text="Randevularım"
+            FontSize="29"
+            FontAttributes="Bold"
+            TextColor="#142D5C" />
+
+        <Label
+            Text="Yaklaşan ve geçmiş randevularınızı buradan takip edebilirsiniz."
+            FontSize="15"
+            TextColor="#64748B" />
+
+        <Border
+            BackgroundColor="White"
+            Stroke="#E2E8F0"
+            StrokeShape="RoundRectangle 18"
+            Padding="25">
+
+            <VerticalStackLayout Spacing="14">
+
+                <Label
+                    Text="Henüz randevunuz bulunmuyor"
+                    FontSize="19"
+                    FontAttributes="Bold"
+                    TextColor="#142D5C"
+                    HorizontalTextAlignment="Center" />
+
+                <Label
+                    Text="İlk randevunuzu oluşturmak için işletmeleri keşfedin."
+                    FontSize="14"
+                    TextColor="#64748B"
+                    HorizontalTextAlignment="Center" />
+
+                <Button
+                    Text="İşletmeleri Keşfet"
+                    BackgroundColor="#2563EB"
+                    TextColor="White"
+                    CornerRadius="12"
+                    Clicked="Kesfet_Clicked" />
+
+            </VerticalStackLayout>
+        </Border>
+
+    </VerticalStackLayout>
+</ContentPage>

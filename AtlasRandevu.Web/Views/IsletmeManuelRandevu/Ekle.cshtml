@@ -1,0 +1,152 @@
+﻿@model AtlasRandevu.Web.Controllers.ManuelRandevuViewModel
+
+@{
+    ViewData["Title"] = "Manuel Randevu Ekle";
+}
+
+<div class="container py-4">
+
+    <h2 class="mb-3">Manuel Randevu Ekle</h2>
+
+    <p class="text-muted">
+        Telefonla veya işletmede alınan randevuları buradan ekleyebilirsiniz.
+    </p>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <form asp-action="Ekle" method="post">
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="All"
+                     class="text-danger mb-3"></div>
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label class="form-label">Müşteri Adı Soyadı</label>
+                        <input asp-for="MusteriAdi"
+                               class="form-control"
+                               required />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Telefon</label>
+                        <input asp-for="MusteriTelefonu"
+                               class="form-control"
+                               type="tel" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Randevu Kaynağı</label>
+                        <select asp-for="RandevuKaynagi"
+                                class="form-select">
+                            <option value="Telefon">Telefon</option>
+                            <option value="Elden">Elden</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Şube</label>
+                        <select asp-for="SubeId"
+                                id="subeId"
+                                class="form-select">
+                            <option value="">Şube seçin</option>
+                            @foreach (var item in Model.Subeler)
+                            {
+                                <option value="@item.Id">@item.Ad</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Personel</label>
+                        <select asp-for="PersonelId"
+                                id="personelId"
+                                class="form-select">
+                            <option value="">Personel seçin</option>
+                            @foreach (var item in Model.Personeller)
+                            {
+                                <option value="@item.Id"
+                                        data-sube="@item.SubeId">
+                                    @item.Ad
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Hizmet</label>
+                        <select asp-for="HizmetId"
+                                class="form-select">
+                            <option value="">Hizmet seçin</option>
+                            @foreach (var item in Model.Hizmetler)
+                            {
+                                <option value="@item.Id">@item.Ad</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Tarih</label>
+                        <input asp-for="Tarih"
+                               type="date"
+                               class="form-control"
+                               min="@DateTime.Today.ToString("yyyy-MM-dd")"
+                               max="@DateTime.Today.AddMonths(3).ToString("yyyy-MM-dd")" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Saat</label>
+                        <input asp-for="Saat"
+                               type="time"
+                               step="900"
+                               class="form-control" />
+                    </div>
+
+                    <div class="col-12">
+                        <button type="submit"
+                                class="btn btn-primary">
+                            Randevuyu Kaydet
+                        </button>
+
+                        <a asp-controller="IsletmeRandevular"
+                           asp-action="Index"
+                           class="btn btn-outline-secondary">
+                            Vazgeç
+                        </a>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        const sube = document.getElementById("subeId");
+        const personel = document.getElementById("personelId");
+
+        function personelleriFiltrele() {
+            const secilenSube = sube.value;
+
+            Array.from(personel.options).forEach(option => {
+                if (!option.value) return;
+
+                option.hidden =
+                    option.dataset.sube !== secilenSube;
+            });
+
+            const secili = personel.selectedOptions[0];
+
+            if (secili && secili.dataset.sube !== secilenSube)
+                personel.value = "";
+        }
+
+        sube.addEventListener("change", personelleriFiltrele);
+        personelleriFiltrele();
+    </script>
+}

@@ -1,0 +1,349 @@
+﻿:root {
+    --navy: #172b49;
+    --blue: #2168d9;
+    --blue-soft: #eaf2ff;
+    --line: #e4eaf3;
+    --muted: #68798e;
+    --bg: #f4f7fb
+}
+
+* {
+    box-sizing: border-box
+}
+
+.registration-body {
+    margin: 0;
+    background: var(--bg);
+    font-family: system-ui,-apple-system,"Segoe UI",sans-serif;
+    color: var(--navy)
+}
+
+.registration-header {
+    background: #17283f;
+    color: #fff;
+    box-shadow: 0 3px 12px #1b365c16
+}
+
+.header-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 72px;
+    gap: 12px
+}
+
+.brand {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: .03em
+}
+
+    .brand span:last-child {
+        font-weight: 400
+    }
+
+.brand-symbol {
+    color: #62a6ff
+}
+
+.header-caption {
+    font-size: .85rem;
+    color: #dce8fa
+}
+
+.registration-main {
+    padding-top: 30px;
+    padding-bottom: 48px
+}
+
+.registration-shell {
+    display: grid;
+    grid-template-columns: 270px minmax(0,1fr);
+    gap: 22px
+}
+
+.registration-sidebar, .registration-panel {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 15px;
+    box-shadow: 0 6px 28px #182e4b0a
+}
+
+.registration-sidebar {
+    padding: 24px;
+    align-self: start
+}
+
+    .registration-sidebar h1 {
+        font-size: 1.4rem;
+        font-weight: 800
+    }
+
+    .registration-sidebar p {
+        color: var(--muted);
+        font-size: .91rem
+    }
+
+.side-step {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: .9rem
+}
+
+    .side-step .num {
+        display: grid;
+        place-items: center;
+        background: #e7ecf3;
+        color: #506178;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        font-weight: 700;
+        flex-shrink: 0
+    }
+
+    .side-step.active {
+        background: var(--blue-soft);
+        color: #165bc1;
+        font-weight: 700
+    }
+
+        .side-step.active .num, .side-step.done .num {
+            background: var(--blue);
+            color: #fff
+        }
+
+.benefits {
+    background: #edf4ff;
+    border-radius: 12px;
+    padding: 18px;
+    margin-top: 24px
+}
+
+    .benefits h2 {
+        font-size: 1rem;
+        font-weight: 800
+    }
+
+    .benefits ul {
+        padding-left: 20px;
+        margin: 12px 0 0;
+        font-size: .87rem;
+        line-height: 2
+    }
+
+.registration-panel {
+    padding: 28px
+}
+
+.step-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center
+}
+
+    .step-head h2 {
+        font-size: 1.3rem;
+        font-weight: 800;
+        margin: 0
+    }
+
+    .step-head p {
+        font-size: .9rem;
+        color: var(--muted);
+        margin: 6px 0 0
+    }
+
+.step-count {
+    color: var(--blue);
+    font-size: .83rem;
+    font-weight: 700
+}
+
+.progress-track {
+    height: 7px;
+    background: #e8edf4;
+    border-radius: 30px;
+    margin: 20px 0 24px;
+    overflow: hidden
+}
+
+.progress-bar-custom {
+    height: 100%;
+    background: var(--blue);
+    width: 20%;
+    transition: width .2s
+}
+
+.form-section {
+    display: none
+}
+
+    .form-section.active {
+        display: block
+    }
+
+    .form-section h3 {
+        font-size: 1.05rem;
+        font-weight: 800;
+        margin-bottom: 20px
+    }
+
+.form-label {
+    font-size: .86rem;
+    font-weight: 650
+}
+
+.form-control, .form-select {
+    border-color: #d7e0ed;
+    padding: 11px 12px;
+    border-radius: 8px
+}
+
+    .form-control:focus, .form-select:focus {
+        border-color: #4b8bec;
+        box-shadow: 0 0 0 .2rem #2775dc20
+    }
+
+.field-hint {
+    font-size: .76rem;
+    color: var(--muted)
+}
+
+.required {
+    color: #e33b47
+}
+
+.info-note {
+    background: #ecf4ff;
+    color: #285b9a;
+    padding: 13px;
+    border-radius: 9px;
+    font-size: .85rem
+}
+
+.upload-zone {
+    border: 2px dashed #a7c4ed;
+    background: #f7fbff;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center
+}
+
+    .upload-zone input {
+        max-width: 100%
+    }
+
+.action-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 28px
+}
+
+.btn-primary {
+    background: var(--blue);
+    border-color: var(--blue);
+    padding: 11px 22px;
+    font-weight: 650
+}
+
+.btn-outline-secondary {
+    padding: 11px 22px
+}
+
+.summary-line {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    gap: 16px
+}
+
+    .summary-line span:first-child {
+        color: var(--muted)
+    }
+
+.registration-footer {
+    text-align: center;
+    padding: 18px;
+    color: #8490a0;
+    font-size: .82rem
+}
+
+@media(max-width:850px) {
+    .registration-shell {
+        grid-template-columns: 1fr
+    }
+
+    .registration-sidebar {
+        padding: 18px
+    }
+
+    .side-steps {
+        display: grid;
+        grid-template-columns: repeat(5,minmax(0,1fr));
+        gap: 3px
+    }
+
+    .side-step {
+        flex-direction: column;
+        gap: 5px;
+        padding: 7px 2px;
+        text-align: center;
+        font-size: .68rem
+    }
+
+        .side-step .num {
+            width: 28px;
+            height: 28px
+        }
+
+    .benefits {
+        display: none
+    }
+
+    .registration-panel {
+        padding: 20px
+    }
+}
+
+@media(max-width:540px) {
+    .header-caption {
+        display: none
+    }
+
+    .brand {
+        font-size: 1.16rem
+    }
+
+    .registration-main {
+        padding-top: 15px
+    }
+
+    .registration-sidebar h1 {
+        font-size: 1.15rem
+    }
+
+    .registration-panel {
+        padding: 16px
+    }
+
+    .side-step .step-label {
+        font-size: .61rem
+    }
+
+    .action-row .btn {
+        flex: 1
+    }
+
+    .summary-line {
+        display: block
+    }
+}

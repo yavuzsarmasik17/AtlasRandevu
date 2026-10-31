@@ -1,0 +1,428 @@
+﻿@model AtlasRandevu.Web.Controllers.GirisViewModel
+
+
+@{
+    var girisTipi = ViewBag.GirisTipi as string
+        ?? Context.Request.Query["girisTipi"].ToString();
+    var isletmeGirisi = girisTipi == "isletme";
+    var yoneticiGirisi = girisTipi == "yonetici";
+    ViewData["Title"] = isletmeGirisi ? "İşletme Girişi"
+        : yoneticiGirisi ? "Yönetici Girişi" : "Üye Girişi";
+}
+
+<style>
+    .atlas-login-page {
+        max-width: 1120px;
+        margin: 18px auto 45px;
+        font-family: 'Segoe UI', Arial, sans-serif;
+    }
+
+    .atlas-login-container {
+        display: grid;
+        grid-template-columns: 40% 60%;
+        min-height: 650px;
+        overflow: hidden;
+        border-radius: 30px;
+        background: #fff;
+        box-shadow: 0 24px 65px rgba(23, 49, 104, .10);
+    }
+
+    .atlas-login-brand {
+        background: linear-gradient(155deg, #14244b 0%, #254ba5 62%, #315ed7 100%);
+        color: white;
+        padding: 55px 42px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .atlas-login-brand::before {
+            content: "";
+            position: absolute;
+            width: 290px;
+            height: 290px;
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 50%;
+            right: -155px;
+            top: 160px;
+        }
+
+        .atlas-login-brand::after {
+            content: "";
+            position: absolute;
+            width: 190px;
+            height: 190px;
+            background: rgba(255,255,255,.035);
+            border-radius: 50%;
+            left: -100px;
+            bottom: 90px;
+        }
+
+        .atlas-login-brand > * {
+            position: relative;
+            z-index: 1;
+        }
+
+    .atlas-login-logo {
+        font-size: 23px;
+        font-weight: 850;
+        letter-spacing: -.5px;
+    }
+
+    .atlas-login-brand h1 {
+        font-size: clamp(31px, 3vw, 43px);
+        font-weight: 850;
+        line-height: 1.17;
+        letter-spacing: -.8px;
+        margin: 40px 0 25px;
+    }
+
+    .atlas-login-brand p {
+        font-size: 16px;
+        line-height: 1.95;
+        color: #e4ecff;
+    }
+
+    .atlas-login-bottom {
+        color: #e4ecff;
+        font-size: 15px;
+        line-height: 1.9;
+    }
+
+    .atlas-login-form-side {
+        padding: 52px 58px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .atlas-login-heading h2 {
+        color: #102448;
+        font-size: 32px;
+        font-weight: 850;
+        letter-spacing: -.6px;
+        margin-bottom: 8px;
+    }
+
+    .atlas-login-heading p {
+        color: #8292ad;
+        font-size: 16px;
+        margin-bottom: 34px;
+    }
+
+    .atlas-login-label {
+        color: #21385c;
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 9px;
+    }
+
+    .atlas-login-input {
+        width: 100%;
+        min-height: 61px;
+        border: 1px solid #dce5f5;
+        border-radius: 14px;
+        background: #f8faff;
+        padding: 15px 17px;
+        font-size: 16px;
+        color: #152b50;
+        transition: .2s ease;
+    }
+
+        .atlas-login-input:focus {
+            background: #fff;
+            border-color: #3468eb;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(52,104,235,.09);
+        }
+
+        .atlas-login-input::placeholder {
+            color: #94a1b8;
+        }
+
+    .atlas-login-field {
+        margin-bottom: 22px;
+    }
+
+    .atlas-login-remember {
+        margin: 4px 0 26px;
+        color: #526583;
+        font-size: 14px;
+    }
+
+    .atlas-login-submit {
+        width: 100%;
+        min-height: 62px;
+        border: 0;
+        border-radius: 14px;
+        color: white;
+        background: linear-gradient(100deg, #2450d8, #4d80f4);
+        font-size: 17px;
+        font-weight: 750;
+        transition: transform .2s, box-shadow .2s;
+    }
+
+        .atlas-login-submit:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(37, 82, 216, .20);
+        }
+
+    .atlas-login-separator {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 27px 0 20px;
+        color: #91a0b8;
+        font-size: 13px;
+    }
+
+        .atlas-login-separator::before,
+        .atlas-login-separator::after {
+            content: "";
+            height: 1px;
+            flex: 1;
+            background: #e5ebf5;
+        }
+
+    .atlas-login-register {
+        display: block;
+        text-align: center;
+        padding: 15px;
+        border-radius: 13px;
+        border: 1px solid #dce5f5;
+        background: #fff;
+        color: #2755d9;
+        font-weight: 750;
+        text-decoration: none;
+        transition: .2s;
+    }
+
+        .atlas-login-register:hover {
+            color: #1c42b6;
+            background: #f5f8ff;
+            border-color: #b8cafa;
+        }
+
+    .atlas-login-business {
+        text-align: center;
+        margin-top: 24px;
+        font-size: 13px;
+        color: #8a98b0;
+    }
+
+        .atlas-login-business a {
+            color: #315ed7;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+    .atlas-login-error {
+        border-radius: 12px;
+        font-size: 14px;
+    }
+
+    @@media (max-width: 900px) {
+        .atlas-login-container {
+            grid-template-columns: 1fr;
+        }
+
+        .atlas-login-brand {
+            min-height: 230px;
+            padding: 30px;
+        }
+
+            .atlas-login-brand h1 {
+                font-size: 29px;
+                margin: 25px 0 12px;
+            }
+
+        .atlas-login-bottom {
+            display: none;
+        }
+
+        .atlas-login-form-side {
+            padding: 38px 30px;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .atlas-login-page {
+            margin: 0 auto 25px;
+        }
+
+        .atlas-login-container {
+            border-radius: 18px;
+        }
+
+        .atlas-login-brand {
+            padding: 25px;
+        }
+
+            .atlas-login-brand h1 {
+                font-size: 26px;
+            }
+
+        .atlas-login-form-side {
+            padding: 30px 22px;
+        }
+
+        .atlas-login-heading h2 {
+            font-size: 27px;
+        }
+    }
+</style>
+
+<div class="atlas-login-page">
+    <div class="atlas-login-container">
+
+        <!-- SOL TANITIM ALANI -->
+        <section class="atlas-login-brand">
+
+            <div>
+                <div class="atlas-login-logo">
+                    ✦ ATLAS RANDEVU
+                </div>
+
+                <h1>
+                    @(yoneticiGirisi ? "Platformunu güvenle yönet." :
+                        isletmeGirisi ? "İşletmeni tek yerden yönet." :
+                        "Güzelliğe ve bakıma bir adım daha yakın.")
+                </h1>
+
+                <p>
+                    @(yoneticiGirisi ? "Atlas Randevu yönetim hesabınla güvenli giriş yap." :
+                        isletmeGirisi ? "Randevularını, hizmetlerini ve işletme bilgilerini kolayca yönet." :
+                        "Sevdiğin işletmeleri keşfet, hizmetini seç ve birkaç adımda randevu talebi oluştur.")
+                </p>
+            </div>
+
+            <div class="atlas-login-bottom">
+                @(yoneticiGirisi ? "Platform yönetimi yalnızca yetkili hesaplara açıktır." :
+                    isletmeGirisi ? "İşletmen için pratik randevu yönetimi." :
+                    "Tek hesapla tüm işletmelerde kolay randevu deneyimi.")
+            </div>
+
+        </section>
+
+        <!-- SAĞ GİRİŞ FORMU -->
+        <section class="atlas-login-form-side">
+
+            <div class="atlas-login-heading">
+
+                <h2>
+                    @(yoneticiGirisi ? "Yönetici Girişi" :
+                        isletmeGirisi ? "İşletme Girişi" : "Tekrar hoş geldin")
+                </h2>
+
+                <p>
+                    @(yoneticiGirisi ? "Platform yönetim hesabınızla giriş yapın." :
+                        isletmeGirisi ? "İşletmenizi yönetmek için hesabınıza giriş yapın." :
+                        "Atlas Randevu hesabına giriş yap.")
+                </p>
+
+            </div>
+
+
+            <form asp-controller="Hesap"
+                  asp-action="Giris"
+                  asp-route-returnUrl="@ViewBag.ReturnUrl"
+                  asp-route-girisTipi="@girisTipi"
+                  method="post">
+
+
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger atlas-login-error mb-3">
+                </div>
+
+                <div class="atlas-login-field">
+                    <label asp-for="Eposta"
+                           class="atlas-login-label">
+                        E-posta
+                    </label>
+
+                    <input asp-for="Eposta"
+                           class="atlas-login-input"
+                           autocomplete="username"
+                           placeholder="ornek@eposta.com" />
+
+                    <span asp-validation-for="Eposta"
+                          class="text-danger small">
+                    </span>
+                </div>
+
+                <div class="atlas-login-field">
+                    <label asp-for="Sifre"
+                           class="atlas-login-label">
+                        Şifre
+                    </label>
+
+                    <input asp-for="Sifre"
+                           class="atlas-login-input"
+                           type="password"
+                           autocomplete="current-password"
+                           placeholder="Şifrenizi girin" />
+
+                    <span asp-validation-for="Sifre"
+                          class="text-danger small">
+                    </span>
+                </div>
+
+                <div class="form-check atlas-login-remember">
+                    <input asp-for="BeniHatirla"
+                           class="form-check-input" />
+
+                    <label asp-for="BeniHatirla"
+                           class="form-check-label">
+                        Beni hatırla
+                    </label>
+                </div>
+
+                <button type="submit"
+                        class="atlas-login-submit">
+                    Giriş Yap &rarr;
+                </button>
+
+            </form>
+
+
+            @if (!yoneticiGirisi)
+            {
+                <div class="atlas-login-separator">veya</div>
+                @if (isletmeGirisi)
+                {
+                    <div class="text-center mb-3" style="color:#8292ad;">
+                        İşletmeniz henüz kayıtlı değil mi?
+                    </div>
+                    <a asp-controller="IsletmeKayit"
+                       asp-action="Index"
+                       class="atlas-login-register">
+                        İşletmenizi Oluşturun &rarr;
+                    </a>
+                }
+                else
+                {
+                    <div class="text-center mb-3" style="color:#8292ad;">
+                        Henüz hesabınız yok mu?
+                    </div>
+                    <a asp-controller="MusteriKayit"
+                       asp-action="Index"
+                       asp-route-returnUrl="@ViewBag.ReturnUrl"
+                       class="atlas-login-register">
+                        Ücretsiz Üye Ol &rarr;
+                    </a>
+                }
+            }
+
+        </section>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

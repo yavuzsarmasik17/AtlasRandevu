@@ -1,0 +1,24 @@
+﻿@model AtlasRandevu.Web.Controllers.PersonelFormViewModel
+@{
+    ViewData["Title"] = "Personel Düzenle";
+    Layout = "_IsletmeLayout";
+}
+<partial name="_PersonelFormStyle" />
+<div class="apf-wrap">
+    <a asp-controller="Personel" asp-action="Index" class="apf-back">← Personel listesine dön</a>
+    <div class="apf-card">
+        <h1>Personel Düzenle</h1>
+        <p>Personelin bilgilerini güncelle.</p>
+        <form asp-controller="Personel" asp-action="Duzenle" asp-route-id="@Model.Id" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            <div asp-validation-summary="ModelOnly" class="apf-error"></div>
+            <div class="apf-field"><label asp-for="AdSoyad">Ad soyad</label><input asp-for="AdSoyad" maxlength="150" required /><span asp-validation-for="AdSoyad" class="apf-error"></span></div>
+            <div class="apf-field"><label asp-for="Unvan">Görev / unvan</label><input asp-for="Unvan" maxlength="100" required /><span asp-validation-for="Unvan" class="apf-error"></span></div>
+            <div class="apf-field"><label asp-for="SubeId">Şube</label><select asp-for="SubeId" asp-items="ViewBag.Subeler" required><option value="0">Şube seçiniz</option></select><span asp-validation-for="SubeId" class="apf-error"></span></div>
+            <div class="apf-field"><label asp-for="Telefon">Telefon (isteğe bağlı)</label><input asp-for="Telefon" maxlength="20" type="tel" /><span asp-validation-for="Telefon" class="apf-error"></span></div>
+            <label class="apf-check"><input asp-for="AktifMi" /> Personel aktif olsun</label>
+            <button type="submit" class="apf-btn">Değişiklikleri Kaydet →</button>
+        </form>
+    </div>
+</div>

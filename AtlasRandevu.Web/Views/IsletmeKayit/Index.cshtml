@@ -1,0 +1,354 @@
+﻿@model AtlasRandevu.Web.ViewModels.IsletmeKayitViewModel
+@using AtlasRandevu.Domain.Entities
+@{
+    Layout = "_KayitLayout";
+    ViewData["Title"] = "İşletme Kaydı";
+    var sektorler = ViewBag.Sektorler as List<Sektor> ?? new List<Sektor>();
+}
+<div class="registration-shell">
+    <aside class="registration-sidebar">
+        <h1>İşletme Kaydı</h1>
+        <p>Birkaç adımda işletmenizi platformumuza kaydedin.</p>
+        <div class="side-steps" id="sideSteps">
+            @foreach (var item in
+            new[] { "İşletme Sahibi", "İşletme Bilgileri", "Şube Bilgileri", "Önizleme" }
+            .Select((name, index) => new { name, index }))
+            {
+                <div class="side-step @(item.index == 0 ? "active" : "")" data-step="@item.index"><span class="num">@(item.index + 1)</span><span class="step-label">@item.name</span></div>
+            }
+        </div>
+        <div class="benefits"><h2>Neden Atlas Randevu?</h2><ul><li>Online randevu takvimi</li><li>Müşteri ve şube yönetimi</li><li>Yönetici onaylı işletme kaydı</li><li>Ücretsiz başlangıç paketi</li></ul></div>
+    </aside>
+    <section class="registration-panel">
+        <div class="step-head"><div><h2 id="stepTitle">İşletme Sahibi Bilgileri</h2><p id="stepSubtitle">İşletmenizi yönetecek hesabın bilgilerini girin.</p></div><span class="step-count" id="stepCount">1 / 4</span></div>
+        <div class="progress-track"><div class="progress-bar-custom" id="progressBar"></div></div>
+        <div class="alert alert-info" role="status">
+            İşletme kaydınızı tamamlamak için bilgilerinizi doldurun,
+            başvurunuzu gönderin.
+            Başvurunuz yönetici onayından sonra aktif olacaktır.
+        </div>
+
+        <form asp-controller="IsletmeKayit"
+              asp-action="Index"
+              method="post"
+              id="registrationForm"
+              enctype="multipart/form-data"
+              novalidate>
+
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="All" class="text-danger" id="serverErrors" role="alert"></div>
+            <div class="form-section active" data-section="0">
+                <h3>1. İşletme Sahibi Bilgileri</h3>
+                <div class="row g-3">
+                    <div class="col-md-6"><label asp-for="AdSoyad" class="form-label">Ad Soyad <span class="required">*</span></label><input asp-for="AdSoyad" class="form-control" autocomplete="name" required /><span asp-validation-for="AdSoyad" class="text-danger"></span></div>
+                    <div class="col-md-6"><label asp-for="Telefon" class="form-label">Telefon <span class="required">*</span></label><input asp-for="Telefon" class="form-control" type="tel" autocomplete="tel" placeholder="05XX XXX XX XX" required /><span asp-validation-for="Telefon" class="text-danger"></span></div>
+                    <div class="col-md-6"><label asp-for="Eposta" class="form-label">E-posta <span class="required">*</span></label><input asp-for="Eposta" class="form-control" type="email" autocomplete="email" required /><span asp-validation-for="Eposta" class="text-danger"></span></div>
+                    <div class="col-md-6"><label asp-for="Sifre" class="form-label">Şifre <span class="required">*</span></label><div class="input-group"><input asp-for="Sifre" class="form-control" type="password" minlength="8" autocomplete="new-password" required /><button class="btn btn-outline-secondary" type="button" id="togglePassword">Göster</button></div><span asp-validation-for="Sifre" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="form-section" data-section="1">
+                <h3>2. İşletme Bilgileri</h3><div class="row g-3">
+                    <div class="col-md-6"><label asp-for="IsletmeAdi" class="form-label">İşletme Adı <span class="required">*</span></label><input asp-for="IsletmeAdi" class="form-control" required /></div>
+                    <div class="col-md-6"><label asp-for="TicariUnvan" class="form-label">Ticari Unvan <span class="required">*</span></label><input asp-for="TicariUnvan" class="form-control" required /></div>
+                    <div class="col-md-6">
+                        <label asp-for="SektorId" class="form-label">Sektör <span class="required">*</span></label><select asp-for="SektorId" class="form-select" required>
+                            <option value="0">Sektör seçiniz</option>@foreach (var sektor in sektorler)
+                            {
+                                <option value="@sektor.Id">@sektor.Ad</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-section" data-section="2">
+                <h3>3. İlk Şube Bilgileri</h3><div class="row g-3">
+                    <div class="col-md-6"><label asp-for="SubeAdi" class="form-label">Şube Adı <span class="required">*</span></label><input asp-for="SubeAdi" class="form-control" placeholder="Merkez Şube" required /></div>
+                    <div class="col-md-6"><label asp-for="SubeTelefon" class="form-label">Şube Telefonu <span class="required">*</span></label><input asp-for="SubeTelefon" class="form-control" type="tel" required /></div>
+                    <div class="col-md-6"><label asp-for="Il" class="form-label">İl <span class="required">*</span></label><input asp-for="Il" class="form-control" required /></div>
+                    <div class="col-md-6"><label asp-for="Ilce" class="form-label">İlçe <span class="required">*</span></label><input asp-for="Ilce" class="form-control" required /></div>
+                    <div class="col-12"><label asp-for="Adres" class="form-label">Açık Adres <span class="required">*</span></label><textarea asp-for="Adres" class="form-control" rows="3" required></textarea></div>
+                </div>
+            </div>
+
+            <div class="form-section" data-section="3">
+                <h3>4. Bilgileri Önizleyin</h3>
+                <p class="text-muted">
+                    Başvurunuzu göndermeden önce bilgilerinizi kontrol edin.
+                </p>
+                <div id="registrationSummary"></div>
+
+                <div class="form-check mt-4">
+                    <input class="form-check-input"
+                           type="checkbox"
+                           id="previewConsent"
+                           name="sozlesmeKabulEdildi"
+                           value="true"
+                           required />
+
+
+
+                    <label class="form-check-label" for="previewConsent">
+                        <a href="#"
+                           data-bs-toggle="modal"
+                           data-bs-target="#sozlesmeModal">
+                            İşletme Kullanım Sözleşmesi
+                        </a>
+                        şartlarını kabul ediyorum ve
+                        <a href="#"
+                           data-bs-toggle="modal"
+                           data-bs-target="#kvkkModal">
+                            KVKK Aydınlatma Metni
+                        </a>
+                        hakkında bilgilendirildim.
+                    </label>
+
+
+                </div>
+
+
+            </div>
+
+            <div class="modal fade" id="sozlesmeModal" tabindex="-1"
+                 aria-labelledby="sozlesmeModalBaslik" aria-hidden="true">
+
+                <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="sozlesmeModalBaslik">
+                                ATLAS Randevu - İşletme Kullanım Sözleşmesi
+                            </h5>
+                            <button type="button" class="btn-close"
+                                    data-bs-dismiss="modal"
+                                    aria-label="Kapat"></button>
+                        </div>
+
+                        <div class="modal-body" style="line-height:1.75; font-size:14px;">
+                            <div class="alert alert-info">
+                                <strong>Sürüm 1.0 — Yayın öncesi taslak.</strong>
+                                Hizmet sağlayıcının kimlik ve iletişim bilgileri tamamlanmadan ve hukuki kontrol yapılmadan canlı başvurular açılmamalıdır.
+                            </div>
+                            <h6>ATLAS RANDEVU — İŞLETME ÜYELİK VE KULLANIM SÖZLEŞMESİ</h6>
+                            <p>
+                                <strong>Platform:</strong> ATLAS Randevu<br />
+                                <strong>Web:</strong> https://atlassoftware.com.tr<br />
+                                <strong>Hizmet sağlayıcı:</strong> [Ad Soyad — yayın öncesinde doldurulacak]<br />
+                                <strong>İletişim:</strong> [Adres ve destek e-postası — yayın öncesinde doldurulacak]
+                            </p>
+                            <h6>1. Taraflar ve konu</h6>
+                            <p>Bu sözleşme, ATLAS Randevu platformunu bireysel olarak işleten hizmet sağlayıcı ile platforma kayıt olan işletme arasında düzenlenir. Platform, berber, kuaför ve uygun diğer işletmelere çevrim içi randevu ve işletme yönetimi araçları sağlar.</p>
+                            <h6>2. Üyelik ve kayıt</h6>
+                            <p>İşletme, kayıt sırasında doğru ve güncel bilgi vermeyi, hesabının güvenliğini sağlamayı kabul eder. İşletme başvuruları platform yöneticisinin inceleme ve onayına tabidir. Yanıltıcı bilgi veya hukuka aykırı kullanım halinde başvuru reddedilebilir, hesap askıya alınabilir veya sonlandırılabilir.</p>
+                            <h6>3. Sunulan hizmetler</h6>
+                            <p>Platform; işletme profili, şube, hizmet ve fiyat yönetimi, müsaitlik takvimi ve randevu takibi gibi özellikler sunabilir. Kullanıma sunulan özellikler yazılımın sürümüne göre değişebilir.</p>
+                            <h6>4. Ücretsiz kullanım ve ileride abonelik</h6>
+                            <p>ATLAS Randevu başlangıç döneminde işletmelere ücretsiz sunulur. İleride ücretli abonelik paketleri oluşturulabilir. Paket kapsamı, fiyatı, ödeme dönemi ve başlangıç tarihi önceden açıklanır. <strong>İşletmenin ayrıca açık onayı olmadan ücretli abonelik başlatılmaz ve ödeme tahsil edilmez.</strong> Ücretli paketi kabul etmeyen işletme ödeme yapmak zorunda değildir. Ücretsiz hizmetin sona ermesi planlanırsa önceden bilgilendirme yapılır ve verilerini alabilmesi için makul imkân sağlanır.</p>
+                            <h6>5. İşletmenin sorumlulukları</h6>
+                            <p>İşletme, hizmetlerinin kalitesinden, fiyatlarından, randevuların yerine getirilmesinden, personelinin erişim yetkilerinden ve müşterileriyle arasındaki ticari ilişkiden sorumludur. Müşteri bilgilerini yalnızca hukuka uygun amaçlarla kullanır; platform güvenliğini ihlal edecek işlemler yapmaz.</p>
+                            <h6>6. Randevular</h6>
+                            <p>ATLAS Randevu, işletme ile müşteri arasındaki randevu organizasyonunu kolaylaştırır. Hizmet doğrudan işletme tarafından sunulur. Randevu iptali, gecikme ve hizmetin ifasına ilişkin sorumluluklar ilgili mevzuat ve taraflar arasındaki ilişki çerçevesinde değerlendirilir. Platformun kendi kusurundan doğan yasal sorumlulukları saklıdır.</p>
+                            <h6>7. Kişisel veriler</h6>
+                            <p>Taraflar 6698 sayılı KVKK ve ilgili mevzuata uygun hareket eder. Kişisel verilerin işlenmesi, saklanması, paylaşılması ve ilgili kişi haklarına ilişkin ayrıntılar ayrı KVKK Aydınlatma Metni'nde açıklanır. İşletme müşteri verileri bakımından tarafların rolleri, işleme faaliyetinin niteliğine göre belirlenir.</p>
+                            <h6>8. Hesap ve şifre güvenliği</h6>
+                            <p>İşletme giriş bilgilerinin gizliliğini korur. Şifre unutulursa hesap sahipliği doğrulanarak yetkili Platform Admin üzerinden şifre sıfırlama işlemi yapılabilir. Mevcut şifre görüntülenmez.</p>
+                            <h6>9. Hizmet sürekliliği</h6>
+                            <p>Bakım, güncelleme, arıza veya mücbir sebepler nedeniyle geçici kesintiler olabilir. Hizmet sağlayıcının yürürlükteki mevzuattan kaynaklanan sorumlulukları saklıdır.</p>
+                            <h6>10. Üyeliğin sona ermesi</h6>
+                            <p>İşletme üyeliğinin kapatılmasını talep edebilir. Hukuka veya sözleşmeye aykırı kullanımda hesap askıya alınabilir veya kapatılabilir. Veriler yasal saklama ve silme yükümlülüklerine uygun şekilde yönetilir.</p>
+                            <h6>11. Sözleşme değişiklikleri</h6>
+                            <p>Önemli değişiklikler işletmelere yürürlüğe girmeden önce bildirilir. Sözleşmenin güncellenmesi tek başına ödeme yükümlülüğü doğurmaz; ücretli abonelik için ayrıca açık kabul gerekir.</p>
+                            <h6>12. Uygulanacak hukuk ve kabul</h6>
+                            <p>Türkiye Cumhuriyeti hukuku uygulanır. Uyuşmazlıklarda mevzuat gereğince görevli ve yetkili merciler esas alınır. İşletme, kayıt ekranındaki kabul kutusunu işaretleyerek sözleşmeyi elektronik ortamda kabul eder; platformun kullanımına başlanması yönetici onayına bağlı olabilir.</p>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary"
+                                    data-bs-dismiss="modal">
+                                Kapat
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="kvkkModal" tabindex="-1"
+                 aria-labelledby="kvkkModalBaslik" aria-hidden="true">
+
+                <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="kvkkModalBaslik">
+                                ATLAS Randevu - KVKK Aydınlatma Metni
+                            </h5>
+                            <button type="button" class="btn-close"
+                                    data-bs-dismiss="modal"
+                                    aria-label="Kapat"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <h6>ATLAS Randevu — İşletme Başvurusu KVKK Aydınlatma Metni</h6>
+                            <p class="text-muted small">Sürüm 1.0 — Yayın öncesi taslak</p>
+                            <h6>1. Veri sorumlusu ve iletişim</h6>
+                            <p>Bu aydınlatma metni, ATLAS Randevu işletme başvuru ve hesap yönetimi işlemlerine ilişkindir. Bu işlemler bakımından veri sorumlusu olarak hareket eden kişi: <strong>[Ad Soyad — yayın öncesi doldurulacak]</strong>. İletişim / başvuru e-postası: <a href="mailto:atlassoftrandevu@gmail.com">atlassoftrandevu@gmail.com</a>. Tebligat ve başvuru adresi: <strong>[Adres — yayın öncesi doldurulacak]</strong>.</p>
+                            <h6>2. İşlenen kişisel veriler</h6>
+                            <p>İşletme sahibi veya yetkilisinin adı soyadı, telefon numarası, e-posta adresi, kullanıcı hesabı ve güvenlik bilgileri (şifrenin kendisi yerine güvenli özeti), işletme ve şube bilgileri, kayıt/işlem tarihleri ve gerekli teknik erişim kayıtları işlenebilir. İşletme bilgilerinin bir kısmı tüzel kişilere ait olabilir; gerçek kişiyi belirlenebilir kılan bilgiler kişisel veri niteliğindedir.</p>
+                            <h6>3. İşleme amaçları</h6>
+                            <p>İşletme başvurusunu almak ve değerlendirmek, kullanıcı hesabı oluşturmak, işletme ve şube yönetimini sağlamak, randevu hizmetlerini sunmak, yetkilendirme ve hesap güvenliğini yürütmek, destek taleplerini karşılamak, kötüye kullanımı önlemek ve hukuki yükümlülükleri yerine getirmek.</p>
+                            <h6>4. Hukuki sebepler</h6>
+                            <p>KVKK madde 5/2 kapsamında; sözleşmenin kurulması veya ifası için gerekli olma, veri sorumlusunun hukuki yükümlülüğünü yerine getirmesi, bir hakkın tesisi/kullanılması/korunması ve ilgili kişinin temel haklarına zarar vermemek kaydıyla meşru menfaat hukuki sebeplerinden, ilgili işlem için uygun olanına dayanılır. Ayrı açık rıza gerektiren bir işlem yapılırsa ayrıca açık rıza alınır. Aydınlatma metnini okumak tek başına açık rıza anlamına gelmez.</p>
+                            <h6>5. Veri toplama yöntemi</h6>
+                            <p>Veriler; kayıt formu, kullanıcı paneli, destek yazışmaları ve platformun güvenlik/işlem kayıtları aracılığıyla elektronik ortamda elde edilir.</p>
+                            <h6>6. Kişisel verilerin aktarılması</h6>
+                            <p>Veriler; barındırma, altyapı ve teknik destek hizmeti sağlayıcılarına, hizmetin yürütülmesi için gerekli olduğu ölçüde ve uygun güvencelerle aktarılabilir. Kanunen yetkili kamu kurumlarına hukuki yükümlülük kapsamında bilgi verilebilir. Yurt dışına aktarım yapılıp yapılmadığı, kullanılan gerçek altyapı ve hizmet sağlayıcılarına göre ayrıca değerlendirilecek; varsa KVKK madde 9 kapsamındaki koşullar sağlanacaktır.</p>
+                            <h6>7. Saklama ve silme</h6>
+                            <p>Veriler, işleme amacı için gerekli süre ve varsa kanuni saklama süreleri boyunca tutulur. Bu süreler sona erdiğinde ilgili mevzuata uygun biçimde silinir, yok edilir veya anonimleştirilir. Kesin saklama süreleri veri envanteri ve kullanılan sistemlere göre belirlenecektir.</p>
+                            <h6>8. İlgili kişinin hakları</h6>
+                            <p>KVKK madde 11 uyarınca; kişisel verilerinizin işlenip işlenmediğini öğrenme, işlenmişse bilgi talep etme, işleme amacını ve amaca uygun kullanımı öğrenme, aktarım yapılan üçüncü kişileri bilme, eksik/yanlış verilerin düzeltilmesini isteme, şartları oluştuğunda silme veya yok edilmesini isteme, bu işlemlerin aktarılan üçüncü kişilere bildirilmesini isteme, münhasıran otomatik analiz aleyhinize sonuç doğurursa itiraz etme ve kanuna aykırı işleme nedeniyle zararın giderilmesini talep etme haklarına sahipsiniz.</p>
+                            <h6>9. Başvuru</h6>
+                            <p>Bilgi ve talepleriniz için <a href="mailto:atlassoftrandevu@gmail.com">atlassoftrandevu@gmail.com</a> adresinden iletişime geçebilirsiniz. KVKK kapsamında resmî başvurular, Veri Sorumlusuna Başvuru Usul ve Esasları Hakkında Tebliğ'deki uygun yöntemlerle yapılmalıdır; sıradan e-posta her durumda geçerli resmî başvuru yöntemi olmayabilir.</p>
+                            <div class="alert alert-warning">
+                                <strong>Yayın öncesi not:</strong> Bu metin taslaktır. Veri sorumlusunun adı/adresi, gerçek veri aktarım alıcıları, yurt dışı aktarım durumu ve saklama süreleri doğrulanmadan canlıya alınmamalıdır. Müşterilere yönelik ayrı aydınlatma metni de gerekebilir.
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary"
+                                    data-bs-dismiss="modal">
+                                Kapat
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-row"><button type="button" class="btn btn-outline-secondary" id="prevBtn" style="visibility:hidden">← Geri</button><button type="button" class="btn btn-primary" id="nextBtn">Devam Et →</button></div>
+        </form>
+    </section>
+</div>
+@section Scripts {
+    <script>
+                (() => {
+
+                const titles = [
+                    "İşletme Sahibi",
+                    "İşletme Bilgileri",
+                    "Şube Bilgileri",
+                    "Önizleme"
+                ];
+
+
+                const subtitles = [
+                    "Kişisel bilgilerinizi girin.",
+                    "İşletmenizin bilgilerini girin.",
+                    "Şubenizin iletişim ve adres bilgilerini girin.",
+                    "Başvurunuzu göndermeden önce bilgilerinizi kontrol edin."
+                ];
+
+                    let step = 0;
+                    const form = document.getElementById('registrationForm');
+                    const sections = [...document.querySelectorAll('.form-section')];
+                    const nextBtn = document.getElementById('nextBtn');
+                    const prevBtn = document.getElementById('prevBtn');
+                    function render() {
+                        sections.forEach((section, i) => section.classList.toggle('active', i === step));
+                        document.querySelectorAll('.side-step').forEach((item, i) => { item.classList.toggle('active', i === step); item.classList.toggle('done', i < step); });
+                        document.getElementById('stepTitle').textContent = titles[step];
+                        document.getElementById('stepSubtitle').textContent = subtitles[step];
+                        document.getElementById('stepCount').textContent = `${step + 1} / 4`;
+                        document.getElementById('progressBar').style.width = `${(step + 1) * 25}%`;
+                        prevBtn.style.visibility = step === 0 ? 'hidden' : 'visible';
+                        nextBtn.textContent = step === 3 ? 'Başvuruyu Gönder' : 'Devam Et →';
+                        nextBtn.disabled = basvuruGonderiliyor;
+                        if (step === 3) fillSummary();
+                    }
+                    function validStep() {
+                        const inputs = [...sections[step].querySelectorAll('input[required],select[required],textarea[required]')];
+                        for (const input of inputs) {
+                            if (input.id === 'SektorId' && input.value === '0') { input.setCustomValidity('Lütfen bir sektör seçin.'); }
+                            else input.setCustomValidity('');
+                            if (!input.checkValidity()) { input.reportValidity(); input.focus(); return false; }
+                        }
+
+                if (step === 3 && !document.getElementById('previewConsent').checked) {
+                    alert("Devam etmek için sözleşme onayını işaretlemelisiniz.");
+                    return false;
+                }
+
+                        return true;
+                    }
+                    function fillSummary() {
+                        const summary = document.getElementById('registrationSummary');
+                        summary.replaceChildren();
+
+                const fields = [
+                    ['Ad Soyad', 'AdSoyad'],
+                    ['Telefon', 'Telefon'],
+                    ['E-posta', 'Eposta'],
+                    ['İşletme', 'IsletmeAdi'],
+                    ['Ticari Unvan', 'TicariUnvan'],
+                    ['Sektör', 'SektorId'],
+                    ['Şube', 'SubeAdi'],
+                    ['İl', 'Il'],
+                    ['İlçe', 'Ilce'],
+                    ['Adres', 'Adres']
+                ];
+
+                        fields.forEach(([label,id]) => { const input = document.getElementById(id); const line = document.createElement('div'); line.className='summary-line'; const name=document.createElement('span'); name.textContent=label; const value=document.createElement('strong'); value.textContent=id==='SektorId' ? input.options[input.selectedIndex]?.text || '' : input.value; line.append(name,value); summary.append(line); });
+
+                    }
+
+                    let basvuruGonderiliyor = false;
+
+                    nextBtn.addEventListener('click', () => {
+                        if (basvuruGonderiliyor) return;
+
+                        if (step === 3) {
+        for (let i = 0; i < 3; i++) {
+                                step = i;
+                                render();
+                                if (!validStep()) return;
+                            }
+
+                            step = 3;
+                            render();
+
+                            if (!validStep()) return;
+
+
+                            basvuruGonderiliyor = true;
+                            nextBtn.disabled = true;
+                            nextBtn.textContent = "Başvuru gönderiliyor...";
+                            form.requestSubmit();
+                            return;
+                        }
+        if (step < 3 && validStep()) {
+                            step++;
+                            render();
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }
+                    });
+
+                    prevBtn.addEventListener('click', () => { if (step > 0) { step--; render(); window.scrollTo({top:0,behavior:'smooth'}); } });
+                    document.getElementById('togglePassword').addEventListener('click', e => { const input=document.getElementById('Sifre');const visible=input.type==='password';input.type=visible?'text':'password';e.currentTarget.textContent=visible?'Gizle':'Göster'; });
+                    form.addEventListener('submit', e => {
+                        if (!basvuruGonderiliyor) e.preventDefault();
+                    });
+                    const serverErrors = document.getElementById('serverErrors');
+                    const errors = [...document.querySelectorAll('[data-valmsg-for]')]
+                        .find(el => el.textContent.trim().length > 0);
+                    if (errors) {
+                        const input = document.getElementById(errors.getAttribute('data-valmsg-for'));
+                        const section = input?.closest('.form-section');
+                        if (section) step = Number(section.dataset.section);
+                    } else if (serverErrors?.textContent.trim()) {
+                        step = 0;
+                    }
+                    render();
+                })();
+
+
+    </script>
+}

@@ -1,0 +1,668 @@
+﻿@model List<AtlasRandevu.Domain.Entities.Hizmet>
+
+@{
+    Layout = "_IsletmeLayout";
+    ViewData["Title"] = "Hizmetlerim";
+
+    var toplam = Model.Count;
+    var aktif = Model.Count(x => x.AktifMi);
+    var pasif = toplam - aktif;
+}
+
+<style>
+    .hz-page {
+        color: #17233f;
+    }
+
+    .hz-hero {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(115deg, #15264b, #294fa7 65%, #536df5);
+        border-radius: 24px;
+        padding: 32px 34px;
+        color: white;
+        margin-bottom: 26px;
+        box-shadow: 0 15px 35px rgba(35, 72, 160, .15);
+    }
+
+        .hz-hero::after {
+            content: "";
+            position: absolute;
+            width: 250px;
+            height: 250px;
+            border: 45px solid rgba(255,255,255,.07);
+            border-radius: 50%;
+            right: -75px;
+            top: -100px;
+            pointer-events: none;
+        }
+
+    .hz-hero-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        flex-wrap: wrap;
+    }
+
+    .hz-eyebrow {
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        color: #b9cbff;
+        margin-bottom: 10px;
+    }
+
+    .hz-hero h1 {
+        font-size: clamp(26px, 3vw, 36px);
+        font-weight: 850;
+        letter-spacing: -.9px;
+        margin-bottom: 10px;
+    }
+
+    .hz-hero p {
+        color: #d8e3ff;
+        margin: 0;
+        max-width: 540px;
+    }
+
+    .hz-add-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 22px;
+        background: #fff;
+        color: #254ed0;
+        text-decoration: none;
+        border-radius: 14px;
+        font-weight: 800;
+        white-space: nowrap;
+        box-shadow: 0 8px 24px rgba(0,0,0,.12);
+        transition: transform .2s, box-shadow .2s;
+    }
+
+        .hz-add-btn:hover {
+            color: #173aaf;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(0,0,0,.16);
+        }
+
+    .hz-stats {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+        margin-bottom: 26px;
+    }
+
+    .hz-stat {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        background: #fff;
+        border: 1px solid #e8edf6;
+        border-radius: 20px;
+        padding: 24px;
+        box-shadow: 0 8px 24px rgba(26,44,85,.04);
+    }
+
+    .hz-stat-icon {
+        width: 60px;
+        height: 60px;
+        flex-shrink: 0;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 25px;
+    }
+
+        .hz-stat-icon.blue {
+            color: #3767f4;
+            background: #eaf0ff;
+        }
+
+        .hz-stat-icon.green {
+            color: #11956b;
+            background: #e4f8ef;
+        }
+
+        .hz-stat-icon.orange {
+            color: #e39a23;
+            background: #fff4de;
+        }
+
+    .hz-stat-label {
+        color: #7b8aa5;
+        font-size: 13px;
+        font-weight: 650;
+        margin-bottom: 5px;
+    }
+
+    .hz-stat-value {
+        font-size: 32px;
+        font-weight: 850;
+        line-height: 1;
+        letter-spacing: -.8px;
+    }
+
+    .hz-panel {
+        background: #fff;
+        border: 1px solid #e8edf6;
+        border-radius: 23px;
+        padding: 28px;
+        box-shadow: 0 10px 30px rgba(26,44,85,.045);
+    }
+
+    .hz-panel-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 18px;
+        flex-wrap: wrap;
+        margin-bottom: 25px;
+    }
+
+    .hz-panel-title {
+        font-size: 21px;
+        font-weight: 850;
+        margin: 0 0 5px;
+    }
+
+    .hz-panel-subtitle {
+        font-size: 13px;
+        color: #8795ad;
+        margin: 0;
+    }
+
+    .hz-search {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        padding: 12px 16px;
+        border: 1px solid #e2e8f3;
+        border-radius: 13px;
+        background: #f7f9fd;
+        min-width: 260px;
+    }
+
+        .hz-search:focus-within {
+            border-color: #6689f5;
+            box-shadow: 0 0 0 3px rgba(55,103,244,.09);
+        }
+
+        .hz-search input {
+            background: transparent;
+            border: 0;
+            outline: none;
+            width: 100%;
+            font-size: 14px;
+            color: #17233f;
+        }
+
+    .hz-list {
+        display: grid;
+        gap: 13px;
+    }
+
+    .hz-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 22px;
+        flex-wrap: wrap;
+        border: 1px solid #e8edf5;
+        border-radius: 17px;
+        padding: 20px;
+        background: #fff;
+        transition: border-color .2s, box-shadow .2s;
+    }
+
+        .hz-item:hover {
+            border-color: #cbd9ff;
+            box-shadow: 0 8px 24px rgba(45,91,205,.07);
+        }
+
+    .hz-item-main {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        min-width: 200px;
+        flex: 1;
+    }
+
+    .hz-item-icon {
+        width: 55px;
+        height: 55px;
+        border-radius: 15px;
+        background: linear-gradient(135deg, #e7edff, #f1eaff);
+        color: #4d68df;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 23px;
+        flex-shrink: 0;
+    }
+
+    .hz-item-name {
+        font-size: 16px;
+        font-weight: 800;
+        margin-bottom: 5px;
+        overflow-wrap: anywhere;
+    }
+
+    .hz-item-meta {
+        font-size: 12px;
+        color: #8997af;
+    }
+
+    .hz-item-details {
+        display: flex;
+        align-items: center;
+        gap: 26px;
+        flex-wrap: wrap;
+    }
+
+    .hz-detail-label {
+        font-size: 11px;
+        color: #94a0b4;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .6px;
+        margin-bottom: 5px;
+    }
+
+    .hz-detail-value {
+        font-size: 15px;
+        font-weight: 800;
+    }
+
+    .hz-price {
+        color: #2b59d9;
+        font-size: 19px;
+        font-weight: 850;
+        white-space: nowrap;
+    }
+
+    .hz-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 12px;
+        border-radius: 30px;
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+        .hz-status.active {
+            color: #07865b;
+            background: #e3f8ed;
+        }
+
+        .hz-status.passive {
+            color: #a46d1b;
+            background: #fff1d9;
+        }
+
+    .hz-status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    .hz-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .hz-action {
+        border: 1px solid #e0e7f2;
+        background: #fff;
+        color: #53627d;
+        border-radius: 11px;
+        padding: 10px 14px;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 800;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+        .hz-action:hover {
+            background: #f3f6fd;
+            color: #254ed0;
+        }
+
+        .hz-action.edit {
+            background: #edf2ff;
+            color: #315ee0;
+            border-color: #edf2ff;
+        }
+
+            .hz-action.edit:hover {
+                background: #dce6ff;
+            }
+
+    .hz-empty {
+        padding: 60px 20px;
+        text-align: center;
+        color: #8c9bb2;
+    }
+
+    .hz-empty-icon {
+        font-size: 46px;
+        margin-bottom: 15px;
+    }
+
+    .hz-empty h3 {
+        color: #233251;
+        font-weight: 800;
+        font-size: 20px;
+    }
+
+    .hz-empty a {
+        display: inline-block;
+        margin-top: 14px;
+        background: #3268f5;
+        color: white;
+        padding: 12px 22px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 750;
+    }
+
+    .hz-hidden {
+        display: none !important;
+    }
+
+    @@media (max-width: 1100px) {
+        .hz-stats {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .hz-item-details {
+            gap: 18px;
+        }
+    }
+
+    @@media (max-width: 700px) {
+        .hz-hero {
+            padding: 25px 22px;
+        }
+
+        .hz-add-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .hz-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .hz-panel {
+            padding: 20px 15px;
+        }
+
+        .hz-search {
+            width: 100%;
+            min-width: 0;
+        }
+
+        .hz-item {
+            align-items: stretch;
+        }
+
+        .hz-item-main {
+            flex-basis: 100%;
+        }
+
+        .hz-item-details {
+            flex-basis: 100%;
+            justify-content: space-between;
+        }
+
+        .hz-actions {
+            width: 100%;
+        }
+
+            .hz-actions > * {
+                flex: 1;
+            }
+
+        .hz-action {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+
+<div class="hz-page">
+
+    <section class="hz-hero">
+        <div class="hz-hero-content">
+            <div>
+                <div class="hz-eyebrow">İŞLETME YÖNETİMİ / HİZMETLER</div>
+                <h1>Hizmetlerinizi yönetin</h1>
+                <p>
+                    Hizmetlerinizi, fiyatlarınızı ve işlem sürelerinizi
+                    tek bir yerden kolayca yönetin.
+                </p>
+            </div>
+
+            <a asp-controller="Hizmetler"
+               asp-action="Ekle"
+               class="hz-add-btn">
+                <span aria-hidden="true">＋</span>
+                Yeni Hizmet Ekle
+            </a>
+        </div>
+    </section>
+
+    @if (TempData["Basari"] != null)
+    {
+        <div class="alert alert-success rounded-4 border-0 shadow-sm mb-4"
+             role="status">
+            ✓ @TempData["Basari"]
+        </div>
+    }
+
+    <section class="hz-stats" aria-label="Hizmet istatistikleri">
+
+        <div class="hz-stat">
+            <div class="hz-stat-icon blue" aria-hidden="true">▦</div>
+            <div>
+                <div class="hz-stat-label">Toplam Hizmet</div>
+                <div class="hz-stat-value">@toplam</div>
+            </div>
+        </div>
+
+        <div class="hz-stat">
+            <div class="hz-stat-icon green" aria-hidden="true">✓</div>
+            <div>
+                <div class="hz-stat-label">Aktif Hizmet</div>
+                <div class="hz-stat-value">@aktif</div>
+            </div>
+        </div>
+
+        <div class="hz-stat">
+            <div class="hz-stat-icon orange" aria-hidden="true">◷</div>
+            <div>
+                <div class="hz-stat-label">Pasif Hizmet</div>
+                <div class="hz-stat-value">@pasif</div>
+            </div>
+        </div>
+
+    </section>
+
+    <section class="hz-panel">
+        <div class="hz-panel-head">
+            <div>
+                <h2 class="hz-panel-title">Hizmet Kataloğu</h2>
+                <p class="hz-panel-subtitle">
+                    İşletmenize ait @toplam hizmet kayıtlı.
+                </p>
+            </div>
+
+            @if (Model.Any())
+            {
+                <label class="hz-search">
+                    <span aria-hidden="true">⌕</span>
+                    <input type="search"
+                           id="hizmetArama"
+                           placeholder="Hizmet adıyla ara..."
+                           aria-label="Hizmet adıyla ara"
+                           autocomplete="off" />
+                </label>
+            }
+        </div>
+
+        @if (Model.Any())
+        {
+            <div class="hz-list" id="hizmetListesi">
+
+                @foreach (var hizmet in Model)
+                {
+                    <article class="hz-item"
+                             data-hizmet-adi="@hizmet.Ad.ToLowerInvariant()">
+
+                        <div class="hz-item-main">
+                            <div class="hz-item-icon" aria-hidden="true">
+                                ✂
+                            </div>
+
+                            <div>
+                                <div class="hz-item-name">
+                                    @hizmet.Ad
+                                </div>
+                                <div class="hz-item-meta">
+                                    Hizmet #@hizmet.Id
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="hz-item-details">
+                            <div>
+                                <div class="hz-detail-label">İşlem Süresi</div>
+                                <div class="hz-detail-value">
+                                    @hizmet.SureDakika dk
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="hz-detail-label">Hizmet Fiyatı</div>
+                                <div class="hz-price">
+                                    @hizmet.Fiyat.ToString("N2") TL
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="hz-detail-label">Durum</div>
+
+                                @if (hizmet.AktifMi)
+                                {
+                                    <span class="hz-status active">
+                                        <span class="hz-status-dot"></span>
+                                        Aktif
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="hz-status passive">
+                                        <span class="hz-status-dot"></span>
+                                        Pasif
+                                    </span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="hz-actions">
+                            <a asp-controller="Hizmetler"
+                               asp-action="Duzenle"
+                               asp-route-id="@hizmet.Id"
+                               class="hz-action edit">
+                                Düzenle
+                            </a>
+
+                            <form asp-controller="Hizmetler"
+                                  asp-action="DurumDegistir"
+                                  asp-route-id="@hizmet.Id"
+                                  method="post">
+                                @Html.AntiForgeryToken()
+
+                                <button type="submit"
+                                        class="hz-action">
+                                    @(hizmet.AktifMi
+                                        ? "Pasife Al"
+                                        : "Aktif Et")
+                                </button>
+                            </form>
+                        </div>
+                    </article>
+                }
+
+            </div>
+
+            <div id="aramaBos"
+                 class="hz-empty hz-hidden"
+                 role="status">
+                <div class="hz-empty-icon" aria-hidden="true">⌕</div>
+                <h3>Aradığınız hizmet bulunamadı</h3>
+                <p>Başka bir hizmet adı deneyebilirsiniz.</p>
+            </div>
+        }
+        else
+        {
+            <div class="hz-empty">
+                <div class="hz-empty-icon" aria-hidden="true">✂</div>
+                <h3>Henüz hizmet eklemediniz</h3>
+                <p>
+                    İlk hizmetinizi oluşturarak müşterilerinizin
+                    randevu almasına hazırlanın.
+                </p>
+
+                <a asp-controller="Hizmetler"
+                   asp-action="Ekle">
+                    İlk Hizmetimi Ekle
+                </a>
+            </div>
+        }
+    </section>
+</div>
+
+<script>
+    (function () {
+        const input = document.getElementById("hizmetArama");
+        const liste = document.getElementById("hizmetListesi");
+        const bosMesaj = document.getElementById("aramaBos");
+
+        if (!input || !liste) return;
+
+        input.addEventListener("input", function () {
+            const aranan = input.value
+                .toLocaleLowerCase("tr-TR")
+                .trim();
+
+            let gorunen = 0;
+
+            liste.querySelectorAll(".hz-item").forEach(function (item) {
+                const ad = (item.getAttribute("data-hizmet-adi") || "")
+                    .toLocaleLowerCase("tr-TR");
+
+                const eslesiyor = ad.includes(aranan);
+
+                item.classList.toggle("hz-hidden", !eslesiyor);
+
+                if (eslesiyor) gorunen++;
+            });
+
+            if (bosMesaj) {
+                bosMesaj.classList.toggle("hz-hidden", gorunen > 0);
+            }
+        });
+    })();
+</script>

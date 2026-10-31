@@ -1,0 +1,364 @@
+﻿@{
+    ViewData["Title"] = "Randevuya Giriş";
+}
+
+<style>
+    .atlas-qr-page {
+        max-width: 690px;
+        margin: 35px auto;
+        padding: 0 14px;
+    }
+
+    .atlas-qr-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 22px;
+        overflow: hidden;
+        box-shadow: 0 15px 45px rgba(15, 39, 75, .08);
+    }
+
+    .atlas-qr-header {
+        background: linear-gradient(135deg, #102b55, #1763b1);
+        color: white;
+        padding: 30px 25px;
+        text-align: center;
+    }
+
+        .atlas-qr-header h2 {
+            font-weight: 800;
+            margin: 10px 0 7px;
+            font-size: 25px;
+        }
+
+        .atlas-qr-header p {
+            margin: 0;
+            color: #d7e7ff;
+            font-size: 14px;
+        }
+
+    .atlas-qr-body {
+        padding: 25px;
+    }
+
+    .atlas-qr-tabs {
+        display: flex;
+        background: #edf3fa;
+        padding: 5px;
+        border-radius: 13px;
+        gap: 5px;
+        margin-bottom: 23px;
+    }
+
+    .atlas-qr-tab {
+        flex: 1;
+        padding: 13px 8px;
+        border: 0;
+        border-radius: 10px;
+        background: transparent;
+        color: #526783;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+        .atlas-qr-tab.active {
+            background: #fff;
+            color: #155ba5;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+        }
+
+    .atlas-qr-reader {
+        border-radius: 15px;
+        overflow: hidden;
+        border: 1px solid #dce5f0;
+        min-height: 100px;
+    }
+
+    .atlas-qr-status {
+        background: #f1f6fd;
+        color: #526783;
+        border-radius: 11px;
+        padding: 13px;
+        font-size: 13px;
+        margin-top: 15px;
+        text-align: center;
+    }
+
+    .atlas-qr-input {
+        width: 100%;
+        border: 1px solid #d5dfeb;
+        border-radius: 12px;
+        padding: 15px;
+        font-size: 16px;
+        outline: none;
+        text-align: center;
+        letter-spacing: 1px;
+    }
+
+        .atlas-qr-input:focus {
+            border-color: #1763b1;
+            box-shadow: 0 0 0 3px rgba(23, 99, 177, .1);
+        }
+
+    .atlas-qr-submit {
+        width: 100%;
+        background: #155ba5;
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        padding: 14px;
+        font-weight: 700;
+        margin-top: 15px;
+        cursor: pointer;
+    }
+
+        .atlas-qr-submit:hover {
+            background: #104982;
+        }
+
+    .atlas-qr-back {
+        display: block;
+        text-align: center;
+        margin-top: 23px;
+        text-decoration: none;
+        color: #526783;
+        font-weight: 600;
+    }
+
+    @@media(max-width: 576px) {
+        .atlas-qr-page {
+            margin: 15px auto;
+        }
+
+        .atlas-qr-body {
+            padding: 18px;
+        }
+
+        .atlas-qr-header {
+            padding: 25px 15px;
+        }
+    }
+</style>
+
+<div class="atlas-qr-page">
+    <div class="atlas-qr-card">
+
+        <div class="atlas-qr-header">
+            <div style="font-size:42px">▦</div>
+            <h2>Randevuya Giriş Yap</h2>
+            <p>QR kod okutun veya işletmedeki giriş kodunu yazın.</p>
+        </div>
+
+        <div class="atlas-qr-body">
+
+            @if (TempData["QrHata"] != null)
+            {
+                <div class="alert alert-danger">
+                    @TempData["QrHata"]
+                </div>
+            }
+
+            <div class="atlas-qr-tabs">
+                <button type="button"
+                        id="tabQr"
+                        class="atlas-qr-tab active">
+                    QR Kod Okut
+                </button>
+
+                <button type="button"
+                        id="tabKod"
+                        class="atlas-qr-tab">
+                    Kod ile Giriş
+                </button>
+            </div>
+
+            <!-- QR KAMERA BÖLÜMÜ -->
+            <div id="qrBolumu">
+
+                <p class="text-muted text-center">
+                    İşletmedeki Atlas Randevu QR kodunu kameranıza gösterin.
+                </p>
+
+                <div id="reader" class="atlas-qr-reader"></div>
+
+                <div id="durum"
+                     class="atlas-qr-status"
+                     role="status">
+                    Kamera başlatılıyor...
+                </div>
+
+                <button type="button"
+                        id="kameraBaslat"
+                        class="atlas-qr-submit">
+                    Kamerayı Aç
+                </button>
+            </div>
+
+            <!-- MANUEL KOD BÖLÜMÜ -->
+            <div id="kodBolumu" style="display:none">
+
+                <div class="text-center mb-4">
+                    <div style="font-size:45px">⌨</div>
+                    <h5 class="fw-bold" style="color:#142e5b">
+                        Giriş Kodunu Yazın
+                    </h5>
+                    <p class="text-muted">
+                        İşletmede bulunan ortak Atlas Randevu
+                        giriş kodunu aşağıya yazın.
+                    </p>
+                </div>
+
+                <form id="kodForm"
+                      asp-controller="Randevularim"
+                      asp-action="QrDogrula"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <label for="manuelKod"
+                           class="form-label fw-semibold">
+                        Giriş Kodu
+                    </label>
+
+                    <input type="text"
+                           id="manuelKod"
+                           name="qrMetni"
+                           class="atlas-qr-input"
+                           placeholder="Giriş kodunu yazın"
+                           autocomplete="off"
+                           spellcheck="false"
+                           required
+                           maxlength="100" />
+
+                    <button type="submit"
+                            class="atlas-qr-submit">
+                        Giriş Yap
+                    </button>
+                </form>
+            </div>
+
+            <!-- QR FORMU -->
+            <form id="qrForm"
+                  asp-controller="Randevularim"
+                  asp-action="QrDogrula"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="qrMetni"
+                       id="qrMetni" />
+            </form>
+
+            <a asp-controller="Randevularim"
+               asp-action="Index"
+               class="atlas-qr-back">
+                ← Randevularıma Dön
+            </a>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+<script>
+    (function () {
+
+        const tabQr = document.getElementById("tabQr");
+        const tabKod = document.getElementById("tabKod");
+
+        const qrBolumu = document.getElementById("qrBolumu");
+        const kodBolumu = document.getElementById("kodBolumu");
+
+        const durum = document.getElementById("durum");
+        const kameraBaslat = document.getElementById("kameraBaslat");
+
+        let okuyucu = null;
+        let kameraAcik = false;
+        let gonderildi = false;
+
+        async function kamerayiKapat() {
+            if (okuyucu && kameraAcik) {
+                try {
+                    await okuyucu.stop();
+                } catch (e) { }
+                kameraAcik = false;
+            }
+        }
+
+        async function kamerayiAc() {
+
+            if (kameraAcik || gonderildi) return;
+
+            if (typeof Html5Qrcode === "undefined") {
+                durum.textContent =
+                    "QR okuyucu yüklenemedi. İnternet bağlantısını kontrol edin.";
+                return;
+            }
+
+            try {
+                if (!okuyucu) {
+                    okuyucu = new Html5Qrcode("reader");
+                }
+
+                durum.textContent = "Kamera açılıyor...";
+
+                await okuyucu.start(
+                    { facingMode: "environment" },
+                    {
+                        fps: 10,
+                        qrbox: { width: 240, height: 240 }
+                    },
+                    async function (metin) {
+
+                        if (gonderildi) return;
+
+                        gonderildi = true;
+
+                        durum.textContent =
+                            "QR kod doğrulanıyor...";
+
+                        document.getElementById("qrMetni").value = metin;
+
+                        await kamerayiKapat();
+
+                        document.getElementById("qrForm").submit();
+                    },
+                    function () { }
+                );
+
+                kameraAcik = true;
+                durum.textContent =
+                    "Kamera hazır. QR kodunu okutabilirsiniz.";
+
+            } catch (e) {
+                durum.textContent =
+                    "Kamera açılamadı. HTTPS ve kamera iznini kontrol edin.";
+            }
+        }
+
+        tabQr.addEventListener("click", function () {
+
+            tabQr.classList.add("active");
+            tabKod.classList.remove("active");
+
+            qrBolumu.style.display = "block";
+            kodBolumu.style.display = "none";
+
+        });
+
+        tabKod.addEventListener("click", async function () {
+
+            tabKod.classList.add("active");
+            tabQr.classList.remove("active");
+
+            kodBolumu.style.display = "block";
+            qrBolumu.style.display = "none";
+
+            await kamerayiKapat();
+        });
+
+        kameraBaslat.addEventListener("click", kamerayiAc);
+
+    })();
+</script>

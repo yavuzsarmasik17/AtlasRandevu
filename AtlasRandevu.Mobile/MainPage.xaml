@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="AtlasRandevu.Mobile.MainPage"
+    BackgroundColor="#081426"
+    NavigationPage.HasNavigationBar="False">
+
+    <Grid Padding="30">
+
+        <VerticalStackLayout
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            Spacing="20">
+
+            <Image
+                Source="atlas_login.png"
+                WidthRequest="210"
+                HeightRequest="210"
+                Aspect="AspectFit"
+                HorizontalOptions="Center"/>
+
+            <Label
+                Text="ATLAS RANDEVU"
+                FontSize="30"
+                FontAttributes="Bold"
+                TextColor="White"
+                HorizontalTextAlignment="Center"/>
+
+            <Label
+                Text="İŞLETME YÖNETİMİ"
+                FontSize="14"
+                CharacterSpacing="3"
+                TextColor="#60A5FA"
+                HorizontalTextAlignment="Center"/>
+
+            <ActivityIndicator
+                IsRunning="True"
+                Color="#3B82F6"
+                WidthRequest="35"
+                HeightRequest="35"
+                Margin="0,30,0,0"/>
+
+        </VerticalStackLayout>
+
+        <Label
+            Text="POWERED BY ATLAS SOFT"
+            FontSize="11"
+            TextColor="#64748B"
+            HorizontalOptions="Center"
+            VerticalOptions="End"
+            Margin="0,0,0,25"/>
+
+    </Grid>
+
+</ContentPage>

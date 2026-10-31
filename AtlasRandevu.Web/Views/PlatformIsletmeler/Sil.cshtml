@@ -1,0 +1,92 @@
+﻿@model AtlasRandevu.Web.Controllers.IsletmeSilViewModel
+@{
+    Layout = "_PlatformLayout";
+    ViewData["Title"] = "İşletmeyi Kalıcı Sil";
+}
+<style>
+    .sil-wrap {
+        max-width: 940px;
+        margin: auto;
+        color: #14213d
+    }
+
+    .sil-card {
+        background: #fff;
+        border: 1px solid #e7edf7;
+        border-radius: 22px;
+        padding: 30px;
+        box-shadow: 0 10px 35px rgba(20,35,65,.04)
+    }
+
+    .sil-muted {
+        color: #8390a6
+    }
+
+    .sil-stat {
+        background: #f6f8fd;
+        border: 1px solid #edf1f8;
+        border-radius: 14px;
+        padding: 16px
+    }
+
+    .sil-number {
+        font-size: 27px;
+        font-weight: 850;
+        color: #17233d
+    }
+
+    .sil-input {
+        border: 1px solid #dce5f3;
+        border-radius: 12px;
+        padding: 14px;
+        width: 100%;
+        outline: none
+    }
+
+        .sil-input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px #2563eb15
+        }
+
+    @@media(max-width:600px) {
+        .sil-card {
+            padding: 20px
+        }
+    }
+</style>
+<div class="sil-wrap">
+    <a asp-controller="PlatformIsletmeler" asp-action="Detay" asp-route-id="@Model.Id" class="btn btn-outline-secondary rounded-3 mb-3">← İşletme Detayına Dön</a>
+    <div class="sil-card">
+        <div class="d-flex align-items-start gap-3 mb-4">
+            <div style="width:58px;height:58px;border-radius:17px;background:#fff0f1;color:#dc3545;display:grid;place-items:center;font-size:27px">!</div>
+            <div><div class="sil-muted small">PLATFORM / İŞLETME YÖNETİMİ</div><h1 class="h3 fw-bold mb-1">İşletmeyi Kalıcı Sil</h1><p class="sil-muted mb-0">@Model.Ad · #@Model.Id</p></div>
+        </div>
+        <div class="row g-2 mb-4">
+            @foreach (var stat in new[] { ("Şube", Model.SubeSayisi), ("Hizmet", Model.HizmetSayisi), ("Randevu", Model.RandevuSayisi), ("Yorum", Model.YorumSayisi), ("Yetkili", Model.KullaniciSayisi), ("Fotoğraf", Model.FotografSayisi) })
+            {
+                <div class="col-6 col-md-4"><div class="sil-stat"><div class="sil-muted small">@stat.Item1</div><div class="sil-number">@stat.Item2</div></div></div>
+            }
+        </div>
+        <div class="alert alert-danger rounded-3 mb-4"><strong>Bu işlem geri alınamaz.</strong> Yukarıdaki işletmeye bağlı şubeler, hizmetler, randevular, yorumlar, fotoğraf kayıtları ve işletme-yetkili bağlantıları silinir. Müşterilerin ve yetkililerin giriş hesapları silinmez. Önce veritabanı yedeği alın.</div>
+        <form asp-controller="PlatformIsletmeler" asp-action="Sil" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <label asp-for="OnayAdi" class="fw-semibold mb-2">Onaylamak için <strong>@Model.Ad</strong> yazın</label>
+            <input asp-for="OnayAdi" class="sil-input mb-1" autocomplete="off" placeholder="İşletme adını yazın" />
+            <span asp-validation-for="OnayAdi" class="text-danger small d-block mb-3"></span>
+            <div class="form-check mt-3">
+                <input asp-for="KaliciSilmeOnayi" class="form-check-input" />
+                <label asp-for="KaliciSilmeOnayi" class="form-check-label">İşletme verilerinin geri alınamayacak şekilde silineceğini anlıyorum.</label>
+                <span asp-validation-for="KaliciSilmeOnayi" class="text-danger small d-block"></span>
+            </div>
+            <div class="d-flex flex-wrap gap-2 mt-4">
+                <button type="submit" class="btn btn-danger px-4 py-3 rounded-3">İşletmeyi Kalıcı Sil</button>
+                <a asp-controller="PlatformIsletmeler" asp-action="Detay" asp-route-id="@Model.Id" class="btn btn-outline-secondary px-4 py-3 rounded-3">Vazgeç</a>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

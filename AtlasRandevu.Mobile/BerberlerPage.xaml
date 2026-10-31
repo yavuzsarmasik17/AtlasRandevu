@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="AtlasRandevu.Mobile.BerberlerPage"
+    BackgroundColor="#F8FAFC"
+    Title="Berberleri Keşfet"
+    Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- ÜST ALAN -->
+        <VerticalStackLayout
+            Padding="24,50,24,20"
+            Spacing="15">
+
+            <Label
+                Text="ATLAS RANDEVU"
+                FontSize="16"
+                FontAttributes="Bold"
+                TextColor="#2563EB" />
+
+            <Label
+                Text="Berberleri Keşfet"
+                FontSize="29"
+                FontAttributes="Bold"
+                TextColor="#0F172A" />
+
+            <Label
+                Text="Size en uygun işletmeyi bulun."
+                FontSize="15"
+                TextColor="#64748B" />
+
+            <Border
+                BackgroundColor="White"
+                Stroke="#E2E8F0"
+                StrokeShape="RoundRectangle 14"
+                Padding="14,4">
+
+                <Entry
+                    x:Name="txtAra"
+                    Placeholder="Berber veya işletme ara..."
+                    TextColor="#0F172A"
+                    PlaceholderColor="#94A3B8"
+                    TextChanged="TxtAra_TextChanged" />
+
+            </Border>
+
+        </VerticalStackLayout>
+
+        <!-- İŞLETME LİSTESİ -->
+        <CollectionView
+            x:Name="BerberListesi"
+            Grid.Row="1"
+            Margin="24,0,24,15"
+            SelectionMode="None">
+
+            <CollectionView.EmptyView>
+                <Label
+                    Text="Aramanıza uygun işletme bulunamadı."
+                    TextColor="#64748B"
+                    HorizontalTextAlignment="Center"
+                    Margin="0,35,0,0" />
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+
+                    <Border
+                        BackgroundColor="White"
+                        Stroke="#E2E8F0"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 18"
+                        Padding="18"
+                        Margin="0,0,0,14">
+
+                        <VerticalStackLayout Spacing="12">
+
+                            <Label
+                                Text="{Binding Ad}"
+                                FontSize="20"
+                                FontAttributes="Bold"
+                                TextColor="#0F172A" />
+
+                            <Label
+                                Text="{Binding Konum}"
+                                FontSize="14"
+                                TextColor="#64748B" />
+
+                            <Label
+                                Text="{Binding Aciklama}"
+                                FontSize="14"
+                                TextColor="#475569" />
+
+                            <Grid ColumnDefinitions="*,Auto">
+
+                                <Label
+                                    Text="{Binding Puan}"
+                                    TextColor="#D97706"
+                                    FontAttributes="Bold"
+                                    VerticalOptions="Center" />
+
+                                <Button
+                                    Grid.Column="1"
+                                    Text="İncele"
+                                    BackgroundColor="#2563EB"
+                                    TextColor="White"
+                                    CornerRadius="10"
+                                    Padding="22,10"
+                                    CommandParameter="{Binding .}"
+                                    Clicked="Incele_Clicked" />
+
+                            </Grid>
+
+                        </VerticalStackLayout>
+
+                    </Border>
+
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+
+        </CollectionView>
+
+    </Grid>
+</ContentPage>

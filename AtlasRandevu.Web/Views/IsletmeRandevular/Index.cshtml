@@ -1,0 +1,479 @@
+﻿@model List<AtlasRandevu.Web.Controllers.IsletmeRandevuSatiri>
+@{
+    Layout = "_IsletmeLayout";
+    ViewData["Title"] = "Randevu Yönetimi";
+    var durum = ViewBag.SeciliDurum as string ?? "";
+    var gorunum = ViewBag.Gorunum as string ?? "tum";
+    var ara = ViewBag.Ara as string ?? "";
+    var tarih = ViewBag.Tarih as string ?? DateTime.Today.ToString("yyyy-MM-dd");
+    string DurumAdi(string d) => d switch { "OnayBekliyor" => "Onay Bekliyor", "Onaylandi" => "Onaylandı", "Reddedildi" => "Reddedildi", "IptalEdildi" => "İptal Edildi", "Tamamlandi" => "Tamamlandı", "Geldi" => "Geldi", "Gelmedi" => "Gelmedi", _ => d };
+    string DurumSinifi(string d) => d switch { "OnayBekliyor" => "waiting", "Onaylandi" => "approved", "Tamamlandi" => "done", "Geldi" => "arrived", "Gelmedi" => "absent", _ => "muted" };
+}
+<style>
+    .ar-page {
+        max-width: 1500px;
+        margin: auto;
+        color: #152646
+    }
+
+    .ar-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 22px
+    }
+
+        .ar-heading h1 {
+            font-size: 29px;
+            font-weight: 850;
+            letter-spacing: -.8px;
+            margin: 0
+        }
+
+    .ar-subtitle {
+        color: #7b8ba5;
+        font-size: 14px;
+        margin: 5px 0 0
+    }
+
+    .ar-stats {
+        display: grid;
+        grid-template-columns: repeat(4,minmax(0,1fr));
+        gap: 14px;
+        margin-bottom: 20px
+    }
+
+    .ar-card {
+        background: #fff;
+        border: 1px solid #e6edf8;
+        border-radius: 17px;
+        box-shadow: 0 8px 28px rgba(20,45,90,.035)
+    }
+
+    .ar-stat {
+        padding: 20px 22px
+    }
+
+        .ar-stat span {
+            font-size: 13px;
+            color: #8291a9
+        }
+
+        .ar-stat strong {
+            display: block;
+            font-size: 29px;
+            color: #102a55;
+            margin-top: 7px
+        }
+
+    .ar-filter {
+        padding: 19px;
+        margin-bottom: 20px
+    }
+
+    .ar-form {
+        display: grid;
+        grid-template-columns: minmax(170px,2fr) repeat(3,minmax(135px,1fr)) auto;
+        gap: 10px;
+        align-items: end
+    }
+
+    .ar-field label {
+        display: block;
+        font-size: 12px;
+        color: #7e8da4;
+        font-weight: 700;
+        margin-bottom: 7px
+    }
+
+    .ar-field input, .ar-field select {
+        width: 100%;
+        border: 1px solid #dce5f3;
+        border-radius: 10px;
+        padding: 11px 12px;
+        background: #fff;
+        color: #203555;
+        min-height: 44px
+    }
+
+    .ar-btn {
+        border: 0;
+        border-radius: 10px;
+        padding: 11px 16px;
+        font-size: 13px;
+        font-weight: 750;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        white-space: nowrap
+    }
+
+    .ar-primary {
+        background: #2563eb;
+        color: #fff
+    }
+
+    .ar-success {
+        background: #e8f8ef;
+        color: #118457
+    }
+
+    .ar-danger {
+        background: #fff0f1;
+        color: #c53b50
+    }
+
+    .ar-finish {
+        background: #eaf0ff;
+        color: #245bdc
+    }
+
+    .ar-btn:disabled {
+        opacity: .45;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .ar-table-wrap {
+        overflow-x: auto
+    }
+
+    .ar-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 980px
+    }
+
+        .ar-table th {
+            text-align: left;
+            background: #f8faff;
+            color: #7e8da4;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            padding: 15px 16px;
+            white-space: nowrap
+        }
+
+        .ar-table td {
+            padding: 17px 16px;
+            border-top: 1px solid #edf1f7;
+            vertical-align: middle;
+            font-size: 13px
+        }
+
+        .ar-table strong {
+            font-weight: 800;
+            color: #1b2c4c
+        }
+
+    .ar-secondary {
+        color: #8593a9;
+        font-size: 12px;
+        margin-top: 4px
+    }
+
+    .ar-badge {
+        display: inline-flex;
+        padding: 7px 10px;
+        border-radius: 99px;
+        font-size: 11px;
+        font-weight: 800;
+        white-space: nowrap
+    }
+
+        .ar-badge.waiting {
+            background: #fff3df;
+            color: #ad720a
+        }
+
+        .ar-badge.approved {
+            background: #e8f8ef;
+            color: #168457
+        }
+
+        .ar-badge.arrived {
+            background: #dff4ff;
+            color: #075c9b;
+        }
+
+        .ar-badge.done {
+            background: #eaf0ff;
+            color: #245bdc
+        }
+
+        .ar-badge.absent {
+            background: #fff0f1;
+            color: #b92e4a;
+        }
+
+        .ar-badge.muted {
+            background: #f0f2f6;
+            color: #718095
+        }
+
+    .ar-actions {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap
+    }
+
+        .ar-actions form {
+            margin: 0
+        }
+
+    .ar-alert {
+        padding: 13px 17px;
+        border-radius: 12px;
+        margin-bottom: 14px
+    }
+
+        .ar-alert.ok {
+            background: #eaf8f0;
+            color: #13784d
+        }
+
+        .ar-alert.bad {
+            background: #fff0f1;
+            color: #bc3448
+        }
+
+    .ar-empty {
+        text-align: center;
+        padding: 55px 15px;
+        color: #8493a9
+    }
+
+    @@media(max-width:1100px) {
+        .ar-stats {
+            grid-template-columns: repeat(2,minmax(0,1fr))
+        }
+
+        .ar-form {
+            grid-template-columns: repeat(2,minmax(0,1fr))
+        }
+    }
+
+    @@media(max-width:600px) {
+        .ar-stats {
+            grid-template-columns: 1fr 1fr;
+            gap: 9px
+        }
+
+        .ar-stat {
+            padding: 15px
+        }
+
+            .ar-stat strong {
+                font-size: 23px
+            }
+
+        .ar-form {
+            grid-template-columns: 1fr
+        }
+
+        .ar-heading h1 {
+            font-size: 24px
+        }
+    }
+</style>
+<div class="ar-page">
+    <div class="ar-heading"><div><h1>Randevu Yönetimi</h1><p class="ar-subtitle">Otomatik onaylanan randevuları ve müşteri girişlerini tek ekrandan takip edin.</p></div><span class="ar-badge approved">● İşletme Paneli</span></div>
+
+    <!-- MANUEL RANDEVU VE SAAT KAPATMA -->
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+
+        <a asp-controller="IsletmeManuelRandevu"
+           asp-action="Ekle"
+           class="ar-btn ar-primary">
+            + Manuel Randevu Ekle
+        </a>
+
+        <a asp-controller="IsletmeTakvim"
+           asp-action="Index"
+           class="ar-btn ar-primary">
+            Günlük Personel Takvimi
+        </a>
+
+        <a asp-controller="IsletmeKapaliZamanlar"
+           asp-action="Index"
+           class="ar-btn"
+           style="background:#eef2ff;color:#284bb5;">
+            Saati Kapat
+        </a>
+
+    </div>
+
+    @if (TempData["RandevuMesaj"] != null)
+    {
+        <div class="ar-alert ok">@TempData["RandevuMesaj"]</div>
+    }
+    @if (TempData["RandevuHata"] != null)
+    {
+        <div class="ar-alert bad">@TempData["RandevuHata"]</div>
+    }
+    <div class="ar-stats">
+        <div class="ar-card ar-stat"><span>Toplam Randevu</span><strong>@ViewBag.Toplam</strong></div>
+        <div class="ar-card ar-stat"><span>Gelen Müşteri</span><strong>@ViewBag.Gelen</strong></div>
+        <div class="ar-card ar-stat"><span>Onaylanan</span><strong>@ViewBag.Onaylanan</strong></div>
+        <div class="ar-card ar-stat"><span>Tamamlanan</span><strong>@ViewBag.Tamamlanan</strong></div>
+        <div class="ar-card ar-stat"><span>Gelmeyen Müşteri</span><strong>@ViewBag.Gelmeyen</strong></div>
+    </div>
+    <section class="ar-card ar-filter">
+        <form asp-controller="IsletmeRandevular" asp-action="Index" method="get" class="ar-form">
+            <div class="ar-field"><label>Müşteri, telefon, hizmet veya şube ara</label><input type="search" name="ara" value="@ara" placeholder="Arama yapın..." /></div>
+            <div class="ar-field"><label>Durum</label><select name="durum"><option value="">Tüm durumlar</option><option value="OnayBekliyor" selected="@(durum == "OnayBekliyor")">Onay bekleyen</option><option value="Onaylandi" selected="@(durum == "Onaylandi")">Onaylanan</option><option value="Geldi" selected="@(durum == "Geldi")">Geldi</option><option value="Gelmedi" selected="@(durum == "Gelmedi")">Gelmedi</option><option value="Tamamlandi" selected="@(durum == "Tamamlandi")">Tamamlanan</option><option value="Reddedildi" selected="@(durum == "Reddedildi")">Reddedilen</option><option value="IptalEdildi" selected="@(durum == "IptalEdildi")">İptal edilen</option></select></div>
+            <div class="ar-field"><label>Görünüm</label><select name="gorunum"><option value="tum" selected="@(gorunum == "tum")">Tüm tarihler</option><option value="gun" selected="@(gorunum == "gun")">Günlük</option><option value="hafta" selected="@(gorunum == "hafta")">Haftalık</option></select></div>
+            <div class="ar-field"><label>Tarih</label><input type="date" name="tarih" value="@tarih" /></div>
+            <button class="ar-btn ar-primary" type="submit">Filtrele</button>
+        </form>
+    </section>
+    <section class="ar-card">
+        <div style="padding:20px 22px;border-bottom:1px solid #edf1f7;display:flex;justify-content:space-between;align-items:center;gap:10px"><strong>Randevu Listesi</strong><span class="ar-secondary">@Model.Count kayıt gösteriliyor (en fazla 300)</span></div>
+        @if (!Model.Any())
+        {
+            <div class="ar-empty">Seçilen filtrelere uygun randevu bulunamadı.</div>
+        }
+        else
+        {
+            <div class="ar-table-wrap">
+                <table class="ar-table">
+                    <thead><tr><th>Müşteri</th><th>İletişim</th><th>Hizmet / Şube</th><th>Tarih / Saat</th><th>Durum</th><th>İşlemler</th></tr></thead>
+                    <tbody>
+                        @foreach (var r in Model)
+                        {
+                            <tr>
+                                <td><strong>@r.MusteriAdi</strong><div class="ar-secondary">Randevu #@r.Id</div></td>
+                                <td><div>@(string.IsNullOrWhiteSpace(r.Telefon) ? "—" : r.Telefon)</div><div class="ar-secondary">@r.Eposta</div></td>
+                                <td>
+                                    <strong>@r.HizmetAdi</strong><div class="ar-secondary">@r.SubeAdi</div>@if (!string.IsNullOrWhiteSpace(r.MusteriNotu))
+                                    {
+                                        <div class="ar-secondary" title="@r.MusteriNotu">Not: @(r.MusteriNotu.Length > 70 ? r.MusteriNotu.Substring(0, 70) + "…" : r.MusteriNotu)</div>
+                                    }
+                                </td>
+                                <td><strong>@r.BaslangicTarihi.ToString("dd.MM.yyyy")</strong><div class="ar-secondary">@r.BaslangicTarihi.ToString("HH:mm") – @r.BitisTarihi.ToString("HH:mm")</div></td>
+                                <td>
+                                    <span class="ar-badge @DurumSinifi(r.Durum)">@DurumAdi(r.Durum)</span>@if (r.GelisTarihi.HasValue)
+                                    {
+                                        <div class="ar-secondary">Giriş: @r.GelisTarihi.Value.ToString("dd.MM.yyyy HH:mm")</div>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="ar-actions">
+
+                                        @if ((r.RandevuKaynagi == "Telefon" ||
+                                       r.RandevuKaynagi == "Elden") &&
+                                       r.Durum == "Onaylandi" &&
+                                       r.BaslangicTarihi > DateTime.Now)
+                                        {
+                                            <a asp-controller="IsletmeManuelRandevu"
+                                               asp-action="Duzenle"
+                                               asp-route-id="@r.Id"
+                                               class="ar-btn ar-finish">
+                                                ✎ Düzenle
+                                            </a>
+                                        }
+
+
+                                        @if ((r.RandevuKaynagi == "Telefon" ||
+                                       r.RandevuKaynagi == "Elden") &&
+                                       r.Durum == "Onaylandi" &&
+                                       r.BaslangicTarihi > DateTime.Now)
+                                        {
+                                            <form asp-controller="IsletmeRandevular"
+                                                  asp-action="ManuelIptal"
+                                                  method="post"
+                                                  onsubmit="return confirm('Bu manuel randevuyu iptal etmek istediğinize emin misiniz?');">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden" name="id" value="@r.Id" />
+
+                                                <button type="submit" class="ar-btn ar-danger">
+                                                    Randevuyu İptal Et
+                                                </button>
+                                            </form>
+                                        }
+
+                                        @if (r.Durum == "Geldi")
+                                        {
+                                            if (r.BitisTarihi <= DateTime.Now)
+                                            {
+                                                <form asp-controller="IsletmeRandevular" asp-action="Tamamla" method="post"
+                                                      onsubmit="return confirm('Bu randevuyu tamamlandı olarak işaretlemek istiyor musunuz?');">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@r.Id" />
+                                                    <button type="submit" class="ar-btn ar-finish">✓ İşlem Tamamlandı</button>
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                <button type="button" class="ar-btn ar-finish" disabled title="Randevu bitiş saati bekleniyor.">✓ Tamamla</button>
+                                                <span class="ar-secondary">Bitiş saati bekleniyor</span>
+                                            }
+                                        }
+                                        else if (r.Durum == "Onaylandi")
+                                        {
+                                            var manuelMi = r.RandevuKaynagi == "Telefon" || r.RandevuKaynagi == "Elden";
+                                            var simdi = DateTime.Now;
+                                            if (manuelMi && r.BaslangicTarihi <= simdi && r.BitisTarihi >= simdi)
+                                            {
+                                                <form asp-controller="IsletmeRandevular" asp-action="ManuelGeldi" method="post"
+                                                      onsubmit="return confirm('Müşteri geldi olarak işaretlensin mi?');">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@r.Id" />
+                                                    <button type="submit" class="ar-btn ar-success">✓ Müşteri Geldi</button>
+                                                </form>
+                                            }
+                                            else if (!r.GelisDogrulandiMi && r.BitisTarihi <= simdi)
+                                            {
+                                                <form asp-controller="IsletmeRandevular" asp-action="Gelmedi" method="post"
+                                                      onsubmit="return confirm('Bu müşteriyi GELMEDİ olarak işaretlemek istediğinize emin misiniz?');">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@r.Id" />
+                                                    <button type="submit" class="ar-btn ar-danger">✕ Gelmedi Olarak İşaretle</button>
+                                                </form>
+                                            }
+                                            else if (manuelMi)
+                                            {
+                                                <span class="ar-secondary">Randevu başlangıç saati bekleniyor</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="ar-secondary">Müşterinin QR / kod ile girişi bekleniyor</span>
+                                            }
+                                        }
+                                        else if (r.Durum == "Gelmedi")
+                                        {
+                                            <span class="ar-badge absent">✕ Gelmedi</span>
+                                        }
+                                        else if (r.Durum == "Tamamlandi")
+                                        {
+                                            <span class="ar-badge done">✓ Tamamlandı</span>
+                                        }
+                                        else if (r.Durum == "OnayBekliyor")
+                                        {
+                                            <span class="ar-secondary">Eski onay bekleyen kayıt</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="ar-secondary">—</span>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</div>
+
+<script>
+    window.addEventListener('atlas:operasyon-degisti', function () {
+        window.location.reload();
+    });
+</script>

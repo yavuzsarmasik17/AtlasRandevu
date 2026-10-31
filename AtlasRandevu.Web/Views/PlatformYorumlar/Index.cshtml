@@ -1,0 +1,203 @@
+﻿@model List<AtlasRandevu.Web.Controllers.PlatformYorumSatiri>
+@{
+    Layout = "_PlatformLayout";
+    ViewData["Title"] = "Yorumlar";
+    string ara = ViewBag.Ara as string ?? "";
+    string durum = ViewBag.Durum as string ?? "";
+    int? seciliPuan = ViewBag.Puan as int?;
+}
+<style>
+    .py-title {
+        color: #14213d;
+        font-weight: 850;
+        letter-spacing: -.7px
+    }
+
+    .py-muted {
+        color: #8291a7
+    }
+
+    .py-panel {
+        background: #fff;
+        border: 1px solid #e7edf7;
+        border-radius: 22px;
+        padding: 24px;
+        box-shadow: 0 12px 35px rgba(18,37,73,.045)
+    }
+
+    .py-stat {
+        background: #fff;
+        border: 1px solid #e7edf7;
+        border-radius: 19px;
+        padding: 22px;
+        height: 100%;
+        box-shadow: 0 9px 27px rgba(18,37,73,.035)
+    }
+
+    .py-stat-label {
+        font-size: 13px;
+        color: #8291a7;
+        font-weight: 650
+    }
+
+    .py-stat-value {
+        font-size: 32px;
+        font-weight: 850;
+        color: #14213d;
+        margin-top: 8px
+    }
+
+    .py-input {
+        border: 1px solid #dce5f3;
+        background: #f9fbff;
+        border-radius: 12px;
+        padding: 12px 14px;
+        width: 100%;
+        min-height: 48px;
+        color: #17233d
+    }
+
+    .py-table thead th {
+        background: #f7f9fd;
+        color: #8291a7;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: .6px;
+        padding: 16px;
+        white-space: nowrap
+    }
+
+    .py-table tbody td {
+        padding: 18px 16px;
+        vertical-align: top;
+        border-color: #edf1f7;
+        font-size: 14px
+    }
+
+    .py-avatar {
+        height: 42px;
+        width: 42px;
+        border-radius: 13px;
+        background: #e8efff;
+        color: #2563eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        flex-shrink: 0
+    }
+
+    .py-pill {
+        display: inline-block;
+        border-radius: 30px;
+        padding: 6px 12px;
+        font-size: 12px;
+        font-weight: 750;
+        background: #eef2ff;
+        color: #3759a9
+    }
+
+        .py-pill.ok {
+            background: #e5f8ed;
+            color: #13834d
+        }
+
+        .py-pill.no {
+            background: #fff0e6;
+            color: #ad5b11
+        }
+
+    .py-stars {
+        color: #f1a51d;
+        font-size: 17px;
+        letter-spacing: 1px;
+        white-space: nowrap
+    }
+
+    .py-comment {
+        max-width: 390px;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        color: #243653
+    }
+
+    .py-reply {
+        margin-top: 10px;
+        padding: 10px 12px;
+        background: #f4f7fc;
+        border-left: 3px solid #2563eb;
+        border-radius: 8px;
+        color: #526581;
+        font-size: 12px
+    }
+
+    @@media(max-width:767px) {
+        .py-panel {
+            padding: 15px
+        }
+
+        .py-stat {
+            padding: 16px
+        }
+
+        .py-stat-value {
+            font-size: 26px
+        }
+    }
+</style>
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+    <div><h1 class="py-title h2 mb-1">Yorum ve Değerlendirmeler</h1><div class="py-muted">Müşteri deneyimlerini ve yayın durumlarını yönetin.</div></div>
+    <span class="py-pill">Platform Yönetimi</span>
+</div>
+@if (TempData["Basari"] != null)
+{
+    <div class="alert alert-success">@TempData["Basari"]</div>
+}
+@if (TempData["Hata"] != null)
+{
+    <div class="alert alert-danger">@TempData["Hata"]</div>
+}
+<div class="row g-3 mb-4">
+    <div class="col-6 col-xl-3"><div class="py-stat"><div class="py-stat-label">Toplam Yorum</div><div class="py-stat-value">@ViewBag.Toplam</div></div></div>
+    <div class="col-6 col-xl-3"><div class="py-stat"><div class="py-stat-label">Yayındaki Yorumlar</div><div class="py-stat-value">@ViewBag.Yayinda</div></div></div>
+    <div class="col-6 col-xl-3"><div class="py-stat"><div class="py-stat-label">Yayından Kaldırılan</div><div class="py-stat-value">@ViewBag.Gizli</div></div></div>
+    <div class="col-6 col-xl-3"><div class="py-stat"><div class="py-stat-label">Ortalama Puan</div><div class="py-stat-value">@(((double)ViewBag.Ortalama).ToString("N1")) <span style="font-size:18px;color:#e6a01c">★</span></div></div></div>
+</div>
+<div class="py-panel">
+    <div class="d-flex justify-content-between flex-wrap gap-2 mb-3"><div><h2 class="h5 py-title mb-1">Değerlendirme Listesi</h2><div class="py-muted small">İşletme, müşteri veya yorum içeriğine göre arayın.</div></div><span class="py-pill">@Model.Count sonuç</span></div>
+    <form method="get" asp-controller="PlatformYorumlar" asp-action="Index" class="row g-2 mb-4">
+        <div class="col-12 col-lg-5"><label class="form-label small fw-semibold">Ara</label><input class="py-input" name="ara" value="@ara" placeholder="İşletme, müşteri, yorum..." /></div>
+        <div class="col-6 col-lg-2"><label class="form-label small fw-semibold">Yayın Durumu</label><select class="py-input" name="durum"><option value="">Tümü</option><option value="yayinda" selected="@(durum == "yayinda")">Yayında</option><option value="gizli" selected="@(durum == "gizli")">Gizli</option></select></div>
+        <div class="col-6 col-lg-2"><label class="form-label small fw-semibold">Puan</label><select class="py-input" name="puan"><option value="">Tüm puanlar</option>@for (int p = 5; p >= 1; p--)
+                {
+                    <option value="@p" selected="@(seciliPuan == p)">@p yıldız</option>
+                }</select></div>
+        <div class="col-12 col-lg-3 d-flex align-items-end gap-2"><button type="submit" class="btn btn-primary flex-grow-1" style="min-height:48px;border-radius:12px">Filtrele</button><a asp-action="Index" class="btn btn-outline-secondary" style="min-height:48px;border-radius:12px;padding-top:11px">Temizle</a></div>
+    </form>
+    <div class="table-responsive">
+        <table class="table py-table align-middle mb-0">
+            <thead><tr><th>Müşteri</th><th>İşletme</th><th>Değerlendirme</th><th>Tarih</th><th>Durum</th><th class="text-end">İşlem</th></tr></thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td><div class="d-flex gap-2 align-items-center"><div class="py-avatar">@(string.IsNullOrWhiteSpace(item.MusteriAdi) ? "M" : item.MusteriAdi.Substring(0, 1).ToUpper())</div><div><strong>@(string.IsNullOrWhiteSpace(item.MusteriAdi) ? "İsim belirtilmemiş" : item.MusteriAdi)</strong><div class="small py-muted">@item.MusteriEposta</div></div></div></td>
+                        <td><a asp-controller="PlatformIsletmeler" asp-action="Detay" asp-route-id="@item.IsletmeId" class="text-decoration-none fw-semibold">@item.IsletmeAdi</a></td>
+                        <td><div class="py-stars">@@new string('★', Math.Clamp(item.Puan, 0, 5))@@new string('☆', 5 - Math.Clamp(item.Puan, 0, 5))</div><div class="py-comment mt-2">@(string.IsNullOrWhiteSpace(item.Yorum) ? "Yazılı yorum yok." : item.Yorum)</div>@if (!string.IsNullOrWhiteSpace(item.IsletmeCevabi))
+                            {
+                                <div class="py-reply"><strong>İşletme cevabı:</strong> @item.IsletmeCevabi</div>
+                            }</td>
+                        <td class="text-nowrap">@item.Tarih.ToString("dd.MM.yyyy")<div class="small py-muted">@item.Tarih.ToString("HH:mm")</div></td>
+                        <td><span class="py-pill @(item.YayinlandiMi ? "ok" : "no")">@(item.YayinlandiMi ? "Yayında" : "Gizli")</span></td>
+                        <td class="text-end"><form asp-controller="PlatformYorumlar" asp-action="YayinDurumuDegistir" method="post" onsubmit="return confirm('Yorumun yayın durumunu değiştirmek istiyor musunuz?');">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@item.Id" /><input type="hidden" name="yayinla" value="@(!item.YayinlandiMi ? "true" : "false")" /><button type="submit" class="btn btn-sm @(item.YayinlandiMi ? "btn-outline-danger" : "btn-outline-success") text-nowrap">@(item.YayinlandiMi ? "Yayından Kaldır" : "Yayınla")</button></form></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5 py-muted">Seçilen kriterlerde yorum bulunamadı.</div>
+    }
+    <div class="small py-muted mt-3">En yeni 300 kayıt gösterilir. Yayın durumunu değiştirmek yorum metnini veya işletme cevabını silmez.</div>
+</div>

@@ -1,0 +1,641 @@
+﻿@model List<AtlasRandevu.Web.Controllers.RandevularimSatirViewModel>
+@using System.Globalization
+@{
+    ViewData["Title"] = "Randevularım";
+    var tr = CultureInfo.GetCultureInfo("tr-TR");
+    var turkiyeSaatDilimi = TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time");
+    var simdi = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, turkiyeSaatDilimi);
+    // Sona eren veya olumsuz sonuçlanan randevular geçmişe taşınır.
+    var aktif = Model.Where(x =>
+        (x.Durum == "OnayBekliyor" || x.Durum == "Onaylandi" || x.Durum == "Geldi") &&
+        x.BitisTarihi > simdi).OrderBy(x => x.BaslangicTarihi).ToList();
+    var gecmis = Model.Where(x => !(
+        (x.Durum == "OnayBekliyor" || x.Durum == "Onaylandi" || x.Durum == "Geldi") &&
+        x.BitisTarihi > simdi)).OrderByDescending(x => x.BaslangicTarihi).ToList();
+    var sekme = string.Equals(Context.Request.Query["sekme"].ToString(), "gecmis", StringComparison.OrdinalIgnoreCase)
+        ? "gecmis" : "aktif";
+    var gorunenRandevular = sekme == "gecmis" ? gecmis : aktif;
+    var yaklasan = aktif.Count;
+    var bekleyen = aktif.Count(x => x.Durum == "OnayBekliyor");
+    var tamamlanan = Model.Count(x => x.Durum == "Tamamlandi");
+}
+<style>
+    .mr-wrap {
+        max-width: 1150px;
+        margin: 14px auto 65px;
+        color: #152440
+    }
+
+    .mr-hero {
+        background: linear-gradient(115deg,#111f3e,#315ed8);
+        border-radius: 23px;
+        color: white;
+        padding: 30px 32px;
+        box-shadow: 0 14px 35px rgba(35,75,150,.15)
+    }
+
+        .mr-hero h1 {
+            font-weight: 850;
+            font-size: 30px;
+            margin: 0 0 8px
+        }
+
+        .mr-hero p {
+            color: #d7e4ff;
+            margin: 0
+        }
+
+    .mr-stats {
+        display: grid;
+        grid-template-columns: repeat(3,minmax(0,1fr));
+        gap: 14px;
+        margin: 20px 0
+    }
+
+    .mr-stat {
+        background: white;
+        border: 1px solid #e5ebf5;
+        border-radius: 17px;
+        padding: 18px 22px;
+        box-shadow: 0 7px 25px rgba(22,40,75,.04)
+    }
+
+        .mr-stat small {
+            color: #72809a;
+            font-weight: 650
+        }
+
+        .mr-stat strong {
+            display: block;
+            font-size: 28px;
+            color: #1b356d;
+            margin-top: 4px
+        }
+
+    .mr-grid {
+        display: grid;
+        grid-template-columns: repeat(2,minmax(0,1fr));
+        gap: 17px
+    }
+
+    .mr-card {
+        background: #fff;
+        border: 1px solid #e3eaf5;
+        border-radius: 19px;
+        padding: 23px;
+        box-shadow: 0 8px 30px rgba(20,39,77,.05)
+    }
+
+    .mr-card-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 18px
+    }
+
+    .mr-business {
+        font-size: 18px;
+        font-weight: 800;
+        margin: 0;
+        overflow-wrap: anywhere
+    }
+
+    .mr-sub {
+        color: #75839a;
+        font-size: 13px;
+        margin-top: 5px
+    }
+
+    .mr-badge {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 30px;
+        padding: 6px 11px;
+        font-size: 11px;
+        font-weight: 800;
+        white-space: nowrap
+    }
+
+    .mr-pending {
+        background: #fff5df;
+        color: #966000
+    }
+
+    .mr-approved {
+        background: #e6f7ed;
+        color: #14733d
+    }
+
+    .mr-done {
+        background: #e8efff;
+        color: #2655bb
+    }
+
+    .mr-other {
+        background: #f2f4f8;
+        color: #69758a
+    }
+
+    .mr-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 10px 0;
+        border-bottom: 1px solid #eef1f7;
+        font-size: 13px
+    }
+
+        .mr-row span:first-child {
+            color: #7b89a0
+        }
+
+        .mr-row span:last-child {
+            font-weight: 700;
+            text-align: right;
+            overflow-wrap: anywhere
+        }
+
+    .mr-note {
+        margin-top: 15px;
+        background: #f3f7ff;
+        color: #395783;
+        padding: 12px;
+        border-radius: 11px;
+        font-size: 12px
+    }
+
+    .mr-empty {
+        background: #fff;
+        border: 1px solid #e4eaf5;
+        border-radius: 18px;
+        padding: 50px 24px;
+        text-align: center;
+        color: #71809b
+    }
+
+        .mr-empty h2 {
+            color: #183055;
+            font-size: 20px;
+            font-weight: 800
+        }
+
+    .mr-action {
+        display: inline-block;
+        margin-top: 12px;
+        padding: 11px 18px;
+        border-radius: 11px;
+        background: #315ed8;
+        color: #fff;
+        text-decoration: none;
+        font-weight: 750
+    }
+
+        .mr-action:hover {
+            color: #fff;
+            background: #214bbb
+        }
+
+    .mr-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        margin-top: 17px
+    }
+
+        .mr-actions form {
+            margin: 0
+        }
+
+    .mr-qr {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 11px 16px;
+        border-radius: 11px;
+        background: #315ed8;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 750;
+        text-decoration: none
+    }
+
+        .mr-qr:hover {
+            color: #fff;
+            background: #214bbb
+        }
+
+        .mr-qr:disabled {
+            background: #e5e9f1;
+            color: #8792a5;
+            cursor: not-allowed;
+            opacity: 1
+        }
+
+    .mr-cancel {
+        padding: 11px 16px;
+        border-radius: 11px;
+        border: 1px solid #f0c8cf;
+        background: #fff2f3;
+        color: #bd354a;
+        font-size: 13px;
+        font-weight: 750;
+        cursor: pointer
+    }
+
+        .mr-cancel:hover {
+            background: #ffe4e8
+        }
+
+    .mr-alert {
+        padding: 13px 17px;
+        border-radius: 12px;
+        margin: 18px 0 0;
+        font-size: 14px
+    }
+
+        .mr-alert.ok {
+            background: #eaf8f0;
+            color: #13784d
+        }
+
+        .mr-alert.bad {
+            background: #fff0f1;
+            color: #bc3448
+        }
+
+    @@media(max-width:800px) {
+        .mr-grid {
+            grid-template-columns: 1fr
+        }
+
+        .mr-hero {
+            padding: 24px
+        }
+
+            .mr-hero h1 {
+                font-size: 25px
+            }
+    }
+
+    @@media(max-width:480px) {
+        .mr-stats {
+            gap: 8px
+        }
+
+        .mr-stat {
+            padding: 13px 10px
+        }
+
+            .mr-stat small {
+                font-size: 11px
+            }
+
+            .mr-stat strong {
+                font-size: 23px
+            }
+
+        .mr-card {
+            padding: 17px
+        }
+
+        .mr-card-head {
+            flex-wrap: wrap
+        }
+    }
+
+    .mr-modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: rgba(10,24,51,.65);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+        backdrop-filter: blur(5px)
+    }
+
+        .mr-modal-overlay.is-open {
+            display: flex
+        }
+
+    .mr-modal {
+        width: 100%;
+        max-width: 440px;
+        background: #fff;
+        border: 1px solid #e7ecf6;
+        border-radius: 22px;
+        box-shadow: 0 30px 90px rgba(5,18,48,.28);
+        padding: 27px;
+        color: #152440
+    }
+
+    .mr-modal-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fff0f1;
+        color: #bf354b;
+        font-size: 26px;
+        font-weight: 800;
+        margin-bottom: 16px
+    }
+
+    .mr-modal h2 {
+        font-size: 22px;
+        line-height: 1.25;
+        margin: 0 0 10px;
+        font-weight: 850;
+        color: #13264b
+    }
+
+    .mr-modal p {
+        color: #667791;
+        font-size: 14px;
+        line-height: 1.6;
+        margin: 0 0 16px
+    }
+
+    .mr-modal-info {
+        background: #f4f7fd;
+        border: 1px solid #e5ebf5;
+        padding: 13px 15px;
+        border-radius: 12px;
+        margin-bottom: 19px;
+        font-size: 13px;
+        line-height: 1.7;
+        color: #304765
+    }
+
+    .mr-modal-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end
+    }
+
+    .mr-modal-back {
+        border: 1px solid #dce5f2;
+        background: #fff;
+        color: #324767;
+        border-radius: 11px;
+        padding: 11px 17px;
+        font-weight: 750;
+        cursor: pointer
+    }
+
+    .mr-modal-submit {
+        border: 0;
+        background: #d43d54;
+        color: #fff;
+        border-radius: 11px;
+        padding: 11px 17px;
+        font-weight: 750;
+        cursor: pointer
+    }
+
+        .mr-modal-submit:hover {
+            background: #b72e43
+        }
+
+        .mr-modal-submit:disabled {
+            opacity: .6;
+            cursor: wait
+        }
+
+    @@media(max-width:480px) {
+        .mr-modal {
+            padding: 21px
+        }
+
+        .mr-modal-buttons {
+            flex-direction: column-reverse
+        }
+
+            .mr-modal-buttons button {
+                width: 100%
+            }
+    }
+
+    .mr-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 22px 0 18px;
+    }
+
+    .mr-tab {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        padding: 12px 19px;
+        border: 1px solid #dce6fa;
+        border-radius: 13px;
+        background: #fff;
+        color: #31517f;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+        .mr-tab:hover {
+            background: #edf3ff;
+            color: #204cb3;
+        }
+
+        .mr-tab.is-active {
+            background: #315ed8;
+            border-color: #315ed8;
+            color: #fff;
+        }
+
+    .mr-tab-count {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 30px;
+        background: #e8efff;
+        color: #2b52a4;
+        font-size: 12px;
+    }
+
+    .mr-tab.is-active .mr-tab-count {
+        background: rgba(255,255,255,.22);
+        color: #fff;
+    }
+</style>
+<div class="mr-wrap">
+    <section class="mr-hero">
+        <h1>Randevularım</h1>
+        <p>Yaklaşan ve geçmiş randevularını buradan takip edebilirsin.</p>
+    </section>
+    @if (TempData["RandevuMesaj"] != null)
+    {
+        <div class="mr-alert ok" role="status">@TempData["RandevuMesaj"]</div>
+    }
+    @if (TempData["RandevuHata"] != null)
+    {
+        <div class="mr-alert bad" role="alert">@TempData["RandevuHata"]</div>
+    }
+    <section class="mr-stats" aria-label="Randevu istatistikleri">
+        <div class="mr-stat"><small>Yaklaşan</small><strong>@yaklasan</strong></div>
+        <div class="mr-stat"><small>Onay bekleyen</small><strong>@bekleyen</strong></div>
+        <div class="mr-stat"><small>Tamamlanan</small><strong>@tamamlanan</strong></div>
+    </section>
+    <nav class="mr-tabs" aria-label="Randevu bölümleri">
+        <a asp-controller="Randevularim" asp-action="Index" asp-route-sekme="aktif"
+           class="mr-tab @(sekme == "aktif" ? "is-active" : "")"
+           aria-current="@(sekme == "aktif" ? "page" : null)">
+            Aktif Randevularım <span class="mr-tab-count">@aktif.Count</span>
+        </a>
+        <a asp-controller="Randevularim" asp-action="Index" asp-route-sekme="gecmis"
+           class="mr-tab @(sekme == "gecmis" ? "is-active" : "")"
+           aria-current="@(sekme == "gecmis" ? "page" : null)">
+            Geçmiş Randevularım <span class="mr-tab-count">@gecmis.Count</span>
+        </a>
+    </nav>
+    @if (gorunenRandevular.Count == 0)
+    {
+        <div class="mr-empty">
+            @if (sekme == "gecmis")
+            {
+                <h2>Henüz geçmiş randevun bulunmuyor</h2>
+                <p>Tamamlanan, iptal edilen ve süresi dolan randevuların burada görünecek.</p>
+            }
+            else
+            {
+                <h2>Aktif randevun bulunmuyor</h2>
+                <p>Yeni bir randevu oluşturmak için işletmeleri keşfedebilirsin.</p>
+                <a class="mr-action" asp-controller="Kesfet" asp-action="Index">İşletmeleri keşfet →</a>
+            }
+        </div>
+    }
+    else
+    {
+        <section class="mr-grid">
+            @foreach (var r in gorunenRandevular)
+            {
+                var durumAdi = r.Durum == "OnayBekliyor" ? "Onay bekliyor" : r.Durum == "Onaylandi" ? "Onaylandı" : r.Durum == "Tamamlandi" ? "Tamamlandı" : r.Durum == "Reddedildi" ? "Reddedildi" : r.Durum == "IptalEdildi" ? "İptal edildi" : r.Durum == "Geldi" ? "Geldi" : r.Durum == "Gelmedi" ? "Gelmedi" : r.Durum;
+                var durumSinifi = r.Durum == "OnayBekliyor" ? "mr-pending" : r.Durum == "Onaylandi" ? "mr-approved" : r.Durum == "Tamamlandi" ? "mr-done" : "mr-other";
+                var iptalEdilebilir = r.Durum == "Onaylandi" && r.BaslangicTarihi > simdi;
+                <article class="mr-card">
+                    <div class="mr-card-head">
+                        <div><h2 class="mr-business">@r.IsletmeAdi</h2><div class="mr-sub">Randevu #@r.Id</div></div>
+                        <span class="mr-badge @durumSinifi">@durumAdi</span>
+                    </div>
+                    <div class="mr-row"><span>Şube</span><span>@r.SubeAdi</span></div>
+                    <div class="mr-row"><span>Tarih</span><span>@r.BaslangicTarihi.ToString("dd MMMM yyyy dddd", tr)</span></div>
+                    <div class="mr-row"><span>Saat</span><span>@r.BaslangicTarihi.ToString("HH:mm") – @r.BitisTarihi.ToString("HH:mm")</span></div>
+                    <div class="mr-row"><span>Hizmetler</span><span>@r.HizmetAdi</span></div>
+                    <div class="mr-row"><span>Personel</span><span>@(string.IsNullOrWhiteSpace(r.PersonelAdi) ? "Belirtilmemiş" : r.PersonelAdi)</span></div>
+                    <div class="mr-row"><span>Süre</span><span>@(r.ToplamSure.HasValue ? r.ToplamSure.Value + " dakika" : ((int)(r.BitisTarihi - r.BaslangicTarihi).TotalMinutes) + " dakika")</span></div>
+                    @if (r.ToplamFiyat.HasValue)
+                    {
+                        <div class="mr-row"><span>Toplam hizmet bedeli</span><span>@r.ToplamFiyat.Value.ToString("N2", tr) TL</span></div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(r.IsletmeAciklamasi))
+                    {
+                        <div class="mr-note"><strong>İşletme açıklaması:</strong> @r.IsletmeAciklamasi</div>
+                    }
+                    @if (sekme == "aktif" && (r.Durum == "Onaylandi" || r.Durum == "Geldi"))
+                    {
+                        <div class="mr-actions">
+                            @if (r.Durum == "Onaylandi")
+                            {
+                                @if (r.BitisTarihi <= simdi)
+                                {
+                                    <button type="button" class="mr-qr" disabled title="Randevu süresi dolduğu için QR giriş yapılamaz.">QR Kod Okut</button>
+                                }
+                                else
+                                {
+                                    <a asp-controller="Randevularim" asp-action="QrOkut" class="mr-qr">QR Kod Okut</a>
+                                }
+                            }
+                            @if (iptalEdilebilir)
+                            {
+                                <a asp-controller="Randevularim" asp-action="Ertele" asp-route-id="@r.Id"
+                                   class="mr-qr" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center">
+                                    Randevuyu Ertele
+                                </a>
+                                <button type="button" class="mr-cancel mr-open-cancel"
+                                        data-randevu-id="@r.Id"
+                                        data-isletme="@r.IsletmeAdi"
+                                        data-tarih="@r.BaslangicTarihi.ToString("dd.MM.yyyy HH:mm")">
+                                    Randevuyu İptal Et
+                                </button>
+                            }
+                        </div>
+                    }
+                </article>
+            }
+        </section>
+    }
+</div>
+
+<div class="mr-modal-overlay" id="mrCancelOverlay" aria-hidden="true">
+    <div class="mr-modal" role="dialog" aria-modal="true" aria-labelledby="mrCancelTitle" aria-describedby="mrCancelDescription" tabindex="-1">
+        <div class="mr-modal-icon" aria-hidden="true">!</div>
+        <h2 id="mrCancelTitle">Randevuyu iptal et</h2>
+        <p id="mrCancelDescription">Bu randevuyu iptal etmek istediğine emin misin? İptal işlemi geri alınamaz.</p>
+        <div class="mr-modal-info">
+            <strong id="mrCancelBusiness"></strong><br />
+            <span id="mrCancelDate"></span>
+        </div>
+        <form asp-controller="Randevularim" asp-action="IptalEt" method="post" id="mrCancelForm">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" id="mrCancelId" />
+            <div class="mr-modal-buttons">
+                <button type="button" class="mr-modal-back" id="mrCancelBack">Vazgeç</button>
+                <button type="submit" class="mr-modal-submit" id="mrCancelSubmit">Randevuyu İptal Et</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    (function () {
+        const overlay = document.getElementById('mrCancelOverlay');
+        const dialog = overlay.querySelector('.mr-modal');
+        const back = document.getElementById('mrCancelBack');
+        const submit = document.getElementById('mrCancelSubmit');
+        const form = document.getElementById('mrCancelForm');
+        let lastTrigger = null;
+
+        function closeModal() {
+            if (submit.disabled) return;
+            overlay.classList.remove('is-open');
+            overlay.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+            if (lastTrigger) lastTrigger.focus();
+        }
+
+        document.querySelectorAll('.mr-open-cancel').forEach(button => {
+            button.addEventListener('click', function () {
+                lastTrigger = this;
+                document.getElementById('mrCancelId').value = this.dataset.randevuId;
+                document.getElementById('mrCancelBusiness').textContent = this.dataset.isletme;
+                document.getElementById('mrCancelDate').textContent = this.dataset.tarih;
+                overlay.classList.add('is-open');
+                overlay.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+                back.focus();
+            });
+        });
+        back.addEventListener('click', closeModal);
+        overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+        document.addEventListener('keydown', e => {
+            if (!overlay.classList.contains('is-open')) return;
+            if (e.key === 'Escape') { closeModal(); return; }
+            if (e.key === 'Tab') {
+                const focusables = [back, submit];
+                if (e.shiftKey && document.activeElement === back) { e.preventDefault(); submit.focus(); }
+                else if (!e.shiftKey && document.activeElement === submit) { e.preventDefault(); back.focus(); }
+            }
+        });
+        form.addEventListener('submit', () => {
+            submit.disabled = true;
+            submit.textContent = 'İptal ediliyor...';
+        });
+    })();
+</script>

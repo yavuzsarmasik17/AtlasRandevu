@@ -1,0 +1,218 @@
+﻿@model List<AtlasRandevu.Web.Controllers.IsletmeYorumSatiri>
+@{
+    Layout = "_IsletmeLayout";
+    ViewData["Title"] = "Müşteri Yorumları";
+    var durum = ViewBag.Durum as string ?? "";
+    double? ort = ViewBag.Ortalama;
+}
+<style>
+    .yr-page {
+        color: #182b4d
+    }
+
+    .yr-head {
+        margin-bottom: 22px
+    }
+
+        .yr-head h1 {
+            font-size: 29px;
+            font-weight: 850
+        }
+
+        .yr-head p {
+            color: #8290a7
+        }
+
+    .yr-stats {
+        display: grid;
+        grid-template-columns: repeat(4,minmax(0,1fr));
+        gap: 15px;
+        margin-bottom: 23px
+    }
+
+    .yr-card {
+        background: #fff;
+        border: 1px solid #e6edf7;
+        border-radius: 19px;
+        padding: 22px;
+        box-shadow: 0 8px 25px rgba(17,38,78,.04)
+    }
+
+    .yr-stat small {
+        display: block;
+        color: #8594ab;
+        font-weight: 700
+    }
+
+    .yr-stat strong {
+        font-size: 31px;
+        color: #275ddd
+    }
+
+    .yr-filters {
+        display: flex;
+        gap: 9px;
+        flex-wrap: wrap;
+        margin-bottom: 20px
+    }
+
+    .yr-pill {
+        padding: 10px 16px;
+        border-radius: 11px;
+        background: #fff;
+        border: 1px solid #e0e8f5;
+        color: #4b6287;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 750
+    }
+
+        .yr-pill.active {
+            background: #3267ef;
+            color: #fff;
+            border-color: #3267ef
+        }
+
+    .yr-list {
+        display: grid;
+        gap: 15px
+    }
+
+    .yr-row {
+        background: #fff;
+        border: 1px solid #e5edf8;
+        border-radius: 18px;
+        padding: 23px
+    }
+
+    .yr-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap
+    }
+
+    .yr-stars {
+        color: #d99b1b;
+        letter-spacing: 2px
+    }
+
+    .yr-muted {
+        color: #8392aa;
+        font-size: 12px
+    }
+
+    .yr-review {
+        margin: 14px 0;
+        color: #324765;
+        white-space: pre-wrap
+    }
+
+    .yr-answer {
+        background: #f1f6ff;
+        border-left: 3px solid #4178ef;
+        padding: 14px;
+        border-radius: 10px;
+        margin: 13px 0;
+        white-space: pre-wrap
+    }
+
+    .yr-textarea {
+        width: 100%;
+        min-height: 80px;
+        border: 1px solid #dbe5f5;
+        border-radius: 12px;
+        padding: 12px;
+        resize: vertical
+    }
+
+    .yr-btn {
+        background: #2865ec;
+        color: white;
+        border: 0;
+        border-radius: 11px;
+        padding: 10px 17px;
+        font-weight: 750;
+        margin-top: 9px
+    }
+
+    .yr-alert {
+        padding: 12px 15px;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        background: #e7f8ee;
+        color: #17734a
+    }
+
+        .yr-alert.bad {
+            background: #fff0f0;
+            color: #af3745
+        }
+
+    @@media(max-width:1000px) {
+        .yr-stats {
+            grid-template-columns: repeat(2,minmax(0,1fr))
+        }
+    }
+
+    @@media(max-width:600px) {
+        .yr-stats {
+            grid-template-columns: 1fr 1fr
+        }
+
+        .yr-card {
+            padding: 14px
+        }
+
+        .yr-row {
+            padding: 17px
+        }
+    }
+</style>
+<div class="yr-page">
+    <div class="yr-head"><h1>Müşteri Yorumları</h1><p>Değerlendirmeleri inceleyin, müşterilerinize yanıt verin.</p></div>
+    @if (TempData["YorumMesaj"] != null)
+    {
+        <div class="yr-alert">@TempData["YorumMesaj"]</div>
+    }
+    @if (TempData["YorumHata"] != null)
+    {
+        <div class="yr-alert bad">@TempData["YorumHata"]</div>
+    }
+    <div class="yr-stats">
+        <div class="yr-card yr-stat"><small>Ortalama Puan</small><strong>★ @(ort.HasValue ? ort.Value.ToString("0.0") : "—")</strong></div>
+        <div class="yr-card yr-stat"><small>Toplam Yorum</small><strong>@ViewBag.Toplam</strong></div>
+        <div class="yr-card yr-stat"><small>Cevap Bekleyen</small><strong>@ViewBag.Cevapsiz</strong></div>
+        <div class="yr-card yr-stat"><small>Yayındaki Yorum</small><strong>@ViewBag.Yayinda</strong></div>
+    </div>
+    <nav class="yr-filters">
+        <a asp-action="Index" class="yr-pill @(durum == "" ? "active" : "")">Tüm Yorumlar</a>
+        <a asp-action="Index" asp-route-durum="cevapsiz" class="yr-pill @(durum == "cevapsiz" ? "active" : "")">Cevap Bekleyen</a>
+        <a asp-action="Index" asp-route-durum="cevapli" class="yr-pill @(durum == "cevapli" ? "active" : "")">Cevaplanan</a>
+        <a asp-action="Index" asp-route-durum="gizli" class="yr-pill @(durum == "gizli" ? "active" : "")">Yayından Kaldırılan</a>
+    </nav>
+    <div class="yr-list">
+        @if (!Model.Any())
+        {
+            <div class="yr-card">Bu filtreye uygun müşteri yorumu bulunmuyor.</div>
+        }
+        @foreach (var y in Model)
+        {
+            <section class="yr-row">
+                <div class="yr-top"><div><strong>@y.MusteriAdi</strong> <span class="yr-stars">@@new string('★', Math.Clamp(y.Puan, 0, 5))@@new string('☆', 5 - Math.Clamp(y.Puan, 0, 5))</span><div class="yr-muted">@y.HizmetAdi · Randevu #@y.RandevuId</div></div><div class="yr-muted">@y.Tarih.ToString("dd.MM.yyyy") · @(y.YayinlandiMi ? "Yayında" : "Gizli")</div></div>
+                <div class="yr-review">@y.Yorum</div>
+                @if (!string.IsNullOrWhiteSpace(y.Cevap))
+                {
+                    <div class="yr-answer"><strong>İşletme yanıtı</strong><div>@y.Cevap</div></div>
+                }
+                <form asp-controller="IsletmeYorumlar" asp-action="Cevapla" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@y.Id" />
+                    <label for="cevap-@y.Id" class="yr-muted">@(string.IsNullOrWhiteSpace(y.Cevap) ? "Yanıt yaz" : "Yanıtı düzenle")</label>
+                    <textarea id="cevap-@y.Id" name="cevap" maxlength="2000" required class="yr-textarea">@y.Cevap</textarea>
+                    <button class="yr-btn" type="submit">Yanıtı Kaydet</button>
+                </form>
+            </section>
+        }
+    </div>
+</div>

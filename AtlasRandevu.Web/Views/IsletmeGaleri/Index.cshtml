@@ -1,0 +1,247 @@
+﻿@model List<AtlasRandevu.Domain.Entities.IsletmeFotografi>
+
+@{
+    Layout = "_IsletmeLayout";
+    ViewData["Title"] = "Fotoğraf Galerim";
+    string isletmeAdi = ViewBag.IsletmeAdi ?? "İşletmem";
+}
+
+<style>
+    .gal-hero {
+        background: linear-gradient(115deg,#142447,#3159c6 72%,#697cff);
+        color: white;
+        border-radius: 25px;
+        padding: 34px;
+        margin-bottom: 24px;
+        box-shadow: 0 15px 36px rgba(30,65,145,.15);
+    }
+
+        .gal-hero small {
+            color: #cbd8ff;
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+
+        .gal-hero h1 {
+            font-weight: 850;
+            margin: 12px 0;
+        }
+
+        .gal-hero p {
+            color: #e1e9ff;
+            margin: 0;
+        }
+
+    .gal-card {
+        background: #fff;
+        border: 1px solid #e5ebf5;
+        border-radius: 22px;
+        padding: 25px;
+        margin-bottom: 22px;
+        box-shadow: 0 9px 28px rgba(20,38,75,.045);
+    }
+
+        .gal-card h2 {
+            color: #172747;
+            font-size: 19px;
+            font-weight: 850;
+            margin-bottom: 8px;
+        }
+
+    .gal-muted {
+        color: #8291ab;
+        font-size: 13px;
+    }
+
+    .gal-upload {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+
+    .gal-file {
+        flex: 1;
+        min-width: 200px;
+        border: 1px solid #dfe7f4;
+        background: #f9fbff;
+        border-radius: 12px;
+        padding: 12px;
+    }
+
+    .gal-btn {
+        border: none;
+        border-radius: 12px;
+        background: #315fdf;
+        color: white;
+        padding: 13px 20px;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .gal-grid {
+        display: grid;
+        grid-template-columns: repeat(3,minmax(0,1fr));
+        gap: 20px;
+        margin-top: 22px;
+    }
+
+    .gal-photo {
+        border: 1px solid #e5ebf5;
+        border-radius: 18px;
+        overflow: hidden;
+        background: white;
+    }
+
+        .gal-photo img {
+            width: 100%;
+            height: 210px;
+            object-fit: cover;
+            display: block;
+        }
+
+    .gal-photo-footer {
+        padding: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .gal-delete {
+        border: 1px solid #ffd5da;
+        background: #fff2f3;
+        color: #d33d50;
+        border-radius: 10px;
+        padding: 9px 13px;
+        font-size: 12px;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .gal-empty {
+        text-align: center;
+        padding: 60px 20px;
+        color: #8291ab;
+        background: #f9fbff;
+        border-radius: 16px;
+        margin-top: 20px;
+    }
+
+    @@media(max-width:950px) {
+        .gal-grid {
+            grid-template-columns: repeat(2,minmax(0,1fr));
+        }
+    }
+
+    @@media(max-width:600px) {
+        .gal-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .gal-hero {
+            padding: 25px;
+        }
+    }
+</style>
+
+<section class="gal-hero">
+    <small>ATLAS RANDEVU / İŞLETMEM</small>
+    <h1>Fotoğraf Galerim</h1>
+    <p>@isletmeAdi işletmenizin fotoğraflarını yönetin.</p>
+</section>
+
+@if (TempData["Basari"] != null)
+{
+    <div class="alert alert-success rounded-4 mb-4">
+        @TempData["Basari"]
+    </div>
+}
+
+@if (TempData["Hata"] != null)
+{
+    <div class="alert alert-danger rounded-4 mb-4">
+        @TempData["Hata"]
+    </div>
+}
+
+<section class="gal-card">
+    <h2>Yeni Fotoğraf Yükle</h2>
+    <p class="gal-muted">
+        Tek seferde en fazla 5 fotoğraf yükleyebilirsiniz.
+        Her fotoğraf en fazla 5 MB olabilir.
+        Galeri kapasitesi 20 fotoğraftır.
+    </p>
+
+    <form asp-controller="IsletmeGaleri"
+          asp-action="Yukle"
+          method="post"
+          enctype="multipart/form-data">
+
+        @Html.AntiForgeryToken()
+
+        <div class="gal-upload">
+            <input type="file"
+                   name="fotograflar"
+                   class="gal-file"
+                   accept=".jpg,.jpeg,.png,.webp"
+                   multiple
+                   required />
+
+            <button type="submit" class="gal-btn">
+                Fotoğrafları Yükle
+            </button>
+        </div>
+    </form>
+</section>
+
+<section class="gal-card">
+    <h2>Galeri Fotoğrafları (@Model.Count / 20)</h2>
+    <p class="gal-muted">
+        Yüklediğiniz fotoğraflar müşteri profilinizde gösterilecek.
+    </p>
+
+    @if (!Model.Any())
+    {
+        <div class="gal-empty">
+            <h3>Henüz fotoğraf eklenmedi</h3>
+            <p>İlk fotoğraflarınızı yükleyerek başlayın.</p>
+        </div>
+    }
+    else
+    {
+        <div class="gal-grid">
+            @foreach (var fotograf in Model)
+            {
+                <div class="gal-photo">
+                    <img src="@fotograf.DosyaYolu"
+                         alt="İşletme galeri fotoğrafı"
+                         loading="lazy" />
+
+                    <div class="gal-photo-footer">
+                        <span class="gal-muted">
+                            @fotograf.YuklenmeTarihi.ToLocalTime().ToString("dd.MM.yyyy")
+                        </span>
+
+                        <form asp-controller="IsletmeGaleri"
+                              asp-action="Sil"
+                              method="post"
+                              onsubmit="return confirm('Bu fotoğrafı silmek istiyor musunuz?');">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@fotograf.Id" />
+
+                            <button type="submit" class="gal-delete">
+                                Sil
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</section>

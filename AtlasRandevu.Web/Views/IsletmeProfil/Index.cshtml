@@ -1,0 +1,439 @@
+﻿@model AtlasRandevu.Web.Controllers.IsletmeProfilViewModel
+@{
+    Layout = "_IsletmeLayout";
+    ViewData["Title"] = "İşletme Profilim";
+}
+<style>
+    .pr-hero {
+        background: linear-gradient(115deg,#142447,#3159c6 72%,#697cff);
+        color: #fff;
+        border-radius: 25px;
+        padding: 34px;
+        margin-bottom: 24px;
+        box-shadow: 0 15px 36px rgba(30,65,145,.15)
+    }
+
+        .pr-hero small {
+            letter-spacing: 2px;
+            color: #cbd8ff;
+            font-weight: 800
+        }
+
+        .pr-hero h1 {
+            font-weight: 850;
+            letter-spacing: -.8px;
+            margin: 12px 0
+        }
+
+        .pr-hero p {
+            color: #e1e9ff;
+            margin: 0;
+            max-width: 650px
+        }
+
+    .pr-grid {
+        display: grid;
+        grid-template-columns: minmax(0,1.65fr) minmax(250px,1fr);
+        gap: 22px;
+        align-items: start
+    }
+
+    .pr-card {
+        background: white;
+        border: 1px solid #e5ebf5;
+        border-radius: 22px;
+        padding: 28px;
+        box-shadow: 0 9px 28px rgba(20,38,75,.045)
+    }
+
+        .pr-card h2 {
+            font-size: 20px;
+            font-weight: 850;
+            color: #172747;
+            margin-bottom: 6px
+        }
+
+    .pr-muted {
+        font-size: 13px;
+        color: #8291ab;
+        margin-bottom: 24px
+    }
+
+    .pr-label {
+        font-size: 13px;
+        font-weight: 750;
+        color: #273c63;
+        margin-bottom: 8px
+    }
+
+    .pr-input {
+        width: 100%;
+        border: 1px solid #dfe7f4;
+        background: #f9fbff;
+        border-radius: 13px;
+        padding: 13px 15px;
+        outline: none;
+        transition: .2s
+    }
+
+        .pr-input:focus {
+            background: white;
+            border-color: #5378ec;
+            box-shadow: 0 0 0 4px rgba(60,105,235,.10)
+        }
+
+    .pr-field {
+        margin-bottom: 22px
+    }
+
+    .pr-help {
+        font-size: 12px;
+        color: #93a0b4;
+        margin-top: 6px
+    }
+
+    .pr-save {
+        border: 0;
+        border-radius: 13px;
+        background: linear-gradient(115deg,#3268f5,#586ef3);
+        color: white;
+        padding: 14px 25px;
+        font-weight: 800;
+        box-shadow: 0 8px 22px rgba(50,104,245,.18)
+    }
+
+    .pr-preview {
+        background: linear-gradient(135deg,#15284f,#4269db);
+        height: 130px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 37px;
+        font-weight: 900;
+        margin-bottom: 18px
+    }
+
+    .pr-preview-name {
+        font-size: 19px;
+        font-weight: 850;
+        color: #172747;
+        overflow-wrap: anywhere
+    }
+
+    .pr-preview-slogan {
+        color: #8291ab;
+        font-size: 13px;
+        margin-top: 8px;
+        overflow-wrap: anywhere
+    }
+
+    .pr-note {
+        background: #eef3ff;
+        border-radius: 14px;
+        padding: 16px;
+        color: #5974ae;
+        font-size: 13px;
+        line-height: 1.7;
+        margin-top: 20px
+    }
+
+    .pr-errors {
+        color: #c43545;
+        font-size: 12px;
+        margin-top: 6px;
+        display: block
+    }
+
+    @@media(max-width:1000px) {
+        .pr-grid {
+            grid-template-columns: 1fr
+        }
+    }
+
+    @@media(max-width:650px) {
+        .pr-hero {
+            padding: 26px 22px
+        }
+
+        .pr-card {
+            padding: 21px
+        }
+
+        .pr-save {
+            width: 100%
+        }
+    }
+</style>
+
+<section class="pr-hero">
+    <small>ATLAS RANDEVU / İŞLETMEM</small>
+    <h1>İşletme Profilim</h1>
+    <p>İşletmenizi müşterilere tanıtın. Etkileyici bir açıklama ve doğru iletişim bilgileriyle profilinizi güçlendirin.</p>
+</section>
+
+@if (TempData["Basari"] != null)
+{
+    <div class="alert alert-success border-0 rounded-4 mb-4" role="status">@TempData["Basari"]</div>
+}
+
+@if (TempData["Hata"] != null)
+{
+    <div class="alert alert-danger border-0 rounded-4 mb-4"
+         role="alert">
+        @TempData["Hata"]
+    </div>
+}
+
+<style>
+    .pr-photo-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+        margin-bottom: 24px;
+    }
+
+    .pr-photo-card {
+        background: #fff;
+        border: 1px solid #e5ebf5;
+        border-radius: 22px;
+        padding: 24px;
+        box-shadow: 0 9px 28px rgba(20,38,75,.045);
+        min-width: 0;
+    }
+
+        .pr-photo-card h2 {
+            color: #172747;
+            font-size: 19px;
+            font-weight: 850;
+            margin-bottom: 7px;
+        }
+
+    .pr-photo-desc {
+        color: #8291ab;
+        font-size: 12px;
+        margin-bottom: 18px;
+    }
+
+    .pr-photo-preview {
+        width: 100%;
+        height: 190px;
+        background: #eef3ff;
+        border: 1px dashed #d6e1f6;
+        border-radius: 16px;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #7385aa;
+        margin-bottom: 18px;
+    }
+
+        .pr-photo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .pr-logo-preview img {
+        width: 140px;
+        height: 140px;
+        border-radius: 20px;
+        object-fit: contain;
+    }
+
+    .pr-file {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #dfe7f4;
+        border-radius: 12px;
+        background: #f9fbff;
+        font-size: 12px;
+        margin-bottom: 12px;
+    }
+
+    .pr-photo-submit {
+        border: none;
+        border-radius: 12px;
+        background: #315fdf;
+        color: #fff;
+        padding: 12px 18px;
+        font-size: 13px;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+        .pr-photo-submit:hover {
+            background: #244fc7;
+        }
+
+    @@media (max-width: 750px) {
+        .pr-photo-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="pr-photo-grid">
+
+    <section class="pr-photo-card">
+        <h2>İşletme Logosu</h2>
+        <p class="pr-photo-desc">
+            İşletme kartlarında ve profilinizde gösterilecek logo.
+        </p>
+
+        <div class="pr-photo-preview pr-logo-preview">
+            @if (!string.IsNullOrWhiteSpace(Model.LogoYolu))
+            {
+                <img src="@Model.LogoYolu"
+                     alt="İşletme logosu" />
+            }
+            else
+            {
+                <span>Henüz logo yüklenmedi</span>
+            }
+        </div>
+
+        <form asp-controller="IsletmeProfil"
+              asp-action="FotografYukle"
+              method="post"
+              enctype="multipart/form-data">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" name="tur" value="logo" />
+
+            <input type="file"
+                   name="dosya"
+                   class="pr-file"
+                   accept=".jpg,.jpeg,.png,.webp"
+                   required />
+
+            <button type="submit" class="pr-photo-submit">
+                Logo Yükle
+            </button>
+        </form>
+    </section>
+
+    <section class="pr-photo-card">
+        <h2>Kapak Fotoğrafı</h2>
+        <p class="pr-photo-desc">
+            İşletme tanıtım sayfasının üst bölümünde gösterilecek.
+        </p>
+
+        <div class="pr-photo-preview">
+            @if (!string.IsNullOrWhiteSpace(
+            Model.KapakFotografiYolu))
+            {
+                <img src="@Model.KapakFotografiYolu"
+                     alt="İşletme kapak fotoğrafı" />
+            }
+            else
+            {
+                <span>Henüz kapak fotoğrafı yüklenmedi</span>
+            }
+        </div>
+
+        <form asp-controller="IsletmeProfil"
+              asp-action="FotografYukle"
+              method="post"
+              enctype="multipart/form-data">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" name="tur" value="kapak" />
+
+            <input type="file"
+                   name="dosya"
+                   class="pr-file"
+                   accept=".jpg,.jpeg,.png,.webp"
+                   required />
+
+            <button type="submit" class="pr-photo-submit">
+                Kapak Fotoğrafı Yükle
+            </button>
+        </form>
+    </section>
+
+</div>
+
+<div class="pr-grid">
+    <section class="pr-card">
+        <h2>Tanıtım Bilgileri</h2>
+        <p class="pr-muted">Bu bilgiler müşterilerin göreceği işletme sayfasında kullanılacak.</p>
+        <form asp-controller="IsletmeProfil" asp-action="Index" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <div class="pr-field">
+                <label asp-for="Slogan" class="pr-label">İşletme Sloganı</label>
+                <input asp-for="Slogan" class="pr-input" maxlength="150" placeholder="Örn: Tarzınız bizim uzmanlığımız" />
+                <span asp-validation-for="Slogan" class="pr-errors"></span>
+            </div>
+            <div class="pr-field">
+                <label asp-for="Hakkimizda" class="pr-label">Hakkımızda</label>
+                <textarea asp-for="Hakkimizda" class="pr-input" rows="7" maxlength="3000" placeholder="İşletmenizin hikâyesini, hizmet anlayışını ve sizi farklı kılan özellikleri anlatın..."></textarea>
+                <span asp-validation-for="Hakkimizda" class="pr-errors"></span>
+                <div class="pr-help">En fazla 3000 karakter.</div>
+            </div>
+            <div class="pr-field">
+                <label asp-for="WebSitesi" class="pr-label">Web Sitesi</label>
+                <input asp-for="WebSitesi" class="pr-input" type="url" maxlength="500" placeholder="https://www.ornek.com" />
+                <span asp-validation-for="WebSitesi" class="pr-errors"></span>
+            </div>
+            <div class="pr-field">
+                <label asp-for="InstagramAdresi" class="pr-label">Instagram Profili</label>
+                <input asp-for="InstagramAdresi" class="pr-input" maxlength="500" placeholder="https://www.instagram.com/isletmem" />
+                <span asp-validation-for="InstagramAdresi" class="pr-errors"></span>
+            </div>
+            <button type="submit" class="pr-save">Değişiklikleri Kaydet →</button>
+        </form>
+    </section>
+    <aside class="pr-card">
+        <h2>Profil Önizlemesi</h2>
+        <p class="pr-muted">Müşteri kartında kullanılacak bilgiler.</p>
+
+        <div class="pr-preview"
+             style="overflow:hidden;position:relative;">
+
+            @if (!string.IsNullOrWhiteSpace(Model.KapakFotografiYolu))
+            {
+                <img src="@Model.KapakFotografiYolu"
+                     alt="Kapak fotoğrafı"
+                     style="width:100%;height:100%;object-fit:cover;" />
+            }
+            else
+            {
+                <span>AR</span>
+            }
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.LogoYolu))
+        {
+            <img src="@Model.LogoYolu"
+                 alt="İşletme logosu"
+                 style="width:72px;height:72px;
+                object-fit:contain;border-radius:16px;
+                background:white;padding:5px;
+                border:1px solid #e5ebf5;
+                margin-bottom:14px;" />
+        }
+
+        <div class="pr-preview-name">@Model.IsletmeAdi</div>
+        <div class="pr-preview-slogan" id="sloganOnizleme">@(string.IsNullOrWhiteSpace(Model.Slogan) ? "İşletme sloganınız burada görünecek." : Model.Slogan)</div>
+        <div class="pr-note">📷 Logo, kapak fotoğrafı ve galeri yönetimini sonraki adımda ekleyeceğiz. Bu alan şimdilik örnek önizlemedir.</div>
+    </aside>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const slogan = document.getElementById('Slogan');
+        const onizleme = document.getElementById('sloganOnizleme');
+        if (slogan && onizleme) {
+            slogan.addEventListener('input', function () {
+                onizleme.textContent = slogan.value.trim() || 'İşletme sloganınız burada görünecek.';
+            });
+        }
+    </script>
+}

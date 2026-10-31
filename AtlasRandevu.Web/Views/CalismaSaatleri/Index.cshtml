@@ -1,0 +1,159 @@
+﻿@model AtlasRandevu.Web.Controllers.CalismaSaatleriModel
+@{
+    Layout = "_IsletmeLayout";
+    ViewData["Title"] = "Çalışma Saatleri";
+    var gunAdlari = new Dictionary<int, string> { { 1, "Pazartesi" }, { 2, "Salı" }, { 3, "Çarşamba" }, { 4, "Perşembe" }, { 5, "Cuma" }, { 6, "Cumartesi" }, { 0, "Pazar" } };
+}
+<style>
+    .cs-page {
+        color: #142748;
+        max-width: 1050px;
+        margin: auto
+    }
+
+    .cs-head {
+        margin-bottom: 23px
+    }
+
+        .cs-head h1 {
+            font-size: 30px;
+            font-weight: 850;
+            margin: 0
+        }
+
+        .cs-head p {
+            color: #8291a9;
+            margin: 7px 0
+        }
+
+    .cs-panel {
+        background: #fff;
+        border: 1px solid #e5ecf8;
+        border-radius: 20px;
+        box-shadow: 0 8px 26px rgba(20,45,90,.04);
+        padding: 25px;
+        margin-bottom: 18px
+    }
+
+    .cs-row {
+        display: grid;
+        grid-template-columns: 150px 110px 1fr 1fr;
+        align-items: center;
+        gap: 18px;
+        padding: 16px 0;
+        border-bottom: 1px solid #eef2f8
+    }
+
+        .cs-row:last-child {
+            border-bottom: 0
+        }
+
+        .cs-row strong {
+            font-size: 14px
+        }
+
+        .cs-row label {
+            font-size: 13px;
+            color: #526686
+        }
+
+    .cs-input {
+        width: 100%;
+        border: 1px solid #dbe5f4;
+        border-radius: 10px;
+        padding: 11px;
+        color: #1d3456;
+        background: white
+    }
+
+    .cs-btn {
+        background: #2563eb;
+        color: white;
+        border: 0;
+        border-radius: 11px;
+        padding: 13px 24px;
+        font-weight: 800;
+        cursor: pointer
+    }
+
+    .cs-muted {
+        color: #8391a8;
+        font-size: 13px
+    }
+
+    .cs-ok {
+        background: #e9f8ee;
+        color: #087947;
+        padding: 12px;
+        border-radius: 10px;
+        margin-bottom: 15px
+    }
+
+    .cs-error {
+        color: #bb3345
+    }
+
+    .cs-row.is-closed {
+        opacity: .55
+    }
+
+    @@media(max-width:650px) {
+        .cs-panel {
+            padding: 17px
+        }
+
+        .cs-row {
+            grid-template-columns: 1fr 1fr;
+            gap: 10px
+        }
+
+        .cs-head h1 {
+            font-size: 25px
+        }
+    }
+</style>
+<div class="cs-page">
+    <div class="cs-head"><h1>Çalışma Saatleri</h1><p>Şubenizin açık olduğu günleri ve saatleri yönetin. Müşterileriniz bu plana göre randevu alır.</p></div>
+    @if (TempData["Basari"] != null)
+    {
+        <div class="cs-ok">@TempData["Basari"]</div>
+    }
+    <section class="cs-panel">
+        <form asp-controller="CalismaSaatleri" asp-action="Index" method="get">
+            <label for="sube" style="font-weight:750;display:block;margin-bottom:10px">Şube seçin</label>
+            <select id="sube" name="subeId" class="cs-input" onchange="this.form.submit()">
+                @foreach (var s in Model.Subeler)
+                {
+                    <option value="@s.Id" selected="@(s.Id == Model.SubeId)">@s.Ad</option>
+                }
+            </select>
+        </form>
+    </section>
+    <form asp-controller="CalismaSaatleri" asp-action="Kaydet" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="SubeId" />
+        <section class="cs-panel">
+            <div asp-validation-summary="All" class="cs-error"></div>
+            @for (int i = 0; i < Model.Gunler.Count; i++)
+            {
+                <div class="cs-row" data-cs-row>
+                    <strong>@gunAdlari[Model.Gunler[i].Gun]</strong>
+                    <label><input type="checkbox" asp-for="Gunler[i].AcikMi" data-cs-check /> Açık</label>
+                    <div><span class="cs-muted">Açılış</span><input class="cs-input" type="time" asp-for="Gunler[i].Acilis" data-cs-time /></div>
+                    <div><span class="cs-muted">Kapanış</span><input class="cs-input" type="time" asp-for="Gunler[i].Kapanis" data-cs-time /></div>
+                    <input type="hidden" asp-for="Gunler[i].Gun" />
+                </div>
+            }
+        </section>
+        <button type="submit" class="cs-btn">Çalışma Saatlerini Kaydet</button>
+    </form>
+</div>
+<script>
+    document.querySelectorAll('[data-cs-row]').forEach(row=>{
+      const checkbox=row.querySelector('[data-cs-check]');
+      const refresh=()=>{row.classList.toggle('is-closed',!checkbox.checked);row.querySelectorAll('[data-cs-time]').forEach(el=>el.disabled=!checkbox.checked)};
+      // Kapalı günlerde saatler yine post edilmelidir: disabled kullanma.
+      const update=()=>{row.classList.toggle('is-closed',!checkbox.checked);row.querySelectorAll('[data-cs-time]').forEach(el=>el.readOnly=!checkbox.checked)};
+      checkbox.addEventListener('change',update);update();
+    });
+</script>

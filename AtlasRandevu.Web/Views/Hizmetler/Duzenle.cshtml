@@ -1,0 +1,89 @@
+﻿@model AtlasRandevu.Web.Controllers.HizmetFormViewModel
+
+@{
+    Layout = "_IsletmeLayout";
+    ViewData["Title"] = "Hizmet Düzenle";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+
+        <div class="mb-4">
+            <h2 class="fw-bold">Hizmet Düzenle</h2>
+            <p class="text-muted">
+                Hizmetin fiyatını ve süresini güncelleyin.
+            </p>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4">
+
+                <form asp-action="Duzenle"
+                      asp-route-id="@ViewContext.RouteData.Values["id"]"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Ad"
+                               class="form-label fw-semibold"></label>
+
+                        <input asp-for="Ad"
+                               class="form-control form-control-lg" />
+
+                        <span asp-validation-for="Ad"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="SureDakika"
+                               class="form-label fw-semibold"></label>
+
+                        <input asp-for="SureDakika"
+                               type="number"
+                               min="5"
+                               max="600"
+                               class="form-control form-control-lg" />
+
+                        <span asp-validation-for="SureDakika"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Fiyat"
+                               class="form-label fw-semibold"></label>
+
+                        <input asp-for="Fiyat"
+                               type="number"
+                               min="0.01"
+                               step="0.01"
+                               class="form-control form-control-lg" />
+
+                        <span asp-validation-for="Fiyat"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit"
+                                class="btn btn-primary px-4">
+                            Değişiklikleri Kaydet
+                        </button>
+
+                        <a asp-action="Index"
+                           class="btn btn-light px-4">
+                            Vazgeç
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,189 @@
+﻿@model List<AtlasRandevu.Web.Controllers.PlatformRandevuSatiri>
+@{
+    Layout = "_PlatformLayout";
+    ViewData["Title"] = "Randevular";
+    string ara = ViewBag.Ara as string ?? "";
+    string durum = ViewBag.Durum as string ?? "";
+}
+<style>
+    .pr-heading {
+        color: #14213d;
+        font-weight: 850;
+        letter-spacing: -.7px
+    }
+
+    .pr-muted {
+        color: #8795ac
+    }
+
+    .pr-card {
+        background: #fff;
+        border: 1px solid #e7edf7;
+        border-radius: 21px;
+        padding: 24px;
+        box-shadow: 0 9px 32px rgba(22,40,78,.04)
+    }
+
+    .pr-stat {
+        height: 100%;
+        padding: 22px;
+        border: 1px solid #e8eef8;
+        border-radius: 19px;
+        background: white;
+        box-shadow: 0 8px 26px rgba(22,40,78,.035)
+    }
+
+        .pr-stat small {
+            color: #8795ac;
+            font-weight: 650
+        }
+
+        .pr-stat strong {
+            display: block;
+            color: #14213d;
+            font-size: 32px;
+            margin-top: 10px;
+            letter-spacing: -1px
+        }
+
+    .pr-input {
+        width: 100%;
+        min-height: 49px;
+        border: 1px solid #dce5f5;
+        border-radius: 12px;
+        background: #f8faff;
+        padding: 11px 14px;
+        color: #183052
+    }
+
+        .pr-input:focus {
+            outline: none;
+            border-color: #4b7aee;
+            box-shadow: 0 0 0 3px rgba(37,99,235,.09)
+        }
+
+    .pr-table {
+        margin: 0
+    }
+
+        .pr-table thead th {
+            background: #f7f9fd;
+            color: #8290a9;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            border-bottom: 0;
+            padding: 16px;
+            white-space: nowrap
+        }
+
+        .pr-table tbody td {
+            padding: 17px 16px;
+            border-color: #eef2f8;
+            vertical-align: middle;
+            font-size: 13px
+        }
+
+        .pr-table tbody tr:hover {
+            background: #fbfcff
+        }
+
+    .pr-avatar {
+        height: 38px;
+        width: 38px;
+        min-width: 38px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        background: #e8efff;
+        color: #2456d9;
+        font-weight: 800
+    }
+
+    .pr-pill {
+        display: inline-block;
+        padding: 7px 11px;
+        border-radius: 30px;
+        font-size: 11px;
+        font-weight: 750;
+        white-space: nowrap;
+        background: #edf2fa;
+        color: #56657b
+    }
+
+        .pr-pill.wait {
+            background: #fff2d8;
+            color: #a46b00
+        }
+
+        .pr-pill.ok {
+            background: #e6f8ef;
+            color: #138451
+        }
+
+        .pr-pill.done {
+            background: #e9efff;
+            color: #2e55c7
+        }
+
+        .pr-pill.no {
+            background: #ffe9eb;
+            color: #bc3544
+        }
+
+    @@media(max-width:767px) {
+        .pr-card {
+            padding: 16px
+        }
+
+        .pr-stat {
+            padding: 17px
+        }
+
+        .pr-heading {
+            font-size: 25px
+        }
+    }
+</style>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div><h1 class="pr-heading h2 mb-1">Randevu Yönetimi</h1><div class="pr-muted">Platformdaki tüm işletmelerin randevularını takip edin.</div></div>
+    <span class="badge rounded-pill px-3 py-2" style="background:#e8efff;color:#2855ce">Son 500 kayıt listelenir</span>
+</div>
+<div class="row g-3 mb-4">
+    <div class="col-6 col-xl-3"><div class="pr-stat"><small>Toplam Randevu</small><strong>@ViewBag.ToplamRandevu</strong><div class="pr-muted small">Tüm zamanlar</div></div></div>
+    <div class="col-6 col-xl-3"><div class="pr-stat"><small>Onay Bekleyen</small><strong>@ViewBag.BekleyenRandevu</strong><div class="pr-muted small">İşletme yanıtı bekliyor</div></div></div>
+    <div class="col-6 col-xl-3"><div class="pr-stat"><small>Onaylanan</small><strong>@ViewBag.OnayliRandevu</strong><div class="pr-muted small">Planlanan randevular</div></div></div>
+    <div class="col-6 col-xl-3"><div class="pr-stat"><small>Tamamlanan</small><strong>@ViewBag.TamamlananRandevu</strong><div class="pr-muted small">Hizmeti verilenler</div></div></div>
+</div>
+<div class="pr-card">
+    <div class="mb-4"><h2 class="h5 pr-heading mb-1">Randevu Listesi</h2><div class="pr-muted small">İşletme, müşteri veya hizmete göre arayın.</div></div>
+    <form method="get" asp-controller="PlatformRandevular" asp-action="Index" class="row g-3 mb-4">
+        <div class="col-12 col-lg-7"><label class="form-label fw-semibold small">Randevu ara</label><input name="ara" value="@ara" class="pr-input" placeholder="Müşteri, işletme, e-posta, telefon veya hizmet..." /></div>
+        <div class="col-12 col-sm-7 col-lg-3"><label class="form-label fw-semibold small">Durum</label><select name="durum" class="pr-input"><option value="">Tüm durumlar</option><option value="OnayBekliyor" selected="@(durum == "OnayBekliyor")">Onay bekliyor</option><option value="Onaylandi" selected="@(durum == "Onaylandi")">Onaylandı</option><option value="Tamamlandi" selected="@(durum == "Tamamlandi")">Tamamlandı</option><option value="Reddedildi" selected="@(durum == "Reddedildi")">Reddedildi</option><option value="IptalEdildi" selected="@(durum == "IptalEdildi")">İptal edildi</option></select></div>
+        <div class="col-12 col-sm-5 col-lg-2 d-flex align-items-end"><button type="submit" class="btn btn-primary w-100" style="min-height:49px;border-radius:12px;font-weight:700">Filtrele</button></div>
+    </form>
+    <div class="table-responsive">
+        <table class="table pr-table align-middle">
+            <thead><tr><th>Randevu / Müşteri</th><th>İşletme / Şube</th><th>Hizmet</th><th>Tarih / Saat</th><th>Durum</th></tr></thead>
+            <tbody>
+                @foreach (var r in Model)
+                {
+                    var adSoyad = (r.MusteriAdi + " " + r.MusteriSoyadi).Trim();
+                    var durumSinifi = r.Durum == "OnayBekliyor" ? "wait" : r.Durum == "Onaylandi" ? "ok" : r.Durum == "Tamamlandi" ? "done" : "no";
+                    var durumYazisi = r.Durum == "OnayBekliyor" ? "Onay bekliyor" : r.Durum == "Onaylandi" ? "Onaylandı" : r.Durum == "Tamamlandi" ? "Tamamlandı" : r.Durum == "Reddedildi" ? "Reddedildi" : r.Durum == "IptalEdildi" ? "İptal edildi" : r.Durum;
+                    <tr>
+                        <td><div class="d-flex align-items-center gap-3"><div class="pr-avatar">@(!string.IsNullOrEmpty(adSoyad) ? adSoyad.Substring(0, 1).ToUpper() : "M")</div><div><div class="fw-bold" style="color:#14213d">@(string.IsNullOrEmpty(adSoyad) ? "İsim belirtilmemiş" : adSoyad)</div><div class="pr-muted small">@r.MusteriEposta</div><div class="pr-muted small">@r.MusteriTelefon · #@r.Id</div></div></div></td>
+                        <td><div class="fw-semibold">@r.IsletmeAdi</div><div class="pr-muted small">@r.SubeAdi</div></td>
+                        <td>@r.HizmetAdi</td>
+                        <td><div class="fw-semibold">@r.BaslangicTarihi.ToString("dd.MM.yyyy")</div><div class="pr-muted small">@r.BaslangicTarihi.ToString("HH:mm") – @r.BitisTarihi.ToString("HH:mm")</div></td>
+                        <td><span class="pr-pill @durumSinifi">@durumYazisi</span></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5 pr-muted">Seçtiğiniz kriterlerde randevu bulunamadı.</div>
+    }
+</div>

@@ -1,0 +1,685 @@
+﻿@{
+    var sayfaBasligi = ViewData["Title"]?.ToString() ?? "İşletme Yönetimi";
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var genelBakis = controller == "IsletmePanel";
+    var hizmetler = controller == "Hizmetler";
+    var takvimAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    var gunlukTakvim = controller == "IsletmeTakvim" && takvimAction == "Index";
+    var haftalikTakvim = controller == "IsletmeTakvim" && takvimAction == "Haftalik";
+    var kullaniciAdi = User.Identity?.Name ?? "İşletme Sahibi";
+}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@sayfaBasligi | Atlas Randevu</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        :root {
+            --navy: #111c35;
+            --navy2: #1b2b4b;
+            --blue: #3665f3;
+            --ink: #182742;
+            --muted: #8795aa;
+            --surface: #f3f6fd;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            min-height: 100%;
+        }
+
+        body {
+            background: var(--surface);
+            color: var(--ink);
+            font-family: 'Segoe UI',Arial,sans-serif;
+            overflow-x: hidden;
+        }
+
+        .atlas-shell {
+            display: grid;
+            grid-template-columns: 268px minmax(0,1fr);
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        .atlas-sidebar {
+            grid-column: 1;
+            background: linear-gradient(175deg,#14213c 0%,#0c162b 100%);
+            color: #fff;
+            min-width: 0;
+            padding: 27px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .atlas-brand {
+            display: block;
+            padding: 8px 13px 28px;
+            text-decoration: none;
+            color: #fff;
+            font-size: 21px;
+            font-weight: 850;
+            letter-spacing: -.7px;
+        }
+
+            .atlas-brand:hover {
+                color: #fff;
+            }
+
+            .atlas-brand span {
+                color: #81a8ff;
+            }
+
+        .atlas-business {
+            border: 1px solid rgba(255,255,255,.1);
+            background: rgba(255,255,255,.06);
+            border-radius: 17px;
+            padding: 16px;
+            margin: 0 3px 20px;
+        }
+
+            .atlas-business small {
+                display: block;
+                color: #9daecb;
+                font-size: 10px;
+                letter-spacing: 1.4px;
+                font-weight: 700;
+            }
+
+            .atlas-business strong {
+                display: block;
+                font-size: 15px;
+                margin-top: 7px;
+            }
+
+            .atlas-business em {
+                display: block;
+                color: #78e1af;
+                font-style: normal;
+                font-size: 12px;
+                margin-top: 8px;
+            }
+
+        .atlas-group {
+            color: #8192b1;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.7px;
+            padding: 19px 14px 9px;
+        }
+
+        .atlas-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 14px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #bac8e1;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background .15s,color .15s;
+            border: 0;
+            width: 100%;
+            text-align: left;
+            background: transparent;
+        }
+
+            .atlas-link:hover {
+                background: rgba(255,255,255,.08);
+                color: #fff;
+            }
+
+            .atlas-link.active {
+                color: #fff;
+                background: linear-gradient(110deg,#3167f4,#6480ff);
+                box-shadow: 0 8px 22px rgba(48,101,244,.25);
+            }
+
+            .atlas-link .symbol {
+                display: inline-flex;
+                width: 24px;
+                align-items: center;
+                justify-content: center;
+                font-size: 19px;
+                flex-shrink: 0;
+            }
+
+            .atlas-link.disabled-item {
+                opacity: .47;
+                cursor: default;
+            }
+
+                .atlas-link.disabled-item:hover {
+                    background: transparent;
+                    color: #bac8e1;
+                }
+
+        .atlas-soon {
+            margin-left: auto;
+            font-size: 10px;
+            font-weight: 400;
+        }
+
+        .atlas-sidebar-bottom {
+            margin-top: auto;
+            padding-top: 24px;
+        }
+
+        .atlas-main {
+            grid-column: 2;
+            min-width: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .atlas-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 20px 35px;
+            min-height: 84px;
+            background: #fff;
+            border-bottom: 1px solid #e6ecf6;
+        }
+
+        .atlas-breadcrumb {
+            color: var(--muted);
+            font-size: 12px;
+            margin-bottom: 3px;
+        }
+
+        .atlas-header-title {
+            font-weight: 800;
+            font-size: 19px;
+            letter-spacing: -.4px;
+        }
+
+        .atlas-account {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .atlas-account-text {
+            text-align: right;
+            min-width: 0;
+        }
+
+            .atlas-account-text strong {
+                display: block;
+                font-size: 13px;
+            }
+
+            .atlas-account-text small {
+                display: block;
+                color: var(--muted);
+                font-size: 12px;
+                overflow-wrap: anywhere;
+            }
+
+        .atlas-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            background: linear-gradient(135deg,#3067f4,#8464f5);
+            color: #fff;
+            font-weight: 800;
+            box-shadow: 0 6px 16px rgba(49,103,244,.22);
+        }
+
+        .atlas-content {
+            flex: 1;
+            width: 100%;
+            max-width: 1700px;
+            margin: 0 auto;
+            padding: 34px 35px;
+            min-width: 0;
+        }
+
+        .atlas-footer {
+            border-top: 1px solid #e5eaf3;
+            text-align: center;
+            padding: 18px;
+            color: #93a0b4;
+            font-size: 12px;
+        }
+
+        .atlas-menu-button {
+            display: none;
+            background: #eff3ff;
+            border: 1px solid #dfe7fc;
+            border-radius: 10px;
+            color: #254dd0;
+            width: 40px;
+            height: 40px;
+            font-size: 21px;
+        }
+
+        .atlas-shade {
+            display: none;
+        }
+
+        .atlas-content .card {
+            border-radius: 18px !important;
+            border: 1px solid #e8edf6 !important;
+            box-shadow: 0 10px 30px rgba(21,38,72,.05) !important;
+        }
+
+        .atlas-content .btn-primary {
+            background: linear-gradient(110deg,#2866f3,#5b7bf5);
+            border: 0;
+            border-radius: 11px;
+            box-shadow: 0 5px 13px rgba(48,101,244,.15);
+        }
+
+        .atlas-content .btn-outline-primary, .atlas-content .btn-outline-secondary {
+            border-radius: 9px;
+        }
+
+        .atlas-content .table thead th {
+            color: #7b89a1;
+            background: #f8faff;
+            border-bottom: 1px solid #e6ecf6;
+            padding: 16px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+
+        .atlas-content .table tbody td {
+            padding: 16px;
+            border-color: #edf0f6;
+        }
+
+        @@media (max-width:991px) {
+            .atlas-shell {
+                display: block;
+            }
+
+            .atlas-sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 268px;
+                overflow-y: auto;
+                z-index: 1051;
+                transform: translateX(-105%);
+                transition: transform .2s ease;
+            }
+
+                .atlas-sidebar.is-open {
+                    transform: translateX(0);
+                }
+
+            .atlas-main {
+                min-height: 100vh;
+            }
+
+            .atlas-menu-button {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+            }
+
+            .atlas-shade.is-open {
+                display: block;
+                position: fixed;
+                inset: 0;
+                background: rgba(9,17,34,.55);
+                z-index: 1050;
+            }
+
+            .atlas-header {
+                padding: 16px 18px;
+                min-height: 73px;
+            }
+
+            .atlas-content {
+                padding: 24px 16px;
+            }
+        }
+
+        @@media (max-width:575px) {
+            .atlas-account-text {
+                display: none;
+            }
+
+            .atlas-avatar {
+                width: 39px;
+                height: 39px;
+            }
+
+            .atlas-header-title {
+                font-size: 16px;
+            }
+        }
+
+        /* Canlı işletme bildirimleri */
+        .atlas-notify {
+            position: relative;
+        }
+
+        .atlas-notify-btn {
+            position: relative;
+            display: grid;
+            place-items: center;
+            width: 43px;
+            height: 43px;
+            border-radius: 13px;
+            border: 1px solid #e0e8f6;
+            background: #f5f8ff;
+            color: #254dd0;
+            font-size: 21px;
+            cursor: pointer;
+        }
+
+        .atlas-notify-count {
+            position: absolute;
+            right: -5px;
+            top: -6px;
+            min-width: 19px;
+            height: 19px;
+            padding: 0 4px;
+            border-radius: 20px;
+            background: #e4485b;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 800;
+            line-height: 19px;
+            text-align: center;
+        }
+
+        .atlas-notify-panel {
+            position: absolute;
+            right: 0;
+            top: 52px;
+            z-index: 1100;
+            width: min(360px, calc(100vw - 30px));
+            max-height: 420px;
+            overflow-y: auto;
+            border: 1px solid #e3e9f5;
+            border-radius: 17px;
+            background: #fff;
+            box-shadow: 0 18px 45px rgba(19,38,76,.17);
+        }
+
+        .atlas-notify-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #edf1f8;
+        }
+
+        .atlas-notify-clear {
+            border: 0;
+            background: transparent;
+            color: #3665f3;
+            font-size: 12px;
+        }
+
+        .atlas-notify-list {
+            padding: 8px;
+        }
+
+        .atlas-notify-item {
+            padding: 12px;
+            border-bottom: 1px solid #eef2f9;
+            font-size: 13px;
+        }
+
+            .atlas-notify-item strong {
+                display: block;
+                margin-bottom: 5px;
+            }
+
+            .atlas-notify-item small {
+                color: #7888a3;
+            }
+
+        .atlas-notify-empty {
+            padding: 22px 10px;
+            text-align: center;
+            color: #8795aa;
+            font-size: 13px;
+        }
+
+        .atlas-toast {
+            position: fixed;
+            right: 22px;
+            bottom: 22px;
+            z-index: 1200;
+            width: min(355px, calc(100vw - 30px));
+            background: #14213c;
+            color: white;
+            padding: 17px 19px;
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0,0,0,.25);
+        }
+
+            .atlas-toast strong {
+                display: block;
+                margin-bottom: 5px;
+            }
+
+            .atlas-toast small {
+                color: #d3e0ff;
+            }
+    </style>
+</head>
+<body>
+    <div id="atlasShade" class="atlas-shade" onclick="atlasToggleMenu(false)"></div>
+    <div class="atlas-shell">
+        <aside id="atlasSidebar" class="atlas-sidebar" aria-label="İşletme yönetimi menüsü">
+            <a class="atlas-brand" asp-controller="IsletmePanel" asp-action="Index">ATLAS <span>RANDEVU</span></a>
+            <div class="atlas-business">
+                <small>İŞLETME PANELİ</small>
+                <strong>Yönetim Merkezim</strong>
+                <em>● Onaylı işletme hesabı</em>
+            </div>
+            <div class="atlas-group">GENEL</div>
+            <a class="atlas-link @(genelBakis ? "active" : "")" asp-controller="IsletmePanel" asp-action="Index"><span class="symbol">▦</span> Genel Bakış</a>
+            <a class="atlas-link @(hizmetler ? "active" : "")" asp-controller="Hizmetler" asp-action="Index"><span class="symbol">✂</span> Hizmetlerim</a>
+            <div class="atlas-group">İŞLETMEM</div>
+            <a class="atlas-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "IsletmeProfil" ? "active" : "")"
+               asp-controller="IsletmeProfil"
+               asp-action="Index">
+                <span class="symbol">▣</span>
+                İşletme Profilim
+            </a>
+
+            <a class="atlas-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "IsletmeGaleri" ? "active" : "")"
+               asp-controller="IsletmeGaleri"
+               asp-action="Index">
+                <span class="symbol">▧</span>
+                Fotoğraf Galerim
+            </a>
+            <a class="atlas-link @(controller == "IsletmeRandevular" ? "active" : "")"
+               asp-controller="IsletmeRandevular"
+               asp-action="Index">
+                <span class="symbol">▤</span> Randevular
+            </a>
+            <a class="atlas-link @(gunlukTakvim ? "active" : "")"
+               asp-controller="IsletmeTakvim" asp-action="Index">
+                <span class="symbol">▦</span> Günlük Takvim
+            </a>
+            <a class="atlas-link @(haftalikTakvim ? "active" : "")"
+               asp-controller="IsletmeTakvim" asp-action="Haftalik">
+                <span class="symbol">▥</span> Haftalık Takvim
+            </a>
+            <a class="atlas-link @(controller == "IsletmeManuelRandevu" ? "active" : "")"
+               asp-controller="IsletmeManuelRandevu" asp-action="Ekle">
+                <span class="symbol">＋</span> Manuel Randevu Ekle
+            </a>
+            <a class="atlas-link @(controller == "IsletmeBildirimleri" ? "active" : "")"
+               href="/isletme-bildirimleri/gecmis">
+                <span class="symbol">🔔</span> Bildirim Geçmişi
+            </a>
+            <a class="atlas-link @(controller == "CalismaSaatleri" ? "active" : "")"
+               asp-controller="CalismaSaatleri" asp-action="Index">
+                <span class="symbol">◷</span> Çalışma Saatleri
+            </a>
+            <a class="atlas-link @(controller == "Personel" ? "active" : "")"
+               asp-controller="Personel" asp-action="Index">
+                <span class="symbol">♟</span> Personeller
+            </a>
+            <a class="atlas-link @(controller == "IsletmeYorumlar" ? "active" : "")" asp-controller="IsletmeYorumlar" asp-action="Index"><span class="symbol">☆</span> Müşteri Yorumları</a>
+            <div class="atlas-sidebar-bottom">
+                <div class="atlas-group">HESAP</div>
+                <a class="atlas-link" asp-controller="Kesfet" asp-action="Index"><span class="symbol">⌂</span> Siteye Git</a>
+                <form asp-controller="Hesap" asp-action="Cikis" method="post">
+                    @Html.AntiForgeryToken()
+                    <button class="atlas-link" type="submit"><span class="symbol">↪</span> Çıkış Yap</button>
+                </form>
+            </div>
+        </aside>
+        <div class="atlas-main">
+            <header class="atlas-header">
+                <div class="d-flex align-items-center gap-3">
+                    <button class="atlas-menu-button" type="button" aria-label="Menüyü aç" onclick="atlasToggleMenu(true)">☰</button>
+                    <div><div class="atlas-breadcrumb">Atlas Randevu / İşletme Yönetimi</div><div class="atlas-header-title">@sayfaBasligi</div></div>
+                </div>
+                <div class="atlas-account">
+                    <div class="atlas-notify" id="atlasNotify">
+                        <button type="button" class="atlas-notify-btn" id="atlasNotifyBtn" aria-label="Bildirimleri aç" aria-expanded="false" aria-controls="atlasNotifyPanel">🔔<span class="atlas-notify-count" id="atlasNotifyCount" hidden>0</span></button>
+                        <div class="atlas-notify-panel" id="atlasNotifyPanel" hidden>
+                            <div class="atlas-notify-head"><strong>Bildirimler</strong><button type="button" class="atlas-notify-clear" id="atlasNotifyClear">Temizle</button></div>
+                            <div class="atlas-notify-list" id="atlasNotifyList"><div class="atlas-notify-empty">Henüz yeni bildirim yok.</div></div>
+                        </div>
+                    </div>
+                    <div class="atlas-account-text"><strong>İşletme Sahibi</strong><small>@kullaniciAdi</small></div>
+                    <div class="atlas-avatar">@kullaniciAdi.Substring(0, 1).ToUpper()</div>
+                </div>
+            </header>
+            <main class="atlas-content">@RenderBody()</main>
+            <footer class="atlas-footer">© @DateTime.Now.Year Atlas Soft · Atlas Randevu İşletme Yönetimi</footer>
+        </div>
+    </div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <script>
+        function atlasToggleMenu(open) {
+            document.getElementById('atlasSidebar').classList.toggle('is-open', open);
+            document.getElementById('atlasShade').classList.toggle('is-open', open);
+        }
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') atlasToggleMenu(false); });
+    </script>
+
+    <script>
+        (() => {
+            const btn = document.getElementById('atlasNotifyBtn');
+            const panel = document.getElementById('atlasNotifyPanel');
+            const count = document.getElementById('atlasNotifyCount');
+            const list = document.getElementById('atlasNotifyList');
+            const clear = document.getElementById('atlasNotifyClear');
+            let unread = 0;
+            let toastTimer;
+            const setUnread = value => {
+                unread = value;
+                count.textContent = unread > 99 ? '99+' : String(unread);
+                count.hidden = unread === 0;
+            };
+            btn.addEventListener('click', () => {
+                panel.hidden = !panel.hidden;
+                btn.setAttribute('aria-expanded', String(!panel.hidden));
+                if (!panel.hidden) setUnread(0);
+            });
+            document.addEventListener('click', event => {
+                if (!document.getElementById('atlasNotify').contains(event.target)) {
+                    panel.hidden = true;
+                    btn.setAttribute('aria-expanded', 'false');
+                }
+            });
+            clear.addEventListener('click', () => {
+                list.replaceChildren();
+                const empty = document.createElement('div');
+                empty.className = 'atlas-notify-empty';
+                empty.textContent = 'Henüz yeni bildirim yok.';
+                list.appendChild(empty);
+                setUnread(0);
+            });
+            function addNotification(data) {
+                const empty = list.querySelector('.atlas-notify-empty');
+                if (empty) empty.remove();
+                const item = document.createElement('div');
+                item.className = 'atlas-notify-item';
+                const heading = document.createElement('strong');
+                heading.textContent = 'Müşteri işletmeye geldi';
+                const detail = document.createElement('div');
+                detail.textContent = `${data.musteriAdi || 'Müşteri'} — ${data.hizmetAdi || 'Randevu'} · ${data.randevuSaati || ''}`;
+                const sub = document.createElement('small');
+                sub.textContent = `${data.subeAdi || ''} · Giriş: ${data.gelisSaati || ''}`;
+                item.append(heading, detail, sub);
+                list.prepend(item);
+                while (list.children.length > 30) list.lastElementChild.remove();
+                if (panel.hidden) setUnread(unread + 1);
+                document.getElementById('atlasArrivalToast')?.remove();
+                const toast = document.createElement('div');
+                toast.id = 'atlasArrivalToast';
+                toast.className = 'atlas-toast';
+                const title = document.createElement('strong');
+                title.textContent = '🔔 Müşteri işletmeye geldi';
+                const desc = document.createElement('small');
+                desc.textContent = detail.textContent;
+                toast.append(title, desc);
+                document.body.appendChild(toast);
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => toast.remove(), 7000);
+            }
+            if (!window.signalR) {
+                console.error('SignalR istemci kütüphanesi yüklenemedi.');
+                return;
+            }
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl('/hubs/isletme-bildirim')
+                .withAutomaticReconnect()
+                .build();
+            connection.on('MusteriGeldi', data => {
+                addNotification(data);
+                window.dispatchEvent(new CustomEvent('atlas:operasyon-degisti'));
+            });
+            connection.on('YeniRandevu', () => {
+                window.dispatchEvent(new CustomEvent('atlas:operasyon-degisti'));
+            });
+            connection.on('RandevuIptalEdildi', data => {
+                // İptal bildirimi kalıcı bildirim API'sine kaydedildi; paneli yenile.
+                window.dispatchEvent(new CustomEvent('atlas:operasyon-degisti'));
+                // Bildirim zilindeki kayıtlar varsa güncel verileri getir.
+                if (typeof loadNotifications === 'function') loadNotifications();
+            });
+            connection.on('RandevuTamamlandi', () => {
+                window.dispatchEvent(new CustomEvent('atlas:operasyon-degisti'));
+            });
+            connection.onreconnected(() => {
+                window.dispatchEvent(new CustomEvent('atlas:operasyon-degisti'));
+            });
+            async function connect() {
+                try { await connection.start(); }
+                catch (error) { console.error('SignalR bağlantısı kurulamadı:', error); }
+            }
+            connect();
+        })();
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
